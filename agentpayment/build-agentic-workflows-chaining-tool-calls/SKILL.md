@@ -7,7 +7,7 @@ version: 1.0.0
 
 # Build Agentic Workflows -- Chaining Tool Calls
 
-Design and build production-ready multi-step automation workflows on the AgentPMT platform. Workflows are directed acyclic graphs (DAGs) that chain tool nodes, prompt nodes, for_each loops, and human notification gates into reusable, publishable skills.
+Design and build production-ready multi-step automation workflows on the AgentPMT platform. Workflows are directed acyclic graphs (DAGs) that chain tool nodes, prompt nodes, branch/merge conditional paths, for_each loops, and human notification gates into reusable, publishable skills.
 
 ## When to Apply
 
@@ -70,7 +70,16 @@ Search multiple times with different keywords to find all relevant tools. If a t
 
 ### Step 3: Design the Workflow Graph
 
-A workflow is a directed acyclic graph (DAG) of nodes connected by edges.
+A workflow is a directed acyclic graph (DAG) of nodes connected by edges. There are six node types:
+
+| Type | Purpose | Inputs | Outputs |
+|------|---------|--------|---------|
+| `tool` | Execute a marketplace product | 1 | 1 (`next`) |
+| `prompt` | AI reasoning/data transformation | 1 | 1 (`next`) |
+| `for_each` | Iterate over a collection | 1 | 2 (`loop`, `next`) |
+| `branch` | Split into conditional paths | 1 | up to 8 (`path_1`..`path_8`) |
+| `merge` | Rejoin parallel paths | N (`merge_in_1`..N) | 1 |
+| `notify_human` | Request human intervention | 1 | 1 (`next`) |
 
 #### Node Types
 
@@ -131,7 +140,46 @@ Two modes:
 ```
 
 - Child nodes are nested inside by setting their `parentId` to the for_each node's `id`.
-- Must have 1-2 outgoing edges (loop body and optional next step after loop).
+- Has two outgoing handles: `"loop"` (enters the loop body) and `"next"` (continues after the loop completes).
+
+**Branch Node** -- Split the workflow into conditional paths (up to 8):
+```json
+{
+  "id": "node-branch",
+  "type": "branch",
+  "label": "Evaluate Risk Level",
+  "branch": {
+    "description": "Route based on the risk assessment from the previous step",
+    "option_count": 3,
+    "options": {
+      "path_1": {"name": "High Risk", "description": "Score above 80"},
+      "path_2": {"name": "Medium Risk", "description": "Score 40-80"},
+      "path_3": {"name": "Low Risk", "description": "Score below 40"}
+    }
+  },
+  "position": {"x": 400, "y": 100}
+}
+```
+
+- `option_count`: Number of outgoing paths (default 2, max 8).
+- `options`: Metadata for each path, keyed by handle ID (`"path_1"`, `"path_2"`, etc., or `"true"`/`"false"` for binary branches).
+- Each outgoing edge should have a `condition` string describing when that path is taken.
+- Always pair with a merge node downstream to rejoin paths.
+
+**Merge Node** -- Rejoin parallel paths back into a single flow:
+```json
+{
+  "id": "node-merge",
+  "type": "merge",
+  "label": "Continue After Risk Evaluation",
+  "merge": {},
+  "position": {"x": 800, "y": 100}
+}
+```
+
+- Has multiple input handles (`"merge_in_1"`, `"merge_in_2"`, etc.) matching the number of incoming branch paths.
+- Has a single output handle to continue the flow.
+- Use after every branch node to reconverge the paths.
 
 **Notify Human Node** -- Request human intervention:
 ```json
@@ -157,19 +205,26 @@ Edges connect nodes in execution order:
 {
   "id": "edge-1",
   "from": "node-1",
-  "to": "node-2"
+  "to": "node-2",
+  "sourceHandle": "next",
+  "targetHandle": "default"
 }
 ```
 
-- `condition`: Optional string for branching logic on for_each nodes.
+- `condition`: Optional string describing when this path is taken. Used on branch node outgoing edges.
+- `sourceHandle`: Which output handle the edge originates from. Common values: `"next"` (tool, prompt, notify_human, merge), `"loop"` or `"next"` (for_each), `"path_1"`/`"path_2"`/`"true"`/`"false"` (branch).
+- `targetHandle`: Which input handle the edge connects to. Usually `"default"`, or `"merge_in_1"`/`"merge_in_2"` for merge nodes.
 
 #### Graph Rules
 
 1. No cycles. The graph must be a DAG. Use for_each nodes for iteration.
-2. Single outgoing edge per non-branching node. Only for_each nodes can have multiple outgoing edges (max 2).
-3. For_each nodes need at least one outgoing edge.
-4. All node IDs must be unique. Use descriptive IDs like `"fetch-data"`, `"analyze-results"`, `"send-report"`.
-5. All edge references must point to existing nodes.
+2. Tool, prompt, and notify_human nodes have one input and one output.
+3. For_each nodes have one input and two outputs (`"loop"` for the body, `"next"` for after the loop).
+4. Branch nodes have one input and up to 8 outputs (`"path_1"` through `"path_8"`, or `"true"`/`"false"`).
+5. Merge nodes have multiple inputs (`"merge_in_1"`, `"merge_in_2"`, etc.) and one output.
+6. Every branch node should have a corresponding merge node downstream.
+7. All node IDs must be unique. Use descriptive IDs like `"fetch-data"`, `"analyze-results"`, `"send-report"`.
+8. All edge references must point to existing nodes.
 
 ### Step 4: Build and Create
 
