@@ -1,7 +1,7 @@
 ---
 name: agent-tool-marketplace
 description: "Agent Tool Marketplace catalog for AgentPMT — list available paid tools, fetch tool schemas, invoke any tool with a signed request, and consume responses. Use when an agent needs to discover and call third-party capabilities through the AgentPMT marketplace."
-version: 1.0.1
+version: 1.0.2
 homepage: https://www.agentpmt.com/external-agent-api
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/external-agent-api"}}
 ---

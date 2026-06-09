@@ -1,7 +1,7 @@
 ---
 name: agentpmt-no-account-agentaddress-x402
 description: "Use AgentPMT without an account: connect OpenClaw and autonomous AI agents to AgentPMT tools, workflows, skills, agent-to-agent work, and paid capabilities through a revocable AgentAddress with credits or a funded x402 wallet. Covers signed-credit requests, direct x402 payments, approval gates, payee/network/token/amount validation, public endpoints, tool discovery, workflow access, REST calls, and safe payment setup for AgentPMT's agent management iPaaS."
-version: 1.0.2
+version: 1.0.3
 homepage: https://www.agentpmt.com/agentaddress
 compatibility: "Requires HTTP access to AgentPMT external endpoints and either an AgentAddress already loaded with AgentPMT credits or a funded x402-capable EVM wallet. Python examples use requests and eth-account for signing."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/agentaddress"}}

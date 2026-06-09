@@ -1,7 +1,7 @@
 ---
 name: agent-payment
 description: "Agent Payment for AI agents on AgentPMT — create an EVM wallet via AgentAddress, buy USDC-denominated credits via the x402 protocol, sign authenticated requests, and check balance. Use when an autonomous agent needs to pay for tools, workflows, or services on the AgentPMT marketplace."
-version: 1.0.1
+version: 1.0.2
 homepage: https://www.agentpmt.com/external-agent-api
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/external-agent-api"}}
 ---

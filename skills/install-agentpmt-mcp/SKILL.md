@@ -1,6 +1,7 @@
 ---
 name: install-agentpmt-mcp
 description: Install and configure the AgentPMT MCP server for any AI agent. Use this skill when the user wants to connect Claude Desktop, Claude Code, Cursor, Windsurf, VS Code, Zed, OpenAI Codex CLI, Gemini CLI, or any MCP-compatible client to the AgentPMT tool marketplace. Also use when the user mentions AgentPMT setup, MCP server configuration, agent tool marketplace, or connecting an AI agent to paid tools and APIs.
+version: 1.0.0
 ---
 
 # Install AgentPMT MCP Server

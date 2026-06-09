@@ -1,7 +1,7 @@
 ---
 name: x402-bazaar
 description: "x402 Bazaar protocol guide for AgentPMT — implement the HTTP 402 two-step handshake, sign EIP-3009 TransferWithAuthorization, route through the AgentPMT facilitator, and settle USDC payments on Base. Use when building agent-to-agent commerce that follows the x402 standard."
-version: 1.0.1
+version: 1.0.2
 homepage: https://www.agentpmt.com/external-agent-api
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/external-agent-api"}}
 ---
