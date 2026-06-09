@@ -1,7 +1,7 @@
 ---
-name: lean-to-code-translator-w-proof-c-rust-wasm
+name: lean-proof-to-code-translator-c-rust-wasm
 description: "Lean Proof To Code Translator - C Rust Wasm: Start asynchronous Lean proof export. Use when an agent needs lean proof to code translator c rust wasm, lean to code translator w proof c rust wasm, compile lean proof programs to c for native integration, generate rust exports from pinned lean proof bundles, produce constrained wasm artifacts from lean proof code, package code generation runs with certificates and logs, generate, source archive file id through AgentPMT-hosted remote tool calls."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/lean-to-code-translator-w-proof-c-rust-wasm
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/lean-to-code-translator-w-proof-c-rust-wasm"}}
