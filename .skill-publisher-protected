@@ -1,0 +1,19 @@
+# Hand-maintained allowlist of skill folders the publisher must NOT touch.
+# The publisher refuses to write, delete, commit, or republish any folder
+# whose path matches a non-comment line below. Add a new hand-authored
+# skill by adding its folder path here in the same commit.
+
+# Hand-authored single and umbrella skills (kept in skills/ so skills.sh discovers them)
+skills/install-agentpmt-mcp
+skills/vercel-creating-using-skills
+skills/agent-payment
+skills/x402-bazaar
+skills/agent-tool-marketplace
+skills/agentpmt-account-mcp-rest-api-setup
+skills/agentpmt-no-account-agentaddress-x402
+skills/agentpmt-current-clawhub-skills
+skills/what-is-agentpmt
+
+# Hand-authored workflow skills (kept under agentpayment/)
+agentpayment/build-agentic-workflows-chaining-tool-calls
+agentpayment/complete-agentic-jobs-to-earn-money

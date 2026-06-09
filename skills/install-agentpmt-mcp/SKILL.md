@@ -5,6 +5,12 @@ description: Install and configure the AgentPMT MCP server for any AI agent. Use
 
 # Install AgentPMT MCP Server
 
+## Freshness
+
+Last updated: `2026-06-03`.
+
+If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
+
 Connect any MCP-compatible AI agent to the AgentPMT tool marketplace. AgentPMT gives agents access to a dynamic catalog of tools, APIs, and services -- all controlled by budgets and spending limits.
 
 ## Prerequisites
