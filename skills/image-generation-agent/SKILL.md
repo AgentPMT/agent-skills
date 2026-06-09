@@ -1,12 +1,17 @@
 ---
 name: image-generation-agent
-description: "Image Generation Agent: Google Gemini-powered image generation tool (Nano Banana / Gemini 2.5 & 3 Flash Image). Use when an agent needs image generation agent, ai image generation, nano banana image creation, google gemini image api, text to image, generate budget image, prompt, aspect ratio through AgentPMT with either an account Bearer Token or the no-account AgentAddress/x402 flow. Discovery terms: image generation agent, ai image generation, nano banana image creation."
-version: 1.0.0
+description: "Image Generation Agent: Google Gemini-powered image generation tool (Nano Banana / Gemini 2.5 & 3 Flash Image). Use this to generate images from a text prompt, produce low-cost draft previews, or render high-resolution finals at 0.5K, 1K, 2K, or 4K. Use when an agent needs image generation agent, ai image generation, nano banana image creation, google gemini image api, text to image, generate budget image, prompt, aspect ratio through AgentPMT-hosted remote tool calls."
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/image-generation-agent
-compatibility: "Requires access to AgentPMT through either an AgentPMT account Bearer Token for MCP/REST calls, or the no-account AgentAddress/x402 flow. This product skill is tool-specific; use the linked AgentPMT setup skills for connection and payment setup."
+compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/image-generation-agent"}}
 ---
 # Image Generation Agent
+
+## Freshness
+Last updated: `2026-06-09`.
+
+If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
 ## What This Tool Does
 AI image generator powered by Google Gemini 3 Flash Image and  "Nano Banana". Create photorealistic product photography, marketing creative, social graphics, app icons, concept art, hero images, and brand assets from a single text prompt — or edit an existing image by passing up to four reference photos for style, subject, or scene guidance. Choose your output tier: a low-cost budget draft for ideation, or crisp 0.5K, 1K, 2K, and 4K final renders for print, ads, e-commerce, and presentation use. Supports 14 aspect ratios including 1:1, 16:9, 9:16, 21:9, 4:5, and ultra-wide 8:1 banner formats. Every generated image is auto-saved to AgentPMT File Manager with a 7-day signed download URL, file_id, width, height, MIME type, and size bytes — ready to drop into chat, hand off to another tool, or pull into a workflow. Built for designers, marketers, e-commerce sellers, content creators, and AI agents that need on-demand visuals without leaving the conversation.
@@ -145,199 +150,22 @@ Successful calls return:
 - style transfer with reference images
 - photoshoot replacement
 
+## Related Product Skills
+- File Management: ../file-management (ClawHub: `file-management`, page: https://clawhub.ai/agentpmt/file-management; skills.sh: `npx skills add AgentPMT/agent-skills --skill file-management`) - Use this companion skill to inspect, download, upload, and manage files referenced by this product.
+
 ## Categories And Industries
 No categories or industry tags are published for this tool.
 
 ## Actions And Schema
-### `generate_budget_image`
+Complete generated action schema: `./schema.md`.
+Supported action count: `5`.
+x402 availability: not enabled for this product.
 
-Action slug: `generate-budget-image`
-
-No-account action URL: `POST https://www.agentpmt.com/api/external/tools/image-generation-agent/actions/generate-budget-image/invoke`
-
-Price: `8` credits
-
-Create or edit a lower-cost image from a prompt and optional reference images. Use for drafts, previews, and standard 1024px-class outputs.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `aspect_ratio` | `string` | no | Desired output aspect ratio. Default is 1:1. |
-| `expiration_days` | `integer` | no | File Manager expiration in days, from 1 to 7. Default is 7. |
-| `filename` | `string` | no | Optional output filename base. Extension is inferred from generated image MIME type. |
-| `prompt` | `string` | yes | Image generation or edit instruction, 3 to 4000 characters. |
-| `reference_images` | `array` | no | Optional reference images for edits or style/subject guidance. Maximum 4. |
-
-Sample parameters:
-
-```json
-{
-  "aspect_ratio": "1:1",
-  "expiration_days": 1,
-  "filename": "example filename",
-  "prompt": "example prompt",
-  "reference_images": [
-    {
-      "base64_data": "example base64 data",
-      "file_id": "example file id",
-      "mime_type": "image/png",
-      "source_kind": "file_id",
-      "url": "https://example.com"
-    }
-  ]
-}
-```
-
-### `generate_image_0_5k`
-
-Action slug: `generate-image-0-5k`
-
-No-account action URL: `POST https://www.agentpmt.com/api/external/tools/image-generation-agent/actions/generate-image-0-5k/invoke`
-
-Price: `10` credits
-
-Create or edit a high-efficiency 0.5K image from a prompt and optional reference images.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `aspect_ratio` | `string` | no | Desired output aspect ratio. Default is 1:1. |
-| `expiration_days` | `integer` | no | File Manager expiration in days, from 1 to 7. Default is 7. |
-| `filename` | `string` | no | Optional output filename base. Extension is inferred from generated image MIME type. |
-| `prompt` | `string` | yes | Image generation or edit instruction, 3 to 4000 characters. |
-| `reference_images` | `array` | no | Optional reference images for edits or style/subject guidance. Maximum 4. |
-
-Sample parameters:
-
-```json
-{
-  "aspect_ratio": "1:1",
-  "expiration_days": 1,
-  "filename": "example filename",
-  "prompt": "example prompt",
-  "reference_images": [
-    {
-      "base64_data": "example base64 data",
-      "file_id": "example file id",
-      "mime_type": "image/png",
-      "source_kind": "file_id",
-      "url": "https://example.com"
-    }
-  ]
-}
-```
-
-### `generate_image_1k`
-
-Action slug: `generate-image-1k`
-
-No-account action URL: `POST https://www.agentpmt.com/api/external/tools/image-generation-agent/actions/generate-image-1k/invoke`
-
-Price: `15` credits
-
-Create or edit a 1K image from a prompt and optional reference images.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `aspect_ratio` | `string` | no | Desired output aspect ratio. Default is 1:1. |
-| `expiration_days` | `integer` | no | File Manager expiration in days, from 1 to 7. Default is 7. |
-| `filename` | `string` | no | Optional output filename base. Extension is inferred from generated image MIME type. |
-| `prompt` | `string` | yes | Image generation or edit instruction, 3 to 4000 characters. |
-| `reference_images` | `array` | no | Optional reference images for edits or style/subject guidance. Maximum 4. |
-
-Sample parameters:
-
-```json
-{
-  "aspect_ratio": "1:1",
-  "expiration_days": 1,
-  "filename": "example filename",
-  "prompt": "example prompt",
-  "reference_images": [
-    {
-      "base64_data": "example base64 data",
-      "file_id": "example file id",
-      "mime_type": "image/png",
-      "source_kind": "file_id",
-      "url": "https://example.com"
-    }
-  ]
-}
-```
-
-### `generate_image_2k`
-
-Action slug: `generate-image-2k`
-
-No-account action URL: `POST https://www.agentpmt.com/api/external/tools/image-generation-agent/actions/generate-image-2k/invoke`
-
-Price: `25` credits
-
-Create or edit a 2K image from a prompt and optional reference images.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `aspect_ratio` | `string` | no | Desired output aspect ratio. Default is 1:1. |
-| `expiration_days` | `integer` | no | File Manager expiration in days, from 1 to 7. Default is 7. |
-| `filename` | `string` | no | Optional output filename base. Extension is inferred from generated image MIME type. |
-| `prompt` | `string` | yes | Image generation or edit instruction, 3 to 4000 characters. |
-| `reference_images` | `array` | no | Optional reference images for edits or style/subject guidance. Maximum 4. |
-
-Sample parameters:
-
-```json
-{
-  "aspect_ratio": "1:1",
-  "expiration_days": 1,
-  "filename": "example filename",
-  "prompt": "example prompt",
-  "reference_images": [
-    {
-      "base64_data": "example base64 data",
-      "file_id": "example file id",
-      "mime_type": "image/png",
-      "source_kind": "file_id",
-      "url": "https://example.com"
-    }
-  ]
-}
-```
-
-### `generate_image_4k`
-
-Action slug: `generate-image-4k`
-
-No-account action URL: `POST https://www.agentpmt.com/api/external/tools/image-generation-agent/actions/generate-image-4k/invoke`
-
-Price: `40` credits
-
-Create or edit a 4K image from a prompt and optional reference images.
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `aspect_ratio` | `string` | no | Desired output aspect ratio. Default is 1:1. |
-| `expiration_days` | `integer` | no | File Manager expiration in days, from 1 to 7. Default is 7. |
-| `filename` | `string` | no | Optional output filename base. Extension is inferred from generated image MIME type. |
-| `prompt` | `string` | yes | Image generation or edit instruction, 3 to 4000 characters. |
-| `reference_images` | `array` | no | Optional reference images for edits or style/subject guidance. Maximum 4. |
-
-Sample parameters:
-
-```json
-{
-  "aspect_ratio": "1:1",
-  "expiration_days": 1,
-  "filename": "example filename",
-  "prompt": "example prompt",
-  "reference_images": [
-    {
-      "base64_data": "example base64 data",
-      "file_id": "example file id",
-      "mime_type": "image/png",
-      "source_kind": "file_id",
-      "url": "https://example.com"
-    }
-  ]
-}
-```
+- `generate_budget_image` (action slug: `generate-budget-image`): Create or edit a lower-cost image from a prompt and optional reference images. Use for drafts, previews, and standard 1024px-class outputs. Price: `8` credits. Parameters: `aspect_ratio`, `expiration_days`, `filename`, `prompt`, `reference_images`.
+- `generate_image_0_5k` (action slug: `generate-image-0-5k`): Create or edit a high-efficiency 0.5K image from a prompt and optional reference images. Price: `10` credits. Parameters: `aspect_ratio`, `expiration_days`, `filename`, `prompt`, `reference_images`.
+- `generate_image_1k` (action slug: `generate-image-1k`): Create or edit a 1K image from a prompt and optional reference images. Price: `15` credits. Parameters: `aspect_ratio`, `expiration_days`, `filename`, `prompt`, `reference_images`.
+- `generate_image_2k` (action slug: `generate-image-2k`): Create or edit a 2K image from a prompt and optional reference images. Price: `25` credits. Parameters: `aspect_ratio`, `expiration_days`, `filename`, `prompt`, `reference_images`.
+- `generate_image_4k` (action slug: `generate-image-4k`): Create or edit a 4K image from a prompt and optional reference images. Price: `40` credits. Parameters: `aspect_ratio`, `expiration_days`, `filename`, `prompt`, `reference_images`.
 
 ## Live Schema And Examples
 Use the compact schema above for ordinary calls. Before a new production integration, or whenever parameters, enum values, nested objects, outputs, or examples are unclear, fetch live details first.
@@ -370,7 +198,7 @@ For live examples, keep the same MCP tool and use these arguments:
 }
 ```
 
-REST lookup body with an AgentPMT Bearer Token:
+Authenticated AgentPMT REST schema lookup body:
 
 ```json
 {
@@ -382,7 +210,7 @@ REST lookup body with an AgentPMT Bearer Token:
 }
 ```
 
-REST live examples body with an AgentPMT Bearer Token:
+Authenticated AgentPMT REST live examples body:
 
 ```json
 {
@@ -399,8 +227,8 @@ Product slug: `image-generation-agent`
 
 Marketplace page: https://www.agentpmt.com/marketplace/image-generation-agent
 
-- AgentPMT account path: first use `../agentpmt-account-mcp-rest-api-setup` to connect the main MCP server or REST API with a Bearer Token from an Agent Group where this tool is enabled and required credentials are configured.
-- No-account path: first use `../agentpmt-no-account-agentaddress-x402` to create an AgentAddress and handle x402 or signed-credit calls.
+- AgentPMT account route: first use `../agentpmt-account-mcp-rest-api-setup` to connect the main MCP server or REST API for an Agent Group where this tool is enabled.
+- x402 route: not enabled for this product.
 - AgentPMT overview: use `../what-is-agentpmt` for marketplace, Agent Group, workflow, MCP, REST, and payment concepts.
 
 If those setup skills are not installed beside this product skill, use the downloads below.
@@ -414,17 +242,12 @@ Core AgentPMT setup skills:
   - ClawHub page: https://clawhub.ai/agentpmt/agentpmt-account-mcp-rest-api-setup
   - OpenClaw install: `openclaw skills install agentpmt-account-mcp-rest-api-setup`
   - skills.sh install: `npx skills add AgentPMT/agent-skills --skill agentpmt-account-mcp-rest-api-setup`
-- No-account AgentAddress/x402 setup: ../agentpmt-no-account-agentaddress-x402
-  - ClawHub page: https://clawhub.ai/agentpmt/agentpmt-no-account-agentaddress-x402
-  - OpenClaw install: `openclaw skills install agentpmt-no-account-agentaddress-x402`
-  - skills.sh install: `npx skills add AgentPMT/agent-skills --skill agentpmt-no-account-agentaddress-x402`
 
 skills.sh install script:
 
 ```bash
 npx skills add AgentPMT/agent-skills --skill what-is-agentpmt
 npx skills add AgentPMT/agent-skills --skill agentpmt-account-mcp-rest-api-setup
-npx skills add AgentPMT/agent-skills --skill agentpmt-no-account-agentaddress-x402
 ```
 
 MCP call shape after the main AgentPMT MCP server is connected:
@@ -456,7 +279,7 @@ MCP call shape after the main AgentPMT MCP server is connected:
 
 Use the exact tool name returned by `tools/list`; the name above is the expected readable form.
 
-REST call body with an AgentPMT Bearer Token:
+Authenticated AgentPMT REST call body:
 
 ```json
 {
@@ -480,7 +303,7 @@ REST call body with an AgentPMT Bearer Token:
 }
 ```
 
-No-account action path: `POST https://www.agentpmt.com/api/external/tools/image-generation-agent/actions/generate-budget-image/invoke`.
+Use the setup skill for the account connection details before making REST calls.
 
 ## Response Handling
 - Treat the returned JSON as the source of truth for this tool call.
@@ -490,14 +313,13 @@ No-account action path: `POST https://www.agentpmt.com/api/external/tools/image-
 - If `generate_budget_image` fails, preserve the request parameters and retry only after fixing schema, auth, or payment errors.
 
 ## Security
-- Do not place Bearer Tokens, wallet private keys, mnemonics, signatures, or payment headers in prompts or logs.
+- Do not place account secrets, wallet private keys, mnemonics, signatures, or payment headers in prompts or logs.
 - Keep tool inputs scoped to the minimum content needed for the task.
 - Use the setup skills for credential handling; this product skill only defines product-specific behavior.
 
 ## AgentPMT Reference
 - What AgentPMT is: ../what-is-agentpmt (ClawHub: `what-is-agentpmt`, page: https://clawhub.ai/agentpmt/what-is-agentpmt; skills.sh: `npx skills add AgentPMT/agent-skills --skill what-is-agentpmt`)
 - AgentPMT account MCP/REST setup: ../agentpmt-account-mcp-rest-api-setup (ClawHub: `agentpmt-account-mcp-rest-api-setup`, page: https://clawhub.ai/agentpmt/agentpmt-account-mcp-rest-api-setup; skills.sh: `npx skills add AgentPMT/agent-skills --skill agentpmt-account-mcp-rest-api-setup`)
-- No-account AgentAddress/x402 setup: ../agentpmt-no-account-agentaddress-x402 (ClawHub: `agentpmt-no-account-agentaddress-x402`, page: https://clawhub.ai/agentpmt/agentpmt-no-account-agentaddress-x402; skills.sh: `npx skills add AgentPMT/agent-skills --skill agentpmt-no-account-agentaddress-x402`)
 - Marketplace product: https://www.agentpmt.com/marketplace/image-generation-agent
 - AgentPMT main MCP server: https://api.agentpmt.com/mcp/
 - AgentPMT REST invoke endpoint: https://api.agentpmt.com/products/purchase
