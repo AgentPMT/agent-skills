@@ -1,7 +1,7 @@
 ---
 name: recent-news-article-aggregator
 description: "Recent News Article Aggregator: Search global news database with 1M+ weekly articles. Filter by locale, language, category, date. Boolean search supported. Use when an agent needs recent news article aggregator, access recent news for up to date content generation. augment decision making processes in stock, crypto, forex, etc. aggregate, search, topic, news type through AgentPMT-hosted remote tool calls. Discovery terms: recent news article aggregator."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/recent-news-article-aggregator
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/recent-news-article-aggregator"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Recent News Article Aggregator
 
 ## Freshness
-Last updated: `2026-06-10`.
+Last updated: `2026-06-24`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -30,7 +30,9 @@ The language, source domain, and publication date.
 ## Product Instructions
 ### Recent News Article Aggregator
 
-Search and retrieve recent news articles from multiple sources. Supports topic-based search, category filtering, country/language targeting, and age limits.
+Search and retrieve recent news articles from multiple sources. Use this tool for current-events lookup, topical monitoring, daily briefings, and source discovery across global news coverage.
+
+The tool exposes an AgentPMT-level interface. Use the canonical AgentPMT categories listed below; do not try to use provider-specific category names or adapt parameters for individual upstream news providers.
 
 #### Actions
 
@@ -38,30 +40,73 @@ Search and retrieve recent news articles from multiple sources. Supports topic-b
 
 Search for news articles by topic, category, country, and language.
 
-**Required Fields:** None (all fields are optional; a bare search returns general US English news)
+**Required Fields:** None. A bare search returns general US English news.
 
 **Optional Fields:**
 
 | Field | Type | Description |
 |---|---|---|
-| `topic` | string | Search query. Supports operators: `+` (AND), `|` (OR), `-` (NOT), quotes for exact phrases, `*` for prefix matching. |
+| `topic` | string | Concise news search phrase. Use 1-4 core keywords or a short phrase. Longer natural-language text makes the search more specific and can reduce results. Supports `+` (AND), `|` (OR), `-` (NOT), quotes for exact phrases, and `*` for prefix matching. |
 | `news_type` | string | `"all_news"` (default) for broad results or `"top_stories"` for major headlines only. |
-| `categories` | array of strings | Include only these categories. Options: `general`, `science`, `sports`, `business`, `health`, `entertainment`, `tech`, `politics`, `food`, `travel`. |
-| `exclude_categories` | array of strings | Exclude these categories. Same options as above. |
-| `max_age_in_days` | integer | Limit results to articles published within the past N days (minimum 1). |
+| `categories` | array of strings | Include only these canonical AgentPMT categories: `general`, `science`, `sports`, `business`, `health`, `entertainment`, `tech`, `politics`, `food`, `travel`. Omit categories, or use `general`, for broad general news. |
+| `exclude_categories` | array of strings | Exclude canonical AgentPMT categories. Same options as `categories`. |
+| `max_age_in_days` | integer | Limit results to articles published within the past N days (minimum 1). Use a wider window if the first query is too specific or sparse. |
 | `country` | string | Two-letter country code (default: `"us"`). |
 | `language` | string | Language code (default: `"en"`). |
 
-**Example — Search by topic:**
+#### Search Query Guidance
+
+Use short search phrases, not full task descriptions. More words usually make the search narrower, not broader.
+
+When the user gives a long or specific request, extract the core news concepts before calling the tool:
+
+- User request: `sending flowers surprise gift no address privacy`
+  - Good first `topic`: `flower delivery privacy`
+  - Good related follow-ups if results are sparse: `gift delivery privacy`, `anonymous delivery`, `flower delivery`
+  - Avoid sending the full phrase as-is unless the user explicitly wants an exact niche match.
+- User request: `what is happening with AI regulation in Europe this week`
+  - Good `topic`: `AI regulation Europe`
+- User request: `latest market reaction to interest rate cuts and inflation`
+  - Good `topic`: `interest rates inflation market`
+
+For related-news discovery:
+
+1. Start broad with 1-4 core concepts.
+2. Use `all_news` unless the user specifically asks for major headlines.
+3. Add `categories` only when they help scope the result set.
+4. If results are sparse, make a second call with fewer terms, a broader phrase, or a wider `max_age_in_days`.
+5. Do not conclude that no relevant news exists after only one overly-specific query.
+
+Use operators deliberately:
+
+- Use quotes for exact phrases: `"flower delivery"`
+- Use `|` for alternatives: `"flower delivery" | florist | gifting`
+- Use `+` only when terms must co-occur: `privacy + delivery`
+- Use `-` to exclude a distracting term: `apple -iphone`
+
+#### Examples
+
+**Search by concise topic:**
 ```json
 {
   "action": "search",
-  "topic": "artificial intelligence",
+  "topic": "artificial intelligence regulation",
   "max_age_in_days": 7
 }
 ```
 
-**Example — Top stories in a category:**
+**Search related news from a long user request:**
+```json
+{
+  "action": "search",
+  "topic": "flower delivery privacy",
+  "news_type": "all_news",
+  "categories": ["business", "tech"],
+  "max_age_in_days": 30
+}
+```
+
+**Top stories in broad categories:**
 ```json
 {
   "action": "search",
@@ -70,7 +115,7 @@ Search for news articles by topic, category, country, and language.
 }
 ```
 
-**Example — Exclude categories and target a country:**
+**Exclude categories and target a country:**
 ```json
 {
   "action": "search",
@@ -81,39 +126,45 @@ Search for news articles by topic, category, country, and language.
 }
 ```
 
-**Example — Crypto/finance topic (auto-detected):**
+**Use OR for related terms:**
 ```json
 {
   "action": "search",
-  "topic": "bitcoin ETF approval"
+  "topic": "\"flower delivery\" | florist | gifting",
+  "max_age_in_days": 30
 }
 ```
 
 #### Common Workflows
 
 1. **Daily news briefing** — Use `news_type: "top_stories"` with no topic to get current headlines.
-2. **Topic monitoring** — Provide a `topic` with `max_age_in_days` to track a subject over a rolling window.
-3. **Category-filtered research** — Combine `categories` with a `topic` to narrow results (e.g., health + "pandemic").
-4. **International coverage** — Set `country` and `language` to retrieve region-specific articles.
-5. **Exclusion filtering** — Use `exclude_categories` to remove irrelevant results (e.g., exclude sports and entertainment for a business report).
+2. **Topic monitoring** — Provide a concise `topic` with `max_age_in_days` to track a subject over a rolling window.
+3. **Related-news discovery** — Convert long user text into broader concepts, then run one or more concise searches.
+4. **Category-filtered research** — Combine `categories` with a topic to narrow results, such as `health` + `pandemic`.
+5. **International coverage** — Set `country` and `language` to retrieve region-specific articles.
+6. **Exclusion filtering** — Use `exclude_categories` to remove irrelevant results, such as excluding sports and entertainment for a business report.
 
 #### Response Format
 
 Each article in the response includes:
+
 - `title` — Article headline
 - `description` — Summary or snippet
 - `url` — Link to the full article
-- `image_url` — Associated image (if available)
+- `image_url` — Associated image, if available
 - `source` — Publishing source name
 - `published_at` — Publication timestamp
 - `categories` — Article categories
 - `language` — Article language
 
+The response may also include provider or filter warnings. If warnings are present, explain that results may be partial or broadened, but do not retry with provider-specific parameter values.
+
 #### Important Notes
 
+- Use only the canonical AgentPMT category values shown in the schema.
+- Do not use provider-specific category values such as `technology`, `tourism`, `top`, `world`, or `other` unless they are added to the AgentPMT schema in the future.
 - When no `topic` is provided, results are based on category and region filters only.
-- Crypto-related topics (bitcoin, ethereum, blockchain, etc.) and financial/market topics (stocks, forex, inflation, etc.) are automatically routed to specialized news endpoints for better coverage.
-- The `categories` and `exclude_categories` fields accept one or more values from the fixed list of ten categories.
+- Crypto-related topics (bitcoin, ethereum, blockchain, etc.) and financial/market topics (stocks, forex, inflation, etc.) may be routed to specialized news endpoints for better coverage.
 - The `max_age_in_days` field must be at least 1.
 - Default behavior returns US English news across all categories.
 
@@ -139,7 +190,7 @@ Complete generated action schema: `./schema.md`.
 Supported action count: `1`.
 x402 availability: not enabled for this product.
 
-- `search` (action slug: `search`): Search for news articles by topic, category, country, and language. Returns articles from multiple news sources with title, description, URL, image, source, and publication date. Price: `10` credits. Parameters: `categories`, `country`, `exclude_categories`, `language`, `max_age_in_days`, `news_type`, `topic`.
+- `search` (action slug: `search`): Search for recent news articles by concise topic, category, country, and language. Use short search phrases rather than long natural-language requests; broad or related-news requests work best with 1-4 core concepts and optional categories. Price: `10` credits. Parameters: `categories`, `country`, `exclude_categories`, `language`, `max_age_in_days`, `news_type`, `topic`.
 
 ## Live Schema And Examples
 Use the compact schema above for ordinary calls. Before a new production integration, or whenever parameters, enum values, nested objects, outputs, or examples are unclear, fetch live details first.
