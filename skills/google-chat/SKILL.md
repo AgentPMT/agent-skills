@@ -1,7 +1,7 @@
 ---
 name: google-chat
-description: "Google Chat: Post to Google Chat spaces, send DMs, read messages. Supports reactions. Actions performed as connected user. Use when an agent needs google chat, send messages to spaces, reply in existing threads, list recent messages, filter message history, add reaction, message name, space through AgentPMT-hosted remote tool calls. Search keywords: google chat, send messages to spaces, reply in existing threads, list recent messages, filter message history, add reaction, message name, space."
-version: 1.0.0
+description: "Google Chat: Read/search Google Chat spaces and messages, send messages and replies with File Manager attachments, download Chat attachments, and manage reactions as the connected user. Use when an agent needs google chat, search accessible spaces, find direct message spaces, read and search messages, send messages and replies, add reaction, message name, emoji unicode through AgentPMT-hosted remote tool calls. Discovery terms: google chat, search accessible spaces, find direct message spaces."
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/google-chat
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/google-chat"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Google Chat
 
 ## Freshness
-Last updated: `2026-06-24`.
+Last updated: `2026-06-29`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -19,188 +19,436 @@ Bridge your agent to your Google Chat spaces—post updates, keep threads moving
 ## Product Instructions
 ### Google Chat
 
-Send messages, manage spaces, react to messages, and read conversation history in Google Chat.
+Read spaces, list and search messages, send messages, react to messages, and move attachments between Google Chat and AgentPMT File Manager.
+
+This tool uses the existing AgentPMT Google OAuth scopes only:
+
+- `chat.spaces.readonly`
+- `chat.messages`
+- `chat.messages.reactions`
+
+It does not manage members or users, does not create/update/delete spaces, does not use admin access, and does not expose custom emoji actions. Member listing requires `chat.memberships.readonly` or `chat.memberships`, which this connection does not currently have.
+
+#### Parameters
+
+- `action` (string, required): Action to perform. Default: `get_instructions`
+- `space` (string): Space name or ID, such as `"spaces/AAA"` or `"AAA"`
+- `message_name` (string): Message resource name, or short message ID when `space` is provided
+- `reaction_name` (string): Reaction resource name, or short reaction ID when `message_name` is provided
+- `attachment_name` (string): Attachment resource name, short attachment ID, or attachment `contentName` when `message_name` is provided
+- `media_resource_name` (string): Direct `attachmentDataRef.resourceName` for Chat media download
+- `user_name` (string): User resource name, such as `"users/123"`
+- `query` (string): Search query for space/message/attachment search actions
+- `text` (string): Message text
+- `cards_v2` (array): Cards v2 payload
+- `thread_name` (string): Existing Chat thread resource name
+- `thread_key` (string): Thread key for message creation
+- `message_reply_option` (string): `REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD` or `REPLY_MESSAGE_OR_FAIL`
+- `message_request_id` (string): Google Chat `requestId` for idempotent message creation
+- `message_id` (string): Client-assigned Google Chat message ID
+- `notification_type` (string): `NOTIFICATION_TYPE_NONE`, `NOTIFICATION_TYPE_FORCE_NOTIFY`, or `NOTIFICATION_TYPE_SILENT`
+- `page_size` (integer, default 50): Max results per page. Reactions max is 200.
+- `page_token` (string): Pagination token
+- `filter` (string): Google Chat filter query
+- `order_by` (string): Sort order
+- `show_deleted` (boolean, default false): Include deleted messages in message list/search
+- `max_results` (integer, default 25): Max client-side search matches
+- `scan_limit` (integer, default 500): Max messages scanned by bounded client-side search
+- `case_sensitive` (boolean, default false): Use case-sensitive client-side search
+- `search_fields` (array): Fields searched by `search_messages`: `text`, `formatted_text`, `argument_text`, `sender`, `attachment_name`
+- `emoji_unicode` (string): Unicode emoji for `add_reaction`
+- `force` (boolean, default false): For `delete_message`, also delete threaded replies
+- `file_ids` (array): AgentPMT File Manager file IDs to upload and attach to `create_message` or `reply_message`
+- `source_file_id` (string): AgentPMT File Manager file ID for `upload_attachment`
+- `filename` (string): Optional upload filename override
+- `content_type` (string): Optional upload MIME type override
+- `max_upload_bytes` (integer, default 26214400): Max File Manager bytes uploaded to Chat
+- `max_bytes` (integer, default 26214400): Max Chat attachment bytes downloaded
+- `output_filename` (string): File Manager filename for downloaded attachment
+- `expiration_days` (integer, default 7): Stored download expiration, 1-7 days
+
+#### Sorting
+
+`list_messages` sends `order_by: "create_time DESC"` by default, so messages are newest first. Send `order_by: "create_time ASC"` for oldest first.
+
+Google also accepts legacy camel-case sort aliases from this tool:
+
+```json
+{"action":"list_messages","space":"spaces/AAA","order_by":"createTime DESC"}
+```
+
+The tool normalizes that to official Google Chat syntax.
+
+#### Search
+
+`search_spaces` is Google server-side search. Non-admin Google Chat search needs a display-name query for useful results:
+
+```json
+{"action":"search_spaces","query":"display_name:\"Launch\"","order_by":"relevance DESC"}
+```
+
+`search_messages` and `search_attachments` are bounded client-side searches within one space. They page through accessible messages using `list_messages`, scan up to `scan_limit`, and return `scan_limit_reached` when the scan stopped before the space was exhausted. These are not global Google-side full-text search endpoints.
+
+#### File Upload
+
+Preferred path: attach File Manager files directly when creating or replying to a message.
+
+```json
+{
+  "action": "create_message",
+  "space": "spaces/AAA",
+  "text": "Attached is the latest report.",
+  "file_ids": ["file-manager-id-1"]
+}
+```
+
+Advanced path: use `upload_attachment` to stage a File Manager file in Chat and return an `attachment_data_ref`.
+
+```json
+{"action":"upload_attachment","space":"spaces/AAA","source_file_id":"file-manager-id-1"}
+```
+
+File uploads require normal authenticated budget context. Admin bypass cannot read budget-scoped File Manager files.
+
+#### File Download
+
+List attachments on a message:
+
+```json
+{"action":"list_message_attachments","message_name":"spaces/AAA/messages/BBB"}
+```
+
+Download an attachment into AgentPMT File Manager:
+
+```json
+{
+  "action": "download_attachment_to_storage",
+  "message_name": "spaces/AAA/messages/BBB",
+  "attachment_name": "spaces/AAA/messages/BBB/attachments/ATT",
+  "output_filename": "report.pdf"
+}
+```
+
+If you already have `attachment.attachmentDataRef.resourceName`, you can download directly:
+
+```json
+{
+  "action": "download_attachment_to_storage",
+  "media_resource_name": "spaces/AAA/messages/BBB/attachments/ATT/media",
+  "output_filename": "report.pdf"
+}
+```
+
+`get_attachment` reads the parent message and finds the attachment in message data. It does not call the bot-only `spaces.messages.attachments.get` endpoint.
 
 #### Actions
 
-##### list_spaces
-Lists all Google Chat spaces the authenticated user has access to.
+##### `get_instructions`
 
-**Required fields:** none
+Returns this documentation.
 
-**Optional fields:** `page_size`, `page_token`, `filter`
-
-**Example — list all spaces:**
 ```json
-{"action": "list_spaces"}
+{"action":"get_instructions"}
 ```
 
-**Example — filter to group spaces only:**
+##### `list_spaces`
+
+Lists spaces the authenticated user has access to.
+
+Required: none
+Optional: `page_size`, `page_token`, `filter`
+
 ```json
-{"action": "list_spaces", "page_size": 10, "filter": "spaceType = \"SPACE\""}
+{"action":"list_spaces","page_size":25}
 ```
 
----
-
-##### list_members
-Lists members of a specific space.
-
-**Required fields:** `space`
-
-**Optional fields:** `page_size`, `page_token`, `filter`
-
-**Example:**
 ```json
-{"action": "list_members", "space": "spaces/AAA"}
+{"action":"list_spaces","filter":"space_type = \"SPACE\""}
 ```
 
----
+##### `get_space`
 
-##### list_messages
-Lists messages in a space in reverse chronological order (newest first).
+Gets a space by resource name or short ID.
 
-**Required fields:** `space`
+Required: `space`
 
-**Optional fields:** `page_size`, `page_token`, `filter`
-
-The `filter` parameter supports `createTime` and `thread.name` only. Full-text search is not supported.
-
-**Example — recent messages:**
 ```json
-{"action": "list_messages", "space": "spaces/AAA", "page_size": 20}
+{"action":"get_space","space":"spaces/AAA"}
 ```
 
-**Example — messages after a date:**
+##### `search_spaces`
+
+Searches accessible spaces with Google Chat server-side space search. Admin access is not exposed.
+
+Required: `query`
+Optional: `page_size`, `page_token`, `order_by`
+
 ```json
-{"action": "list_messages", "space": "spaces/AAA", "filter": "createTime > \"2025-01-01T00:00:00Z\""}
+{"action":"search_spaces","query":"display_name:\"Launch\"","order_by":"relevance DESC"}
 ```
 
----
+##### `find_direct_message`
 
-##### create_message
-Sends a new message to a space. Optionally post into an existing thread.
+Finds the direct message space with a user.
 
-**Required fields:** `space`, and one of `text` or `cards_v2`
+Required: `user_name`
 
-**Optional fields:** `thread_name`
-
-**Example — simple text message:**
 ```json
-{"action": "create_message", "space": "spaces/AAA", "text": "Hello from the agent!"}
+{"action":"find_direct_message","user_name":"users/123456789"}
 ```
 
-**Example — post into an existing thread:**
+##### `list_messages`
+
+Lists messages in a space. Defaults to newest first.
+
+Required: `space`
+Optional: `page_size`, `page_token`, `filter`, `order_by`, `show_deleted`
+
 ```json
-{"action": "create_message", "space": "spaces/AAA", "text": "Continuing this thread", "thread_name": "spaces/AAA/threads/CCC"}
+{"action":"list_messages","space":"spaces/AAA","page_size":20}
 ```
 
----
-
-##### reply_message
-Replies to an existing message in its thread. The thread is resolved automatically from the original message.
-
-**Required fields:** `message_name`, and one of `text` or `cards_v2`
-
-Use `message_name` (not `thread_name`) to identify the message you are replying to.
-
-**Example:**
 ```json
-{"action": "reply_message", "message_name": "spaces/AAA/messages/BBB", "text": "Got it, thanks!"}
+{
+  "action": "list_messages",
+  "space": "spaces/AAA",
+  "filter": "create_time > \"2026-01-01T00:00:00Z\"",
+  "order_by": "create_time ASC"
+}
 ```
 
----
+##### `get_message`
 
-##### update_message
-Edits an existing message. Only the fields you provide (`text` and/or `cards_v2`) will be updated.
+Gets a message by resource name or by short message ID with `space`.
 
-**Required fields:** `message_name`, and one of `text` or `cards_v2`
+Required: `message_name`
+Optional: `space`
 
-**Example:**
 ```json
-{"action": "update_message", "message_name": "spaces/AAA/messages/BBB", "text": "Updated text"}
+{"action":"get_message","message_name":"spaces/AAA/messages/BBB"}
 ```
 
----
+##### `search_messages`
 
-##### delete_message
+Bounded client-side search within one space.
+
+Required: `space`, `query`
+Optional: `filter`, `order_by`, `show_deleted`, `page_size`, `max_results`, `scan_limit`, `case_sensitive`, `search_fields`
+
+```json
+{"action":"search_messages","space":"spaces/AAA","query":"invoice","max_results":10,"scan_limit":500}
+```
+
+```json
+{
+  "action": "search_messages",
+  "space": "spaces/AAA",
+  "query": "Taylor",
+  "search_fields": ["sender"],
+  "order_by": "create_time DESC"
+}
+```
+
+##### `create_message`
+
+Sends a new message to a space. At least one of `text`, `cards_v2`, or `file_ids` is required.
+
+Required: `space`, plus one content field
+Optional: `thread_name`, `thread_key`, `message_reply_option`, `message_request_id`, `message_id`, `notification_type`, `file_ids`, `max_upload_bytes`
+
+```json
+{"action":"create_message","space":"spaces/AAA","text":"Hello from the agent."}
+```
+
+```json
+{
+  "action": "create_message",
+  "space": "spaces/AAA",
+  "text": "Here is the file.",
+  "file_ids": ["file-manager-id-1"]
+}
+```
+
+##### `reply_message`
+
+Replies in the original message's thread. At least one of `text`, `cards_v2`, or `file_ids` is required.
+
+Required: `message_name`, plus one content field
+Optional: `space`, `message_reply_option`, `message_request_id`, `message_id`, `notification_type`, `file_ids`, `max_upload_bytes`
+
+```json
+{"action":"reply_message","message_name":"spaces/AAA/messages/BBB","text":"Got it."}
+```
+
+```json
+{
+  "action": "reply_message",
+  "message_name": "spaces/AAA/messages/BBB",
+  "text": "Attached.",
+  "file_ids": ["file-manager-id-1"]
+}
+```
+
+##### `update_message`
+
+Edits an existing message. Only `text` and `cards_v2` updates are exposed.
+
+Required: `message_name`, plus one of `text` or `cards_v2`
+Optional: `space`
+
+```json
+{"action":"update_message","message_name":"spaces/AAA/messages/BBB","text":"Updated text"}
+```
+
+##### `delete_message`
+
 Deletes a message.
 
-**Required fields:** `message_name`
+Required: `message_name`
+Optional: `space`, `force`
 
-**Example:**
 ```json
-{"action": "delete_message", "message_name": "spaces/AAA/messages/BBB"}
+{"action":"delete_message","message_name":"spaces/AAA/messages/BBB"}
 ```
 
----
-
-##### list_reactions
-Lists all emoji reactions on a message.
-
-**Required fields:** `message_name`
-
-**Optional fields:** `page_size`, `page_token`
-
-**Example:**
 ```json
-{"action": "list_reactions", "message_name": "spaces/AAA/messages/BBB"}
+{"action":"delete_message","message_name":"spaces/AAA/messages/BBB","force":true}
 ```
 
----
+##### `list_reactions`
 
-##### add_reaction
+Lists reactions on a message. `page_size` must be 200 or less.
+
+Required: `message_name`
+Optional: `space`, `page_size`, `page_token`, `filter`
+
+```json
+{"action":"list_reactions","message_name":"spaces/AAA/messages/BBB"}
+```
+
+```json
+{"action":"list_reactions","message_name":"spaces/AAA/messages/BBB","filter":"emoji.unicode = \"\\uD83D\\uDE42\""}
+```
+
+##### `add_reaction`
+
 Adds an emoji reaction to a message.
 
-**Required fields:** `message_name`, `emoji_unicode`
+Required: `message_name`, `emoji_unicode`
+Optional: `space`
 
-**Example:**
 ```json
-{"action": "add_reaction", "message_name": "spaces/AAA/messages/BBB", "emoji_unicode": "👍"}
+{"action":"add_reaction","message_name":"spaces/AAA/messages/BBB","emoji_unicode":"\\uD83D\\uDC4D"}
 ```
 
----
+##### `delete_reaction`
 
-##### delete_reaction
-Removes a reaction from a message.
+Deletes a reaction.
 
-**Required fields:** `reaction_name`
+Required: `reaction_name`
+Optional: `message_name`, `space`
 
-When using a short reaction ID instead of a full resource name, also provide `message_name`.
-
-**Example:**
 ```json
-{"action": "delete_reaction", "reaction_name": "spaces/AAA/messages/BBB/reactions/RRR"}
+{"action":"delete_reaction","reaction_name":"spaces/AAA/messages/BBB/reactions/RRR"}
 ```
 
----
+##### `list_message_attachments`
 
-##### get_attachment
-Retrieves metadata for an attachment on a message.
+Lists attachments in a message.
 
-**Required fields:** `attachment_name`
+Required: `message_name`
+Optional: `space`
 
-When using a short attachment ID instead of a full resource name, also provide `message_name`.
-
-**Example:**
 ```json
-{"action": "get_attachment", "attachment_name": "spaces/AAA/messages/BBB/attachments/ATT"}
+{"action":"list_message_attachments","message_name":"spaces/AAA/messages/BBB"}
 ```
 
----
+##### `get_attachment`
 
-#### Common Workflows
+Gets attachment metadata from the parent message payload.
 
-**Post a message and react to it:**
-1. `create_message` with `space` and `text` — note the returned message name
-2. `add_reaction` with the returned `message_name` and `emoji_unicode`
+Required: `attachment_name`
+Optional: `message_name`, `space`
 
-**Monitor a space for recent activity:**
-1. `list_messages` with `space` and a `filter` on `createTime`
-2. Page through results using `page_token` if needed
+```json
+{
+  "action": "get_attachment",
+  "message_name": "spaces/AAA/messages/BBB",
+  "attachment_name": "report.pdf"
+}
+```
 
-**Reply to the latest message in a space:**
-1. `list_messages` with `space` and `page_size` of 1 to get the most recent message
-2. `reply_message` with the returned `message_name` and your reply `text`
+```json
+{"action":"get_attachment","attachment_name":"spaces/AAA/messages/BBB/attachments/ATT"}
+```
+
+##### `search_attachments`
+
+Bounded client-side attachment search within one space.
+
+Required: `space`, `query`
+Optional: `filter`, `order_by`, `page_size`, `max_results`, `scan_limit`, `case_sensitive`
+
+```json
+{"action":"search_attachments","space":"spaces/AAA","query":"report","max_results":10}
+```
+
+##### `upload_attachment`
+
+Uploads a File Manager file into Chat and returns an `attachment_data_ref`. Most workflows should use `create_message` or `reply_message` with `file_ids` instead.
+
+Required: `space`, `source_file_id`
+Optional: `filename`, `content_type`, `max_upload_bytes`
+
+```json
+{"action":"upload_attachment","space":"spaces/AAA","source_file_id":"file-manager-id-1"}
+```
+
+##### `download_attachment_to_storage`
+
+Downloads a Chat attachment into AgentPMT File Manager.
+
+Required: `media_resource_name` or `attachment_name`
+Optional: `message_name`, `space`, `output_filename`, `expiration_days`, `max_bytes`
+
+```json
+{
+  "action": "download_attachment_to_storage",
+  "message_name": "spaces/AAA/messages/BBB",
+  "attachment_name": "report.pdf",
+  "output_filename": "report.pdf"
+}
+```
+
+```json
+{
+  "action": "download_attachment_to_storage",
+  "media_resource_name": "spaces/AAA/messages/BBB/attachments/ATT/media",
+  "output_filename": "report.pdf"
+}
+```
+
+#### Response
+
+All successful responses return `{"success": true, "output": { ... }}` from the tool route. Output varies by action:
+
+- `list_spaces` -> `{"spaces": [...], "next_page_token": "..."}`
+- `get_space` -> `{"space": {...}}`
+- `search_spaces` -> `{"spaces": [...], "next_page_token": "...", "query": "..."}`
+- `find_direct_message` -> `{"space": {...}, "user_name": "..."}`
+- `list_messages` -> `{"messages": [...], "next_page_token": "...", "order_by": "create_time DESC"}`
+- `get_message` -> `{"message": {...}}`
+- `search_messages` -> `{"messages": [...], "matched_count": 0, "scanned_count": 0, "scan_limit_reached": false}`
+- `create_message` / `reply_message` -> `{"message": {...}, "uploaded_attachments": [...]}`
+- `update_message` -> `{"message": {...}}`
+- `delete_message` / `delete_reaction` -> `{"deleted": true, "name": "..."}`
+- `list_reactions` -> `{"reactions": [...], "next_page_token": "..."}`
+- `add_reaction` -> `{"reaction": {...}}`
+- `list_message_attachments` -> `{"attachments": [...], "count": 0}`
+- `get_attachment` -> `{"attachment": {...}, "message_name": "..."}`
+- `search_attachments` -> `{"attachments": [...], "matched_count": 0, "scanned_messages": 0}`
+- `upload_attachment` -> `{"attachment_data_ref": {...}, "source_file": {...}}`
+- `download_attachment_to_storage` -> `{"attachment": {...}, "download": {"stored_as": {...}, "content_type": "...", "size_bytes": 0}}`
 
 #### Resource Name Formats
 
@@ -209,52 +457,56 @@ When using a short attachment ID instead of a full resource name, also provide `
 - Thread: `spaces/AAA/threads/CCC`
 - Reaction: `spaces/AAA/messages/BBB/reactions/RRR`
 - Attachment: `spaces/AAA/messages/BBB/attachments/ATT`
+- User: `users/123`
 
-Short IDs (e.g., just `BBB`) are accepted when paired with the parent resource (`space` or `message_name`).
-
-#### Important Notes
-
-- The `filter` parameter for `list_messages` supports only `createTime` and `thread.name`. Full-text search of message content is not available.
-- `reply_message` automatically resolves the thread from the original message — just provide `message_name`.
-- To post into an existing thread without replying to a specific message, use `create_message` with `thread_name`.
-- `cards_v2` can be used as an alternative to `text` for rich card messages in `create_message`, `reply_message`, and `update_message`.
-- Pagination: use `page_size` (1-1000, default 50) and `page_token` from previous responses to page through results.
+Short IDs are accepted only when paired with the parent resource (`space` or `message_name`).
 
 ## When To Use
 - Use this skill for `Google Chat` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
-- Search and activation keywords: google chat, send messages to spaces, reply in existing threads, list recent messages, filter message history, add reaction, message name, space.
-- Supported action names: `add_reaction`, `create_message`, `delete_message`, `delete_reaction`, `get_attachment`, `list_members`, `list_messages`, `list_reactions`, `list_spaces`, `reply_message`, `update_message`.
+- Search and activation keywords: google chat, search accessible spaces, find direct message spaces, read and search messages, send messages and replies, add reaction, message name, emoji unicode.
+- Supported action names: `add_reaction`, `create_message`, `delete_message`, `delete_reaction`, `download_attachment_to_storage`, `find_direct_message`, `get_attachment`, `get_message`, `get_space`, `list_message_attachments`, `list_messages`, `list_reactions`, `list_spaces`, `reply_message`, `search_attachments`, `search_messages`, `search_spaces`, `update_message`, `upload_attachment`.
 
 ## Use Cases
-- Send messages to spaces
-- Reply in existing threads
-- List recent messages
-- Filter message history
+- Search accessible spaces
+- Find direct-message spaces
+- Read and search messages
+- Send messages and replies
+- Attach File Manager files to Chat messages
+- Download Chat attachments to File Manager
 - Add or remove reactions
-- Retrieve space memberships
-- Fetch attachment metadata
 - Automate team notifications
+
+## Related Product Skills
+- File Management: ../file-management (ClawHub: `file-management`, page: https://clawhub.ai/agentpmt/file-management; skills.sh: `npx skills add AgentPMT/agent-skills --skill file-management`)
 
 ## Categories And Industries
 No categories or industry tags are published for this tool.
 
 ## Actions And Schema
 Complete generated action schema: `./schema.md`.
-Supported action count: `11`.
+Supported action count: `19`.
 x402 availability: not enabled for this product.
 
-- `add_reaction` (action slug: `add-reaction`): Add an emoji reaction to a message. Price: `5` credits. Parameters: `emoji_unicode`, `message_name`, `space`.
-- `create_message` (action slug: `create-message`): Send a new message to a Google Chat space. Optionally post into an existing thread. Price: `5` credits. Parameters: `cards_v2`, `space`, `text`, `thread_name`.
-- `delete_message` (action slug: `delete-message`): Delete a message from a Google Chat space. Price: `5` credits. Parameters: `message_name`, `space`.
-- `delete_reaction` (action slug: `delete-reaction`): Remove a reaction from a message. Price: `5` credits. Parameters: `message_name`, `reaction_name`, `space`.
-- `get_attachment` (action slug: `get-attachment`): Retrieve metadata for an attachment on a message. Price: `5` credits. Parameters: `attachment_name`, `message_name`, `space`.
-- `list_members` (action slug: `list-members`): List members of a specific Google Chat space. Price: `5` credits. Parameters: `filter`, `page_size`, `page_token`, `space`.
-- `list_messages` (action slug: `list-messages`): List messages in a Google Chat space in reverse chronological order (newest first). The filter parameter supports createTime and thread.name only; full-text search is not supported. Price: `5` credits. Parameters: `filter`, `page_size`, `page_token`, `space`.
-- `list_reactions` (action slug: `list-reactions`): List all emoji reactions on a message. Price: `5` credits. Parameters: `message_name`, `page_size`, `page_token`, `space`.
-- `list_spaces` (action slug: `list-spaces`): List all Google Chat spaces the authenticated user has access to. Price: `5` credits. Parameters: `filter`, `page_size`, `page_token`.
-- `reply_message` (action slug: `reply-message`): Reply to an existing message in its thread. The thread is resolved automatically from the original message. Price: `5` credits. Parameters: `cards_v2`, `message_name`, `space`, `text`.
-- `update_message` (action slug: `update-message`): Edit an existing message. Only the fields provided (text and/or cards_v2) will be updated. Price: `5` credits. Parameters: `cards_v2`, `message_name`, `space`, `text`.
+- `add_reaction` (action slug: `add-reaction`): Add a reaction. Price: `5` credits. Parameters: `emoji_unicode`, `message_name`, `space`.
+- `create_message` (action slug: `create-message`): Create a message, optionally with files. Price: `5` credits. Parameters: `cards_v2`, `file_ids`, `max_upload_bytes`, `message_id`, `message_reply_option`, `message_request_id`, `notification_type`, `space`, plus 3 more.
+- `delete_message` (action slug: `delete-message`): Delete a message. Price: `5` credits. Parameters: `force`, `message_name`, `space`.
+- `delete_reaction` (action slug: `delete-reaction`): Delete a reaction. Price: `5` credits. Parameters: `message_name`, `reaction_name`, `space`.
+- `download_attachment_to_storage` (action slug: `download-attachment-to-storage`): Download Chat media to File Manager. Price: `5` credits. Parameters: `attachment_name`, `expiration_days`, `max_bytes`, `media_resource_name`, `message_name`, `output_filename`, `space`.
+- `find_direct_message` (action slug: `find-direct-message`): Find a DM space. Price: `5` credits. Parameters: `user_name`.
+- `get_attachment` (action slug: `get-attachment`): Get attachment metadata from its message. Price: `5` credits. Parameters: `attachment_name`, `message_name`, `space`.
+- `get_message` (action slug: `get-message`): Get a message. Price: `5` credits. Parameters: `message_name`, `space`.
+- `get_space` (action slug: `get-space`): Get a space. Price: `5` credits. Parameters: `space`.
+- `list_message_attachments` (action slug: `list-message-attachments`): List message attachments. Price: `5` credits. Parameters: `message_name`, `space`.
+- `list_messages` (action slug: `list-messages`): List messages; newest first by default. Price: `5` credits. Parameters: `filter`, `order_by`, `page_size`, `page_token`, `show_deleted`, `space`.
+- `list_reactions` (action slug: `list-reactions`): List message reactions. Price: `5` credits. Parameters: `filter`, `message_name`, `page_size`, `page_token`, `space`.
+- `list_spaces` (action slug: `list-spaces`): List accessible spaces. Price: `5` credits. Parameters: `filter`, `page_size`, `page_token`.
+- `reply_message` (action slug: `reply-message`): Reply to a message, optionally with files. Price: `5` credits. Parameters: `cards_v2`, `file_ids`, `max_upload_bytes`, `message_id`, `message_name`, `message_reply_option`, `message_request_id`, `notification_type`, plus 2 more.
+- `search_attachments` (action slug: `search-attachments`): Bounded attachment search in one space. Price: `5` credits. Parameters: `case_sensitive`, `filter`, `max_results`, `order_by`, `page_size`, `query`, `scan_limit`, `space`.
+- `search_messages` (action slug: `search-messages`): Bounded message search in one space. Price: `5` credits. Parameters: `case_sensitive`, `filter`, `max_results`, `order_by`, `page_size`, `query`, `scan_limit`, `search_fields`, plus 2 more.
+- `search_spaces` (action slug: `search-spaces`): Search accessible spaces. Price: `5` credits. Parameters: `order_by`, `page_size`, `page_token`, `query`.
+- `update_message` (action slug: `update-message`): Update message text/cards. Price: `5` credits. Parameters: `cards_v2`, `message_name`, `space`, `text`.
+- `upload_attachment` (action slug: `upload-attachment`): Upload a File Manager file to Chat. Price: `5` credits. Parameters: `content_type`, `filename`, `max_upload_bytes`, `source_file_id`, `space`.
 
 ## Live Schema And Examples
 Use the compact schema above for ordinary calls. Before a new production integration, or whenever parameters, enum values, nested objects, outputs, or examples are unclear, fetch live details first.
