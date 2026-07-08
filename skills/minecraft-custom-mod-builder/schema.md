@@ -14,27 +14,27 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `15` credits
 
-Generate installable Minecraft artifacts and upload them to File Manager. Supports Bedrock .mcaddon, Bedrock skin packs, Fabric jars/source, and NeoForge jars/source from structured specs. Supports deterministic world-side mechanics, scheduled/random events, cooldowns, radius conditions, custom commands with parameters, time/weather/title actions, scoreboards, particles/sounds, relative teleports, explosions, lightning, block changes, effects, tags, items, entities, machines, recipes, and Java client utility modules. Use render_preview_image when visual assets matter.
+Generate installable Minecraft artifacts and upload them to File Manager. Supports Bedrock .mcaddon, Bedrock skin packs, Fabric jars/source, and NeoForge jars/source from structured specs.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `advanced_resources` | `array` | no | Escape hatch for raw files: path plus content_base64, content_text, or source_file_id. |
-| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when a selected component requires experiments. |
+| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when selected components require experiments. |
 | `assets` | `object` | no | Optional pre-bound textures, sounds, particles, models, and language entries. |
-| `build_jar` | `boolean` | no | Fabric/NeoForge only; build the jar offline when true. |
+| `build_jar` | `boolean` | no | Fabric/NeoForge only. Build the jar offline when true; for long Java jar builds use start_build_job instead of synchronous create_mod_project. |
 | `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
-| `description` | `string` | no | Short mod description shown in pack/mod metadata. |
-| `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. Events support interval_ticks, cooldown_ticks, chance_percent, action_selection=random_one, wait actions, conditions such as entity_within_radius/time_of_day/weather_is/y_below/y_above/light_level_below, radius-targeted actions, typed command parameters with {param:name}, show_title display/timing, replace_held_item, time/weather actions, broadcast aliases, relative positions, particle count/spread, sound volume/pitch, scoreboard set/add/remove, and strict action-option validation. See product instructions for exact nested fields and platform gates. |
-| `include_file_preview` | `boolean` | no | Include a compact file preview in response metadata. |
-| `minecraft_version` | `string` | no | Pinned version. Omit to use the platform default; unsupported versions are rejected with supported-version guidance. |
-| `mod_id` | `string` | yes | Lowercase namespace ^[a-z][a-z0-9_]{1,63}$; becomes generated identifier namespace. |
-| `mod_metadata` | `object` | no | Optional metadata: version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, bedrock_experiments. |
-| `mod_name` | `string` | yes | Human-readable mod name shown in generated pack/mod metadata. |
-| `output_mode` | `string` | no | installable, source, or both. |
-| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture source. |
-| `target_platform` | `string` | yes | One of bedrock, bedrock_skinpack, fabric, neoforge. Legacy forge is rejected with a NeoForge migration message. |
+| `description` | `string` | no | Short mod description. |
+| `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. See product instructions for exact nested fields and platform gates. |
+| `include_file_preview` | `boolean` | no | Include capped text previews in generated_files. |
+| `minecraft_version` | `string` | no | Pinned version. Omit unless the user explicitly asks for the supported pinned version. |
+| `mod_id` | `string` | yes | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. |
+| `mod_metadata` | `object` | no | Optional metadata such as version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, and bedrock_experiments. |
+| `mod_name` | `string` | yes | Human-readable mod name. |
+| `output_mode` | `string` | no | installable, source, or both. Use source with build_jar=false for fast Java source generation. |
+| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture sources. |
+| `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. Legacy forge is rejected with a NeoForge migration message. |
 | `validate_output` | `boolean` | no | Run output validation when supported. |
 
 Sample parameters:
@@ -92,7 +92,7 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "allow_experimental_bedrock_features": {
-    "description": "Allow Bedrock experimental features when a selected component requires experiments.",
+    "description": "Allow Bedrock experimental features when selected components require experiments.",
     "required": false,
     "type": "boolean"
   },
@@ -103,7 +103,7 @@ Generated JSON parameter schema:
   },
   "build_jar": {
     "default": true,
-    "description": "Fabric/NeoForge only; build the jar offline when true.",
+    "description": "Fabric/NeoForge only. Build the jar offline when true; for long Java jar builds use start_build_job instead of synchronous create_mod_project.",
     "required": false,
     "type": "boolean"
   },
@@ -118,278 +118,248 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "description": {
-    "description": "Short mod description shown in pack/mod metadata.",
+    "description": "Short mod description.",
     "required": false,
     "type": "string"
   },
   "features": {
-    "description": "FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. Events support interval_ticks, cooldown_ticks, chance_percent, action_selection=random_one, wait actions, conditions such as entity_within_radius/time_of_day/weather_is/y_below/y_above/light_level_below, radius-targeted actions, typed command parameters with {param:name}, show_title display/timing, replace_held_item, time/weather actions, broadcast aliases, relative positions, particle count/spread, sound volume/pitch, scoreboard set/add/remove, and strict action-option validation. See product instructions for exact nested fields and platform gates.",
+    "description": "FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. See product instructions for exact nested fields and platform gates.",
     "properties": {
       "animation_controllers": {
-        "description": "animation_controllers feature array. See product instructions for exact fields.",
+        "description": "Animation controller definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "animations": {
-        "description": "animations feature array. See product instructions for exact fields.",
+        "description": "Animation definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "biomes": {
-        "description": "Custom biome definitions and worldgen references.",
+        "description": "Custom biome definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "blocks": {
-        "description": "Custom blocks. Key fields: block_id, display_name, block_kind, texture, hardness, resistance, light_level, drops, crop/redstone/machine/container presets.",
+        "description": "Custom blocks.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "client_modules": {
-        "description": "Java-only client utility modules: utility_client_preset, performance_profile, fullbright, block_esp, entity_esp, tnt_cart_placement_esp, renderer_profile.",
+        "description": "Java-only client utility modules.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "commands": {
-        "description": "Custom commands. Key fields: command_id, description, command_kind, permission_level, parameters, actions. Use {param:name} placeholders in action messages/commands.",
+        "description": "Custom commands.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "damage_types": {
-        "description": "damage_types feature array. See product instructions for exact fields.",
+        "description": "Damage type definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "dimensions": {
-        "description": "Custom dimension definitions and linked biome/worldgen settings.",
+        "description": "Custom dimension definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "effects": {
-        "description": "Status/effect definitions. Key fields: effect_id, display_name, effect_kind, builtin_effect_id, duration_ticks, amplifier.",
+        "description": "Status/effect definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "enchantments": {
-        "description": "enchantments feature array. See product instructions for exact fields.",
+        "description": "Enchantment definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "entities": {
-        "description": "Custom mobs/entities. Key fields: entity_id, display_name, entity_kind, texture, health, attack_damage, movement_speed, families, ai_goals, scale, component_overrides.",
+        "description": "Custom mobs/entities.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "events": {
-        "description": "Event behaviors. Key fields: event_id, event_kind, conditions, actions, interval_ticks, cooldown_ticks, chance_percent, action_selection.",
+        "description": "Event behaviors.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "functions": {
-        "description": "Bedrock/Java command function files. Use lines or commands aliases. Shell syntax is rejected.",
+        "description": "Bedrock/Java command function files.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "game_rules": {
-        "description": "game_rules feature array. See product instructions for exact fields.",
+        "description": "Game rule definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "items": {
-        "description": "Custom items and tools. Key fields: item_id, display_name, item_kind, texture, tool_type/tool_tier, armor, food, durability, damage, max_stack_size.",
+        "description": "Custom items and tools.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "localizations": {
-        "description": "localizations feature array. See product instructions for exact fields.",
+        "description": "Localization entries.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "loot_tables": {
-        "description": "Loot tables for entity/block drops. Key fields: loot_id, target, drops, functions, conditions.",
+        "description": "Loot tables.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "machines": {
-        "description": "Interact-driven machines. Key fields: machine_id/block_id, display_name, texture, processing_time_ticks, machine_recipes.",
+        "description": "Interact-driven machines.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "particles": {
-        "description": "Custom particles. Key fields: particle_id, texture, color_hex/source_file_id.",
+        "description": "Custom particles.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "recipes": {
-        "description": "Crafting/smelting/smithing/brewing recipes. Key fields: recipe_id, recipe_kind, result_item, pattern/key, ingredients, input_item, count.",
+        "description": "Crafting/smelting/smithing/brewing recipes.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "render_controllers": {
-        "description": "render_controllers feature array. See product instructions for exact fields.",
+        "description": "Render controller definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "scoreboards": {
-        "description": "Scoreboard objectives. Key fields: objective_id, display_name, criteria, display_slot.",
+        "description": "Scoreboard objectives.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "sounds": {
-        "description": "Custom or vanilla sounds. Key fields: sound_id, source_file_id/source_base64, category, volume, pitch.",
+        "description": "Custom or vanilla sounds.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "storage": {
-        "description": "Storage blocks/backpacks. Key fields: storage_id, display_name, storage_kind, texture, capacity.",
+        "description": "Storage blocks and backpacks.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "structures": {
-        "description": "Structure assets and placements. Key fields: structure_id, source_file_id/source_base64, placement settings.",
+        "description": "Structure assets and placements.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "tags": {
-        "description": "Named tag presets for grouped behavior.",
+        "description": "Named tag presets.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "trades": {
-        "description": "trades feature array. See product instructions for exact fields.",
+        "description": "Trade definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "transportation": {
-        "description": "transportation feature array. See product instructions for exact fields.",
+        "description": "Transportation definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "ui": {
-        "description": "ui feature array. See product instructions for exact fields.",
+        "description": "UI definitions.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
         "type": "array"
       },
       "worldgen": {
-        "description": "World generation features. Key fields: feature_id, feature_kind, block_id, target_block, vein_size, count_per_chunk, min_y, max_y, biomes.",
+        "description": "World generation features.",
         "items": {
-          "description": "Nested object; see product instructions for exact fields.",
           "type": "object"
         },
         "required": false,
@@ -400,33 +370,33 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "include_file_preview": {
-    "description": "Include a compact file preview in response metadata.",
+    "description": "Include capped text previews in generated_files.",
     "required": false,
     "type": "boolean"
   },
   "minecraft_version": {
-    "description": "Pinned version. Omit to use the platform default; unsupported versions are rejected with supported-version guidance.",
+    "description": "Pinned version. Omit unless the user explicitly asks for the supported pinned version.",
     "required": false,
     "type": "string"
   },
   "mod_id": {
-    "description": "Lowercase namespace ^[a-z][a-z0-9_]{1,63}$; becomes generated identifier namespace.",
+    "description": "Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$.",
     "required": true,
     "type": "string"
   },
   "mod_metadata": {
-    "description": "Optional metadata: version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, bedrock_experiments.",
+    "description": "Optional metadata such as version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, and bedrock_experiments.",
     "required": false,
     "type": "object"
   },
   "mod_name": {
-    "description": "Human-readable mod name shown in generated pack/mod metadata.",
+    "description": "Human-readable mod name.",
     "required": true,
     "type": "string"
   },
   "output_mode": {
     "default": "both",
-    "description": "installable, source, or both.",
+    "description": "installable, source, or both. Use source with build_jar=false for fast Java source generation.",
     "enum": [
       "installable",
       "source",
@@ -436,12 +406,12 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "skin_pack": {
-    "description": "Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture source.",
+    "description": "Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture sources.",
     "required": false,
     "type": "object"
   },
   "target_platform": {
-    "description": "One of bedrock, bedrock_skinpack, fabric, neoforge. Legacy forge is rejected with a NeoForge migration message.",
+    "description": "bedrock, bedrock_skinpack, fabric, or neoforge. Legacy forge is rejected with a NeoForge migration message.",
     "enum": [
       "bedrock",
       "bedrock_skinpack",
@@ -460,6 +430,101 @@ Generated JSON parameter schema:
 }
 ```
 
+## `get_build_job`
+
+Action slug: `get-build-job`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/get-build-job/invoke`
+
+Price: `2` credits
+
+Fetch one queued Minecraft build job by task_id. Poll after start_build_job until status is completed or failed.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `task_id` | `string` | yes | Build job id returned by start_build_job. |
+| `timeout_seconds` | `integer` | no | HTTP timeout for the status lookup; defaults to 600 seconds and may be 10-1200. |
+
+Sample parameters:
+
+```json
+{
+  "task_id": "example task id",
+  "timeout_seconds": 600
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "task_id": {
+    "description": "Build job id returned by start_build_job.",
+    "required": true,
+    "type": "string"
+  },
+  "timeout_seconds": {
+    "default": 600,
+    "description": "HTTP timeout for the status lookup; defaults to 600 seconds and may be 10-1200.",
+    "maximum": 1200,
+    "minimum": 10,
+    "required": false,
+    "type": "integer"
+  }
+}
+```
+
+## `list_build_jobs`
+
+Action slug: `list-build-jobs`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/list-build-jobs/invoke`
+
+Price: `2` credits
+
+List recent Minecraft build jobs for the active budget. Use this to recover a task_id or inspect recent queued/completed builds.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `limit` | `integer` | no | Maximum number of build jobs to return, from 1 to 100. |
+| `timeout_seconds` | `integer` | no | HTTP timeout for the list lookup; defaults to 600 seconds and may be 10-1200. |
+
+Sample parameters:
+
+```json
+{
+  "limit": 20,
+  "timeout_seconds": 600
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "limit": {
+    "default": 20,
+    "description": "Maximum number of build jobs to return, from 1 to 100.",
+    "maximum": 100,
+    "minimum": 1,
+    "required": false,
+    "type": "integer"
+  },
+  "timeout_seconds": {
+    "default": 600,
+    "description": "HTTP timeout for the list lookup; defaults to 600 seconds and may be 10-1200.",
+    "maximum": 1200,
+    "minimum": 10,
+    "required": false,
+    "type": "integer"
+  }
+}
+```
+
 ## `list_capabilities`
 
 Action slug: `list-capabilities`
@@ -468,13 +533,13 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `2` credits
 
-Return supported platforms, pinned versions, feature kinds, event kinds, action kinds, client module kinds, event options, condition kinds, action options, unsupported families, and the capability matrix. Use this before planning complex Java/Bedrock behavior.
+Return supported platforms, pinned versions, feature kinds, event/action/condition matrices, client module kinds, and unsupported families. Use before planning complex Bedrock/Fabric/NeoForge behavior.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `target_platform` | `string` | no | One of bedrock, bedrock_skinpack, fabric, neoforge. Legacy forge is rejected with a NeoForge migration message. |
+| `target_platform` | `string` | no | Optional platform filter. |
 
 Sample parameters:
 
@@ -489,7 +554,7 @@ Generated JSON parameter schema:
 ```json
 {
   "target_platform": {
-    "description": "One of bedrock, bedrock_skinpack, fabric, neoforge. Legacy forge is rejected with a NeoForge migration message.",
+    "description": "Optional platform filter.",
     "enum": [
       "bedrock",
       "bedrock_skinpack",
@@ -510,30 +575,30 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `5` credits
 
-Render and upload an enlarged PNG preview for an item, block, entity, texture, or generated source archive. Uses the same current structured feature contract as create_mod_project when previewing from a spec.
+Render and upload an enlarged PNG preview for an item, block, entity, texture, or generated source archive. Use after create_mod_project when visual assets matter.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `advanced_resources` | `array` | no | Escape hatch for raw files: path plus content_base64, content_text, or source_file_id. |
-| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when a selected component requires experiments. |
+| `advanced_resources` | `array` | no | Escape hatch for raw files. |
+| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when selected components require experiments. |
 | `assets` | `object` | no | Optional pre-bound textures, sounds, particles, models, and language entries. |
 | `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
-| `description` | `string` | no | Short mod description shown in pack/mod metadata. |
-| `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. Events support interval_ticks, cooldown_ticks, chance_percent, action_selection=random_one, wait actions, conditions such as entity_within_radius/time_of_day/weather_is/y_below/y_above/light_level_below, radius-targeted actions, typed command parameters with {param:name}, show_title display/timing, replace_held_item, time/weather actions, broadcast aliases, relative positions, particle count/spread, sound volume/pitch, scoreboard set/add/remove, and strict action-option validation. See product instructions for exact nested fields and platform gates. |
-| `minecraft_version` | `string` | no | Pinned version. Omit to use the platform default; unsupported versions are rejected with supported-version guidance. |
-| `mod_id` | `string` | no | Lowercase namespace ^[a-z][a-z0-9_]{1,63}$; becomes generated identifier namespace. |
-| `mod_metadata` | `object` | no | Optional metadata: version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, bedrock_experiments. |
-| `mod_name` | `string` | no | Human-readable mod name shown in generated pack/mod metadata. |
-| `preview_background` | `string` | no | transparent, checkerboard, light, or dark. |
-| `preview_size` | `integer` | no | Preview PNG size in pixels. |
-| `preview_source_file_id` | `string` | no | File Manager file_id for a user-supplied image to preview directly. |
-| `preview_target_id` | `string` | no | Identifier of the item/block/entity to preview. |
-| `preview_target_kind` | `string` | no | item, block, or entity. Omit to auto-select. |
-| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture source. |
-| `source_archive_file_id` | `string` | no | File Manager file_id for a previously generated source zip; preview an asset without resending the spec. |
-| `target_platform` | `string` | no | One of bedrock, bedrock_skinpack, fabric, neoforge. Legacy forge is rejected with a NeoForge migration message. |
+| `description` | `string` | no | Short mod description. |
+| `features` | `object` | no | FeatureSet object for spec preview. |
+| `minecraft_version` | `string` | no | Pinned version. Omit unless explicitly needed. |
+| `mod_id` | `string` | no | Lowercase namespace for spec/source preview. |
+| `mod_metadata` | `object` | no | Optional metadata. |
+| `mod_name` | `string` | no | Human-readable mod name for spec preview. |
+| `preview_background` | `string` | no | checkerboard, transparent, white, or black. |
+| `preview_size` | `integer` | no | Square preview PNG size from 32 to 1024 pixels. |
+| `preview_source_file_id` | `string` | no | File Manager image file_id for direct image preview. |
+| `preview_target_id` | `string` | no | Feature id or namespaced id, such as flame_sword or flame_tools:flame_sword. |
+| `preview_target_kind` | `string` | no | item, block, entity, or texture. |
+| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
+| `source_archive_file_id` | `string` | no | File Manager file_id for a previously generated source zip to preview from. |
+| `target_platform` | `string` | no | Optional platform context. |
 
 Sample parameters:
 
@@ -546,32 +611,7 @@ Sample parameters:
   "assets": {},
   "compatibility_mode": "strict",
   "description": "example description",
-  "features": {
-    "animation_controllers": [
-      {}
-    ],
-    "animations": [
-      {}
-    ],
-    "biomes": [
-      {}
-    ],
-    "blocks": [
-      {}
-    ],
-    "client_modules": [
-      {}
-    ],
-    "commands": [
-      {}
-    ],
-    "damage_types": [
-      {}
-    ],
-    "dimensions": [
-      {}
-    ]
-  },
+  "features": {},
   "minecraft_version": "example minecraft version",
   "mod_id": "example mod id"
 }
@@ -582,7 +622,7 @@ Generated JSON parameter schema:
 ```json
 {
   "advanced_resources": {
-    "description": "Escape hatch for raw files: path plus content_base64, content_text, or source_file_id.",
+    "description": "Escape hatch for raw files.",
     "items": {
       "type": "object"
     },
@@ -590,7 +630,7 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "allow_experimental_bedrock_features": {
-    "description": "Allow Bedrock experimental features when a selected component requires experiments.",
+    "description": "Allow Bedrock experimental features when selected components require experiments.",
     "required": false,
     "type": "boolean"
   },
@@ -610,359 +650,88 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "description": {
-    "description": "Short mod description shown in pack/mod metadata.",
+    "description": "Short mod description.",
     "required": false,
     "type": "string"
   },
   "features": {
-    "description": "FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. Events support interval_ticks, cooldown_ticks, chance_percent, action_selection=random_one, wait actions, conditions such as entity_within_radius/time_of_day/weather_is/y_below/y_above/light_level_below, radius-targeted actions, typed command parameters with {param:name}, show_title display/timing, replace_held_item, time/weather actions, broadcast aliases, relative positions, particle count/spread, sound volume/pitch, scoreboard set/add/remove, and strict action-option validation. See product instructions for exact nested fields and platform gates.",
-    "properties": {
-      "animation_controllers": {
-        "description": "animation_controllers feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "animations": {
-        "description": "animations feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "biomes": {
-        "description": "Custom biome definitions and worldgen references.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "blocks": {
-        "description": "Custom blocks. Key fields: block_id, display_name, block_kind, texture, hardness, resistance, light_level, drops, crop/redstone/machine/container presets.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "client_modules": {
-        "description": "Java-only client utility modules: utility_client_preset, performance_profile, fullbright, block_esp, entity_esp, tnt_cart_placement_esp, renderer_profile.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "commands": {
-        "description": "Custom commands. Key fields: command_id, description, command_kind, permission_level, parameters, actions. Use {param:name} placeholders in action messages/commands.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "damage_types": {
-        "description": "damage_types feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "dimensions": {
-        "description": "Custom dimension definitions and linked biome/worldgen settings.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "effects": {
-        "description": "Status/effect definitions. Key fields: effect_id, display_name, effect_kind, builtin_effect_id, duration_ticks, amplifier.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "enchantments": {
-        "description": "enchantments feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "entities": {
-        "description": "Custom mobs/entities. Key fields: entity_id, display_name, entity_kind, texture, health, attack_damage, movement_speed, families, ai_goals, scale, component_overrides.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "events": {
-        "description": "Event behaviors. Key fields: event_id, event_kind, conditions, actions, interval_ticks, cooldown_ticks, chance_percent, action_selection.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "functions": {
-        "description": "Bedrock/Java command function files. Use lines or commands aliases. Shell syntax is rejected.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "game_rules": {
-        "description": "game_rules feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "items": {
-        "description": "Custom items and tools. Key fields: item_id, display_name, item_kind, texture, tool_type/tool_tier, armor, food, durability, damage, max_stack_size.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "localizations": {
-        "description": "localizations feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "loot_tables": {
-        "description": "Loot tables for entity/block drops. Key fields: loot_id, target, drops, functions, conditions.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "machines": {
-        "description": "Interact-driven machines. Key fields: machine_id/block_id, display_name, texture, processing_time_ticks, machine_recipes.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "particles": {
-        "description": "Custom particles. Key fields: particle_id, texture, color_hex/source_file_id.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "recipes": {
-        "description": "Crafting/smelting/smithing/brewing recipes. Key fields: recipe_id, recipe_kind, result_item, pattern/key, ingredients, input_item, count.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "render_controllers": {
-        "description": "render_controllers feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "scoreboards": {
-        "description": "Scoreboard objectives. Key fields: objective_id, display_name, criteria, display_slot.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "sounds": {
-        "description": "Custom or vanilla sounds. Key fields: sound_id, source_file_id/source_base64, category, volume, pitch.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "storage": {
-        "description": "Storage blocks/backpacks. Key fields: storage_id, display_name, storage_kind, texture, capacity.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "structures": {
-        "description": "Structure assets and placements. Key fields: structure_id, source_file_id/source_base64, placement settings.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "tags": {
-        "description": "Named tag presets for grouped behavior.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "trades": {
-        "description": "trades feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "transportation": {
-        "description": "transportation feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "ui": {
-        "description": "ui feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "worldgen": {
-        "description": "World generation features. Key fields: feature_id, feature_kind, block_id, target_block, vein_size, count_per_chunk, min_y, max_y, biomes.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      }
-    },
+    "description": "FeatureSet object for spec preview.",
     "required": false,
     "type": "object"
   },
   "minecraft_version": {
-    "description": "Pinned version. Omit to use the platform default; unsupported versions are rejected with supported-version guidance.",
+    "description": "Pinned version. Omit unless explicitly needed.",
     "required": false,
     "type": "string"
   },
   "mod_id": {
-    "description": "Lowercase namespace ^[a-z][a-z0-9_]{1,63}$; becomes generated identifier namespace.",
+    "description": "Lowercase namespace for spec/source preview.",
     "required": false,
     "type": "string"
   },
   "mod_metadata": {
-    "description": "Optional metadata: version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, bedrock_experiments.",
+    "description": "Optional metadata.",
     "required": false,
     "type": "object"
   },
   "mod_name": {
-    "description": "Human-readable mod name shown in generated pack/mod metadata.",
+    "description": "Human-readable mod name for spec preview.",
     "required": false,
     "type": "string"
   },
   "preview_background": {
     "default": "checkerboard",
-    "description": "transparent, checkerboard, light, or dark.",
+    "description": "checkerboard, transparent, white, or black.",
     "enum": [
-      "transparent",
       "checkerboard",
-      "light",
-      "dark"
+      "transparent",
+      "white",
+      "black"
     ],
     "required": false,
     "type": "string"
   },
   "preview_size": {
     "default": 256,
-    "description": "Preview PNG size in pixels.",
+    "description": "Square preview PNG size from 32 to 1024 pixels.",
     "maximum": 1024,
-    "minimum": 64,
+    "minimum": 32,
     "required": false,
     "type": "integer"
   },
   "preview_source_file_id": {
-    "description": "File Manager file_id for a user-supplied image to preview directly.",
+    "description": "File Manager image file_id for direct image preview.",
     "required": false,
     "type": "string"
   },
   "preview_target_id": {
-    "description": "Identifier of the item/block/entity to preview.",
+    "description": "Feature id or namespaced id, such as flame_sword or flame_tools:flame_sword.",
     "required": false,
     "type": "string"
   },
   "preview_target_kind": {
-    "description": "item, block, or entity. Omit to auto-select.",
+    "description": "item, block, entity, or texture.",
     "enum": [
       "item",
       "block",
-      "entity"
+      "entity",
+      "texture"
     ],
     "required": false,
     "type": "string"
   },
   "skin_pack": {
-    "description": "Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture source.",
+    "description": "Skin pack definition for target_platform=bedrock_skinpack.",
     "required": false,
     "type": "object"
   },
   "source_archive_file_id": {
-    "description": "File Manager file_id for a previously generated source zip; preview an asset without resending the spec.",
+    "description": "File Manager file_id for a previously generated source zip to preview from.",
     "required": false,
     "type": "string"
   },
   "target_platform": {
-    "description": "One of bedrock, bedrock_skinpack, fabric, neoforge. Legacy forge is rejected with a NeoForge migration message.",
+    "description": "Optional platform context.",
     "enum": [
       "bedrock",
       "bedrock_skinpack",
@@ -975,6 +744,163 @@ Generated JSON parameter schema:
 }
 ```
 
+## `start_build_job`
+
+Action slug: `start-build-job`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/start-build-job/invoke`
+
+Price: `15` credits
+
+Queue long-running Minecraft mod generation and return immediately with a task_id. Use this instead of create_mod_project for Fabric/NeoForge jar builds or requests likely to exceed chat/tool timeouts. The input spec is the same as create_mod_project; poll get_build_job until completed or failed.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `advanced_resources` | `array` | no | Escape hatch for raw files. |
+| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when selected components require experiments. |
+| `assets` | `object` | no | Optional pre-bound textures, sounds, particles, models, and language entries. |
+| `build_jar` | `boolean` | no | Fabric/NeoForge only. Defaults true; this queued action is intended for build_jar=true jar builds. |
+| `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
+| `description` | `string` | no | Short mod description. |
+| `features` | `object` | no | FeatureSet object. Same shape as create_mod_project. |
+| `include_file_preview` | `boolean` | no | Include capped text previews in generated_files. |
+| `minecraft_version` | `string` | no | Pinned version. Omit unless explicitly needed. |
+| `mod_id` | `string` | yes | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. |
+| `mod_metadata` | `object` | no | Optional metadata. |
+| `mod_name` | `string` | yes | Human-readable mod name. |
+| `output_mode` | `string` | no | installable, source, or both. |
+| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
+| `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. Use this mainly for Fabric/NeoForge jar builds. |
+| `validate_output` | `boolean` | no | Run output validation when supported. |
+
+Sample parameters:
+
+```json
+{
+  "advanced_resources": [
+    {}
+  ],
+  "allow_experimental_bedrock_features": true,
+  "assets": {},
+  "build_jar": true,
+  "compatibility_mode": "strict",
+  "description": "example description",
+  "features": {},
+  "include_file_preview": true
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "advanced_resources": {
+    "description": "Escape hatch for raw files.",
+    "items": {
+      "type": "object"
+    },
+    "required": false,
+    "type": "array"
+  },
+  "allow_experimental_bedrock_features": {
+    "description": "Allow Bedrock experimental features when selected components require experiments.",
+    "required": false,
+    "type": "boolean"
+  },
+  "assets": {
+    "description": "Optional pre-bound textures, sounds, particles, models, and language entries.",
+    "required": false,
+    "type": "object"
+  },
+  "build_jar": {
+    "default": true,
+    "description": "Fabric/NeoForge only. Defaults true; this queued action is intended for build_jar=true jar builds.",
+    "required": false,
+    "type": "boolean"
+  },
+  "compatibility_mode": {
+    "default": "strict",
+    "description": "strict or allow_platform_passthrough.",
+    "enum": [
+      "strict",
+      "allow_platform_passthrough"
+    ],
+    "required": false,
+    "type": "string"
+  },
+  "description": {
+    "description": "Short mod description.",
+    "required": false,
+    "type": "string"
+  },
+  "features": {
+    "description": "FeatureSet object. Same shape as create_mod_project.",
+    "required": false,
+    "type": "object"
+  },
+  "include_file_preview": {
+    "description": "Include capped text previews in generated_files.",
+    "required": false,
+    "type": "boolean"
+  },
+  "minecraft_version": {
+    "description": "Pinned version. Omit unless explicitly needed.",
+    "required": false,
+    "type": "string"
+  },
+  "mod_id": {
+    "description": "Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$.",
+    "required": true,
+    "type": "string"
+  },
+  "mod_metadata": {
+    "description": "Optional metadata.",
+    "required": false,
+    "type": "object"
+  },
+  "mod_name": {
+    "description": "Human-readable mod name.",
+    "required": true,
+    "type": "string"
+  },
+  "output_mode": {
+    "default": "both",
+    "description": "installable, source, or both.",
+    "enum": [
+      "installable",
+      "source",
+      "both"
+    ],
+    "required": false,
+    "type": "string"
+  },
+  "skin_pack": {
+    "description": "Skin pack definition for target_platform=bedrock_skinpack.",
+    "required": false,
+    "type": "object"
+  },
+  "target_platform": {
+    "description": "bedrock, bedrock_skinpack, fabric, or neoforge. Use this mainly for Fabric/NeoForge jar builds.",
+    "enum": [
+      "bedrock",
+      "bedrock_skinpack",
+      "fabric",
+      "neoforge"
+    ],
+    "required": true,
+    "type": "string"
+  },
+  "validate_output": {
+    "default": true,
+    "description": "Run output validation when supported.",
+    "required": false,
+    "type": "boolean"
+  }
+}
+```
+
 ## `validate_mod_project`
 
 Action slug: `validate-mod-project`
@@ -983,25 +909,25 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `5` credits
 
-Validate a structured mod specification or source archive without writing artifacts. Use this before create_mod_project for complex specs, especially specs with events, client_modules, command parameters, machine recipes, radius conditions, or platform-specific behavior.
+Validate a structured Minecraft mod spec or previously generated source archive without writing artifacts.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `advanced_resources` | `array` | no | Escape hatch for raw files: path plus content_base64, content_text, or source_file_id. |
-| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when a selected component requires experiments. |
+| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when selected components require experiments. |
 | `assets` | `object` | no | Optional pre-bound textures, sounds, particles, models, and language entries. |
 | `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
-| `description` | `string` | no | Short mod description shown in pack/mod metadata. |
-| `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. Events support interval_ticks, cooldown_ticks, chance_percent, action_selection=random_one, wait actions, conditions such as entity_within_radius/time_of_day/weather_is/y_below/y_above/light_level_below, radius-targeted actions, typed command parameters with {param:name}, show_title display/timing, replace_held_item, time/weather actions, broadcast aliases, relative positions, particle count/spread, sound volume/pitch, scoreboard set/add/remove, and strict action-option validation. See product instructions for exact nested fields and platform gates. |
-| `minecraft_version` | `string` | no | Pinned version. Omit to use the platform default; unsupported versions are rejected with supported-version guidance. |
-| `mod_id` | `string` | no | Lowercase namespace ^[a-z][a-z0-9_]{1,63}$; becomes generated identifier namespace. |
-| `mod_metadata` | `object` | no | Optional metadata: version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, bedrock_experiments. |
-| `mod_name` | `string` | no | Human-readable mod name shown in generated pack/mod metadata. |
-| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture source. |
+| `description` | `string` | no | Short mod description. |
+| `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. See product instructions for exact nested fields and platform gates. |
+| `minecraft_version` | `string` | no | Pinned version. Omit unless the user explicitly asks for the supported pinned version. |
+| `mod_id` | `string` | no | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. |
+| `mod_metadata` | `object` | no | Optional metadata such as version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, and bedrock_experiments. |
+| `mod_name` | `string` | no | Human-readable mod name. |
+| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture sources. |
 | `source_archive_file_id` | `string` | no | File Manager file_id for a previously generated source zip to validate instead of a spec. |
-| `target_platform` | `string` | no | One of bedrock, bedrock_skinpack, fabric, neoforge. Legacy forge is rejected with a NeoForge migration message. |
+| `target_platform` | `string` | no | bedrock, bedrock_skinpack, fabric, or neoforge. Legacy forge is rejected with a NeoForge migration message. |
 
 Sample parameters:
 
@@ -1014,32 +940,7 @@ Sample parameters:
   "assets": {},
   "compatibility_mode": "strict",
   "description": "example description",
-  "features": {
-    "animation_controllers": [
-      {}
-    ],
-    "animations": [
-      {}
-    ],
-    "biomes": [
-      {}
-    ],
-    "blocks": [
-      {}
-    ],
-    "client_modules": [
-      {}
-    ],
-    "commands": [
-      {}
-    ],
-    "damage_types": [
-      {}
-    ],
-    "dimensions": [
-      {}
-    ]
-  },
+  "features": {},
   "minecraft_version": "example minecraft version",
   "mod_id": "example mod id"
 }
@@ -1058,7 +959,7 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "allow_experimental_bedrock_features": {
-    "description": "Allow Bedrock experimental features when a selected component requires experiments.",
+    "description": "Allow Bedrock experimental features when selected components require experiments.",
     "required": false,
     "type": "boolean"
   },
@@ -1078,309 +979,37 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "description": {
-    "description": "Short mod description shown in pack/mod metadata.",
+    "description": "Short mod description.",
     "required": false,
     "type": "string"
   },
   "features": {
-    "description": "FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. Events support interval_ticks, cooldown_ticks, chance_percent, action_selection=random_one, wait actions, conditions such as entity_within_radius/time_of_day/weather_is/y_below/y_above/light_level_below, radius-targeted actions, typed command parameters with {param:name}, show_title display/timing, replace_held_item, time/weather actions, broadcast aliases, relative positions, particle count/spread, sound volume/pitch, scoreboard set/add/remove, and strict action-option validation. See product instructions for exact nested fields and platform gates.",
-    "properties": {
-      "animation_controllers": {
-        "description": "animation_controllers feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "animations": {
-        "description": "animations feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "biomes": {
-        "description": "Custom biome definitions and worldgen references.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "blocks": {
-        "description": "Custom blocks. Key fields: block_id, display_name, block_kind, texture, hardness, resistance, light_level, drops, crop/redstone/machine/container presets.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "client_modules": {
-        "description": "Java-only client utility modules: utility_client_preset, performance_profile, fullbright, block_esp, entity_esp, tnt_cart_placement_esp, renderer_profile.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "commands": {
-        "description": "Custom commands. Key fields: command_id, description, command_kind, permission_level, parameters, actions. Use {param:name} placeholders in action messages/commands.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "damage_types": {
-        "description": "damage_types feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "dimensions": {
-        "description": "Custom dimension definitions and linked biome/worldgen settings.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "effects": {
-        "description": "Status/effect definitions. Key fields: effect_id, display_name, effect_kind, builtin_effect_id, duration_ticks, amplifier.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "enchantments": {
-        "description": "enchantments feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "entities": {
-        "description": "Custom mobs/entities. Key fields: entity_id, display_name, entity_kind, texture, health, attack_damage, movement_speed, families, ai_goals, scale, component_overrides.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "events": {
-        "description": "Event behaviors. Key fields: event_id, event_kind, conditions, actions, interval_ticks, cooldown_ticks, chance_percent, action_selection.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "functions": {
-        "description": "Bedrock/Java command function files. Use lines or commands aliases. Shell syntax is rejected.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "game_rules": {
-        "description": "game_rules feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "items": {
-        "description": "Custom items and tools. Key fields: item_id, display_name, item_kind, texture, tool_type/tool_tier, armor, food, durability, damage, max_stack_size.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "localizations": {
-        "description": "localizations feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "loot_tables": {
-        "description": "Loot tables for entity/block drops. Key fields: loot_id, target, drops, functions, conditions.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "machines": {
-        "description": "Interact-driven machines. Key fields: machine_id/block_id, display_name, texture, processing_time_ticks, machine_recipes.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "particles": {
-        "description": "Custom particles. Key fields: particle_id, texture, color_hex/source_file_id.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "recipes": {
-        "description": "Crafting/smelting/smithing/brewing recipes. Key fields: recipe_id, recipe_kind, result_item, pattern/key, ingredients, input_item, count.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "render_controllers": {
-        "description": "render_controllers feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "scoreboards": {
-        "description": "Scoreboard objectives. Key fields: objective_id, display_name, criteria, display_slot.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "sounds": {
-        "description": "Custom or vanilla sounds. Key fields: sound_id, source_file_id/source_base64, category, volume, pitch.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "storage": {
-        "description": "Storage blocks/backpacks. Key fields: storage_id, display_name, storage_kind, texture, capacity.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "structures": {
-        "description": "Structure assets and placements. Key fields: structure_id, source_file_id/source_base64, placement settings.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "tags": {
-        "description": "Named tag presets for grouped behavior.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "trades": {
-        "description": "trades feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "transportation": {
-        "description": "transportation feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "ui": {
-        "description": "ui feature array. See product instructions for exact fields.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "worldgen": {
-        "description": "World generation features. Key fields: feature_id, feature_kind, block_id, target_block, vein_size, count_per_chunk, min_y, max_y, biomes.",
-        "items": {
-          "description": "Nested object; see product instructions for exact fields.",
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      }
-    },
+    "description": "FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. See product instructions for exact nested fields and platform gates.",
     "required": false,
     "type": "object"
   },
   "minecraft_version": {
-    "description": "Pinned version. Omit to use the platform default; unsupported versions are rejected with supported-version guidance.",
+    "description": "Pinned version. Omit unless the user explicitly asks for the supported pinned version.",
     "required": false,
     "type": "string"
   },
   "mod_id": {
-    "description": "Lowercase namespace ^[a-z][a-z0-9_]{1,63}$; becomes generated identifier namespace.",
+    "description": "Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$.",
     "required": false,
     "type": "string"
   },
   "mod_metadata": {
-    "description": "Optional metadata: version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, bedrock_experiments.",
+    "description": "Optional metadata such as version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, and bedrock_experiments.",
     "required": false,
     "type": "object"
   },
   "mod_name": {
-    "description": "Human-readable mod name shown in generated pack/mod metadata.",
+    "description": "Human-readable mod name.",
     "required": false,
     "type": "string"
   },
   "skin_pack": {
-    "description": "Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture source.",
+    "description": "Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture sources.",
     "required": false,
     "type": "object"
   },
@@ -1390,7 +1019,7 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "target_platform": {
-    "description": "One of bedrock, bedrock_skinpack, fabric, neoforge. Legacy forge is rejected with a NeoForge migration message.",
+    "description": "bedrock, bedrock_skinpack, fabric, or neoforge. Legacy forge is rejected with a NeoForge migration message.",
     "enum": [
       "bedrock",
       "bedrock_skinpack",

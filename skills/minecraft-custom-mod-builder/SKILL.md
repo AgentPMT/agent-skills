@@ -1,7 +1,7 @@
 ---
 name: minecraft-custom-mod-builder
 description: "Minecraft Custom Mod Builder: Deterministically generate and preview Minecraft Bedrock, Bedrock skin pack, Fabric, and NeoForge artifacts from structured specs. Use when an agent needs minecraft custom mod builder, create installable minecraft bedrock add ons (.mcaddon) from a simple description, build java mods for fabric and neoforge and download the .jar, design custom swords, pickaxes, create mod project, target platform, mod id through AgentPMT-hosted remote tool calls."
-version: 1.0.2
+version: 1.0.3
 homepage: https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder"}}
@@ -52,6 +52,18 @@ Recommended defaults unless you have a specific reason to deviate: items/blocks 
 #### Request Shape Rules
 
 Prefer the canonical field names below. The backend accepts the listed aliases when they are exact equivalents, but canonical names make the generated schema and validation errors easier to follow.
+
+##### Long-running Java builds
+
+Use `start_build_job` for Fabric/NeoForge requests when `build_jar=true`. It validates the request, queues the build, and returns immediately with `task_id` and `status="queued"`. Poll with `get_build_job` using the same `task_id` until `status` is `completed` or `failed`. When completed, `result` has the same artifact payload shape returned by `create_mod_project`.
+
+Use `list_build_jobs` with `limit` (`1` to `100`) to inspect recent build jobs for the current budget.
+
+`create_mod_project` remains synchronous. Use it for Bedrock `.mcaddon` generation, Bedrock skin packs, Java source-only generation (`build_jar=false`), quick smoke tests, or callers that intentionally want to wait for the whole create path. Do not use synchronous `create_mod_project` for large Java jar builds from chat; use `start_build_job` so the caller does not hit request timeouts before Gradle finishes.
+
+##### Bedrock custom namespace
+
+For Bedrock add-ons, generated custom in-game identifiers use the Creator Tools namespace `creator_project:<id>`. Keep using `mod_id` for the request, artifact naming, file paths, and Java platforms. In Bedrock specs, short ids (`"ruby"`) and legacy `<mod_id>:<id>` refs still resolve to the generated custom feature; the emitted pack rewrites them to `creator_project:<id>`. Use `minecraft:<id>` for vanilla content and other explicit namespaces for external content.
 
 ##### Creative world mechanics
 
@@ -172,6 +184,17 @@ Use `description` for commands. `display_name` is accepted as an alias when `des
 Functions may include optional `description` metadata. Use `lines`; `commands` is accepted as an alias when `lines` is absent.
 
 Use `rarity.value` for item rarity. `rarity.rarity` and `rarity.name` are accepted aliases.
+
+Historical exact aliases also normalize when the intent is deterministic:
+
+| Location | Canonical field/value | Accepted alias |
+|---|---|---|
+| `ItemSpec` food field | `saturation` | top-level `saturation_modifier` |
+| `ItemSpec` bow-like item | `item_kind="projectile"` + `shooter` | `tool_type="bow"` |
+| `BlockSpec.block_kind` | `basic` | `generic` |
+| `UISpec.ui_kind` | `hud_overlay` | `hud`, `overlay`, `screen_overlay` |
+| `UISpec.ui_kind` | `key_mapping` | `keybind`, `key_binding` |
+| `RecipeSpec.result_item` | `result_item` | `result`, `output`, `output_item`, `item_result` |
 
 ##### ActionSpec aliases
 
@@ -933,6 +956,8 @@ Every visible asset's `texture` field is a `BindingTextureSpec`. Supply exactly 
 - `particle_id`: required lowercase identifier.
 - `texture`: required BindingTextureSpec.
 
+Bedrock custom particles generate a resource-pack particle definition and a `textures/agentpmt/<mod_id>/particle/{particle_id}.png` sprite. Spawn a custom particle with `{"action_kind": "spawn_particle", "identifier": "<particle_id>"}` or the legacy `<mod_id>:<particle_id>` form; the emitted Bedrock pack uses `creator_project:<particle_id>`. Use vanilla identifiers such as `minecraft:basic_flame_particle` when a custom texture is not needed.
+
 ##### Effects
 
 - `effect_id`: required lowercase identifier.
@@ -994,6 +1019,7 @@ Java targets reject `brewing_mix` and `brewing_container` with `MINECRAFT_COMPON
 - `processing_time_ticks`: ticks between completing the input set and producing output. `processing_time` is accepted as an alias; `processing_time_seconds` is accepted when it converts to whole ticks.
 - `machine_recipes`: inline machine recipes. Each recipe has `recipe_id`, `inputs` (1-9 item ids), `output`, and `output_count`.
 - Machine recipes are interact-driven: right-click the machine with each required input item. The generated machine records pending inputs per block position, consumes matching inputs, waits `processing_time_ticks`, then drops the output item.
+- Bedrock machine textures are merged into the normal `resource_pack/textures/terrain_texture.json` atlas. Do not remove the structured machine helper to avoid loose texture files.
 - `StorageSpec` requires `texture` (item icon for `backpack`, block face for the rest). `storage_kind`: `item_container`, `fluid_tank`, `energy_storage`, or `backpack`.
 
 ##### Skins
@@ -1003,7 +1029,9 @@ Java targets reject `brewing_mix` and `brewing_container` with `MINECRAFT_COMPON
 #### Output Behavior
 
 - Bedrock `installable` or `both` returns a `.mcaddon` and validation report. With `validate_output=true`, Mojang Minecraft Creator Tools validates the generated add-on.
+- Bedrock skin packs return a `.mcpack`; with `validate_output=true`, Minecraft Creator Tools validates it through the supported `addon` suite.
 - Fabric/NeoForge `installable` or `both` returns a jar when `build_jar=true`; otherwise use `source` for source zips only.
+- Fabric/NeoForge `start_build_job` returns a `task_id` immediately. `get_build_job` returns queued/processing/failed/completed state; completed jobs expose `result.artifacts`, `result.generated_files`, `result.validation`, and `result.build`.
 - `render_preview_image` returns a `preview` artifact with a PNG `file_id`, signed URL, and image metadata. It previews texture/icon assets only; gameplay behavior still must be tested in Minecraft.
 - Fabric/NeoForge entity specs emit registered `EntityType` definitions, per-kind generated entity subclasses, default attributes, spawn eggs, client renderer registrations, and loader-specific spawn/attribute hooks.
 - Fabric worldgen specs emit data-pack configured/placed features plus Fabric biome modification hooks. NeoForge worldgen specs emit data-pack configured/placed features plus NeoForge biome modifier JSON.
@@ -1020,7 +1048,7 @@ Java targets reject `brewing_mix` and `brewing_container` with `MINECRAFT_COMPON
 - Use this skill for `Minecraft Custom Mod Builder` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
 - Search and activation keywords: minecraft custom mod builder, create installable minecraft bedrock add ons (.mcaddon) from a simple description, build java mods for fabric and neoforge and download the .jar, design custom swords, pickaxes, create mod project, target platform, mod id.
-- Supported action names: `create_mod_project`, `list_capabilities`, `render_preview_image`, `validate_mod_project`.
+- Supported action names: `create_mod_project`, `get_build_job`, `list_build_jobs`, `list_capabilities`, `render_preview_image`, `start_build_job`, `validate_mod_project`.
 
 ## Use Cases
 - Create installable Minecraft Bedrock add-ons (.mcaddon) from a simple description
@@ -1049,13 +1077,16 @@ No categories or industry tags are published for this tool.
 
 ## Actions And Schema
 Complete generated action schema: `./schema.md`.
-Supported action count: `4`.
+Supported action count: `7`.
 x402 action routes are enabled and listed in `./schema.md`.
 
-- `create_mod_project` (action slug: `create-mod-project`): Generate installable Minecraft artifacts and upload them to File Manager. Supports Bedrock .mcaddon, Bedrock skin packs, Fabric jars/source, and NeoForge jars/source from structured specs. Supports deterministic world-side mechanics, scheduled/random events, cooldowns, radius conditions, custom commands with parameters, time/weather/title actions, scoreboards, particles/sounds, relative teleports, explosions, lightning, block changes, effects, tags, items, entities, machines, recipes, and Java client utility modules. Use render_preview_image when visual assets matter. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `build_jar`, `compatibility_mode`, `description`, `features`, `include_file_preview`, plus 8 more.
-- `list_capabilities` (action slug: `list-capabilities`): Return supported platforms, pinned versions, feature kinds, event kinds, action kinds, client module kinds, event options, condition kinds, action options, unsupported families, and the capability matrix. Use this before planning complex Java/Bedrock behavior. Price: `2` credits. Parameters: `target_platform`.
-- `render_preview_image` (action slug: `render-preview-image`): Render and upload an enlarged PNG preview for an item, block, entity, texture, or generated source archive. Uses the same current structured feature contract as create_mod_project when previewing from a spec. Price: `5` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `compatibility_mode`, `description`, `features`, `minecraft_version`, `mod_id`, plus 10 more.
-- `validate_mod_project` (action slug: `validate-mod-project`): Validate a structured mod specification or source archive without writing artifacts. Use this before create_mod_project for complex specs, especially specs with events, client_modules, command parameters, machine recipes, radius conditions, or platform-specific behavior. Price: `5` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `compatibility_mode`, `description`, `features`, `minecraft_version`, `mod_id`, plus 5 more.
+- `create_mod_project` (action slug: `create-mod-project`): Generate installable Minecraft artifacts and upload them to File Manager. Supports Bedrock .mcaddon, Bedrock skin packs, Fabric jars/source, and NeoForge jars/source from structured specs. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `build_jar`, `compatibility_mode`, `description`, `features`, `include_file_preview`, plus 8 more.
+- `get_build_job` (action slug: `get-build-job`): Fetch one queued Minecraft build job by task_id. Poll after start_build_job until status is completed or failed. Price: `2` credits. Parameters: `task_id`, `timeout_seconds`.
+- `list_build_jobs` (action slug: `list-build-jobs`): List recent Minecraft build jobs for the active budget. Use this to recover a task_id or inspect recent queued/completed builds. Price: `2` credits. Parameters: `limit`, `timeout_seconds`.
+- `list_capabilities` (action slug: `list-capabilities`): Return supported platforms, pinned versions, feature kinds, event/action/condition matrices, client module kinds, and unsupported families. Use before planning complex Bedrock/Fabric/NeoForge behavior. Price: `2` credits. Parameters: `target_platform`.
+- `render_preview_image` (action slug: `render-preview-image`): Render and upload an enlarged PNG preview for an item, block, entity, texture, or generated source archive. Use after create_mod_project when visual assets matter. Price: `5` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `compatibility_mode`, `description`, `features`, `minecraft_version`, `mod_id`, plus 10 more.
+- `start_build_job` (action slug: `start-build-job`): Queue long-running Minecraft mod generation and return immediately with a task_id. Use this instead of create_mod_project for Fabric/NeoForge jar builds or requests likely to exceed chat/tool timeouts. The input spec is the same as create_mod_project; poll get_build_job until completed or failed. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `build_jar`, `compatibility_mode`, `description`, `features`, `include_file_preview`, plus 8 more.
+- `validate_mod_project` (action slug: `validate-mod-project`): Validate a structured Minecraft mod spec or previously generated source archive without writing artifacts. Price: `5` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `compatibility_mode`, `description`, `features`, `minecraft_version`, `mod_id`, plus 5 more.
 
 ## Live Schema And Examples
 Use the compact schema above for ordinary calls. Before a new production integration, or whenever parameters, enum values, nested objects, outputs, or examples are unclear, fetch live details first.
