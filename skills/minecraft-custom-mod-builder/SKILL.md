@@ -1,7 +1,7 @@
 ---
 name: minecraft-custom-mod-builder
 description: "Minecraft Custom Mod Builder: Deterministically generate and preview Minecraft Bedrock, Bedrock skin pack, Fabric, and NeoForge artifacts from structured specs. Use when an agent needs minecraft custom mod builder, create installable minecraft bedrock add ons (.mcaddon) from a simple description, build java mods for fabric and neoforge and download the .jar, design custom swords, pickaxes, create mod project, target platform, mod id through AgentPMT-hosted remote tool calls."
-version: 1.0.1
+version: 1.0.2
 homepage: https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder"}}
@@ -1041,6 +1041,7 @@ Java targets reject `brewing_mix` and `brewing_container` with `MINECRAFT_COMPON
 - and villager trades
 
 ## Related Product Skills
+- Icon Generator: ../product-icon-generator (ClawHub: `product-icon-generator`, page: https://clawhub.ai/agentpmt/product-icon-generator; skills.sh: `npx skills add AgentPMT/agent-skills --skill product-icon-generator`)
 - File Management: ../file-management (ClawHub: `file-management`, page: https://clawhub.ai/agentpmt/file-management; skills.sh: `npx skills add AgentPMT/agent-skills --skill file-management`)
 
 ## Categories And Industries
@@ -1049,12 +1050,12 @@ No categories or industry tags are published for this tool.
 ## Actions And Schema
 Complete generated action schema: `./schema.md`.
 Supported action count: `4`.
-x402 availability: not enabled for this product.
+x402 action routes are enabled and listed in `./schema.md`.
 
-- `create_mod_project` (action slug: `create-mod-project`): Generate installable Minecraft artifacts and upload them to File Manager. Supports Bedrock .mcaddon, Bedrock skin packs, Fabric jars/source, and NeoForge jars/source from structured specs. Supports deterministic world-side mechanics, scheduled/random events, cooldowns, radius conditions, custom commands with parameters, time/weather/title actions, scoreboards, particles/sounds, relative teleports, explosions, lightning, block changes, effects, tags, items, entities, machines, recipes, and Java client utility modules. Use render_preview_image when visual assets matter. Price: `25` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `build_jar`, `compatibility_mode`, `description`, `features`, `include_file_preview`, plus 8 more.
-- `list_capabilities` (action slug: `list-capabilities`): Return supported platforms, pinned versions, feature kinds, event kinds, action kinds, client module kinds, event options, condition kinds, action options, unsupported families, and the capability matrix. Use this before planning complex Java/Bedrock behavior. Price: `25` credits. Parameters: `target_platform`.
-- `render_preview_image` (action slug: `render-preview-image`): Render and upload an enlarged PNG preview for an item, block, entity, texture, or generated source archive. Uses the same current structured feature contract as create_mod_project when previewing from a spec. Price: `25` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `compatibility_mode`, `description`, `features`, `minecraft_version`, `mod_id`, plus 10 more.
-- `validate_mod_project` (action slug: `validate-mod-project`): Validate a structured mod specification or source archive without writing artifacts. Use this before create_mod_project for complex specs, especially specs with events, client_modules, command parameters, machine recipes, radius conditions, or platform-specific behavior. Price: `25` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `compatibility_mode`, `description`, `features`, `minecraft_version`, `mod_id`, plus 5 more.
+- `create_mod_project` (action slug: `create-mod-project`): Generate installable Minecraft artifacts and upload them to File Manager. Supports Bedrock .mcaddon, Bedrock skin packs, Fabric jars/source, and NeoForge jars/source from structured specs. Supports deterministic world-side mechanics, scheduled/random events, cooldowns, radius conditions, custom commands with parameters, time/weather/title actions, scoreboards, particles/sounds, relative teleports, explosions, lightning, block changes, effects, tags, items, entities, machines, recipes, and Java client utility modules. Use render_preview_image when visual assets matter. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `build_jar`, `compatibility_mode`, `description`, `features`, `include_file_preview`, plus 8 more.
+- `list_capabilities` (action slug: `list-capabilities`): Return supported platforms, pinned versions, feature kinds, event kinds, action kinds, client module kinds, event options, condition kinds, action options, unsupported families, and the capability matrix. Use this before planning complex Java/Bedrock behavior. Price: `2` credits. Parameters: `target_platform`.
+- `render_preview_image` (action slug: `render-preview-image`): Render and upload an enlarged PNG preview for an item, block, entity, texture, or generated source archive. Uses the same current structured feature contract as create_mod_project when previewing from a spec. Price: `5` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `compatibility_mode`, `description`, `features`, `minecraft_version`, `mod_id`, plus 10 more.
+- `validate_mod_project` (action slug: `validate-mod-project`): Validate a structured mod specification or source archive without writing artifacts. Use this before create_mod_project for complex specs, especially specs with events, client_modules, command parameters, machine recipes, radius conditions, or platform-specific behavior. Price: `5` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `compatibility_mode`, `description`, `features`, `minecraft_version`, `mod_id`, plus 5 more.
 
 ## Live Schema And Examples
 Use the compact schema above for ordinary calls. Before a new production integration, or whenever parameters, enum values, nested objects, outputs, or examples are unclear, fetch live details first.
@@ -1117,7 +1118,7 @@ Product slug: `minecraft-custom-mod-builder`
 Marketplace page: https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder
 
 - AgentPMT account route: first use `../agentpmt-account-mcp-rest-api-setup` to connect the main MCP server or REST API for an Agent Group where this tool is enabled.
-- x402 route: not enabled for this product.
+- No-account AgentAddress/x402 route: first use `../agentpmt-no-account-agentaddress-x402` for the canonical payment and wallet setup instructions.
 - AgentPMT overview: use `../what-is-agentpmt` for marketplace, Agent Group, workflow, MCP, REST, and payment concepts.
 
 If those setup skills are not installed beside this product skill, use the downloads below.
@@ -1131,12 +1132,17 @@ Core AgentPMT setup skills:
   - ClawHub page: https://clawhub.ai/agentpmt/agentpmt-account-mcp-rest-api-setup
   - OpenClaw install: `openclaw skills install agentpmt-account-mcp-rest-api-setup`
   - skills.sh install: `npx skills add AgentPMT/agent-skills --skill agentpmt-account-mcp-rest-api-setup`
+- No-account AgentAddress/x402 setup: ../agentpmt-no-account-agentaddress-x402
+  - ClawHub page: https://clawhub.ai/agentpmt/agentpmt-no-account-agentaddress-x402
+  - OpenClaw install: `openclaw skills install agentpmt-no-account-agentaddress-x402`
+  - skills.sh install: `npx skills add AgentPMT/agent-skills --skill agentpmt-no-account-agentaddress-x402`
 
 skills.sh install script:
 
 ```bash
 npx skills add AgentPMT/agent-skills --skill what-is-agentpmt
 npx skills add AgentPMT/agent-skills --skill agentpmt-account-mcp-rest-api-setup
+npx skills add AgentPMT/agent-skills --skill agentpmt-no-account-agentaddress-x402
 ```
 
 MCP call shape after the main AgentPMT MCP server is connected:
@@ -1151,7 +1157,7 @@ MCP call shape after the main AgentPMT MCP server is connected:
       "advanced_resources": [
         {}
       ],
-      "allow_experimental_bedrock_features": false,
+      "allow_experimental_bedrock_features": true,
       "assets": {},
       "build_jar": true,
       "compatibility_mode": "strict",
@@ -1182,7 +1188,7 @@ MCP call shape after the main AgentPMT MCP server is connected:
           {}
         ]
       },
-      "include_file_preview": false
+      "include_file_preview": true
     }
   }
 }
@@ -1200,7 +1206,7 @@ Authenticated AgentPMT REST call body:
     "advanced_resources": [
       {}
     ],
-    "allow_experimental_bedrock_features": false,
+    "allow_experimental_bedrock_features": true,
     "assets": {},
     "build_jar": true,
     "compatibility_mode": "strict",
@@ -1231,7 +1237,7 @@ Authenticated AgentPMT REST call body:
         {}
       ]
     },
-    "include_file_preview": false
+    "include_file_preview": true
   }
 }
 ```
@@ -1253,6 +1259,7 @@ Use the setup skill for the account connection details before making REST calls.
 ## AgentPMT Reference
 - What AgentPMT is: ../what-is-agentpmt (ClawHub: `what-is-agentpmt`, page: https://clawhub.ai/agentpmt/what-is-agentpmt; skills.sh: `npx skills add AgentPMT/agent-skills --skill what-is-agentpmt`)
 - AgentPMT account MCP/REST setup: ../agentpmt-account-mcp-rest-api-setup (ClawHub: `agentpmt-account-mcp-rest-api-setup`, page: https://clawhub.ai/agentpmt/agentpmt-account-mcp-rest-api-setup; skills.sh: `npx skills add AgentPMT/agent-skills --skill agentpmt-account-mcp-rest-api-setup`)
+- No-account AgentAddress/x402 setup: ../agentpmt-no-account-agentaddress-x402 (ClawHub: `agentpmt-no-account-agentaddress-x402`, page: https://clawhub.ai/agentpmt/agentpmt-no-account-agentaddress-x402; skills.sh: `npx skills add AgentPMT/agent-skills --skill agentpmt-no-account-agentaddress-x402`)
 - Marketplace product: https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder
 - AgentPMT main MCP server: https://api.agentpmt.com/mcp/
 - AgentPMT REST invoke endpoint: https://api.agentpmt.com/products/purchase

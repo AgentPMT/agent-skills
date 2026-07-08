@@ -4,13 +4,15 @@ This generated reference belongs to the adjacent `SKILL.md`. Use it for exact ac
 
 Product slug: `minecraft-custom-mod-builder`
 
-x402 availability: not enabled for this product.
+x402 action routes are enabled for this product through `https://www.agentpmt.com/api/external`.
 
 ## `create_mod_project`
 
 Action slug: `create-mod-project`
 
-Price: `25` credits
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/create-mod-project/invoke`
+
+Price: `15` credits
 
 Generate installable Minecraft artifacts and upload them to File Manager. Supports Bedrock .mcaddon, Bedrock skin packs, Fabric jars/source, and NeoForge jars/source from structured specs. Supports deterministic world-side mechanics, scheduled/random events, cooldowns, radius conditions, custom commands with parameters, time/weather/title actions, scoreboards, particles/sounds, relative teleports, explosions, lightning, block changes, effects, tags, items, entities, machines, recipes, and Java client utility modules. Use render_preview_image when visual assets matter.
 
@@ -42,7 +44,7 @@ Sample parameters:
   "advanced_resources": [
     {}
   ],
-  "allow_experimental_bedrock_features": false,
+  "allow_experimental_bedrock_features": true,
   "assets": {},
   "build_jar": true,
   "compatibility_mode": "strict",
@@ -73,7 +75,7 @@ Sample parameters:
       {}
     ]
   },
-  "include_file_preview": false
+  "include_file_preview": true
 }
 ```
 
@@ -90,7 +92,6 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "allow_experimental_bedrock_features": {
-    "default": false,
     "description": "Allow Bedrock experimental features when a selected component requires experiments.",
     "required": false,
     "type": "boolean"
@@ -399,7 +400,6 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "include_file_preview": {
-    "default": false,
     "description": "Include a compact file preview in response metadata.",
     "required": false,
     "type": "boolean"
@@ -464,7 +464,9 @@ Generated JSON parameter schema:
 
 Action slug: `list-capabilities`
 
-Price: `25` credits
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/list-capabilities/invoke`
+
+Price: `2` credits
 
 Return supported platforms, pinned versions, feature kinds, event kinds, action kinds, client module kinds, event options, condition kinds, action options, unsupported families, and the capability matrix. Use this before planning complex Java/Bedrock behavior.
 
@@ -504,7 +506,9 @@ Generated JSON parameter schema:
 
 Action slug: `render-preview-image`
 
-Price: `25` credits
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/render-preview-image/invoke`
+
+Price: `5` credits
 
 Render and upload an enlarged PNG preview for an item, block, entity, texture, or generated source archive. Uses the same current structured feature contract as create_mod_project when previewing from a spec.
 
@@ -538,7 +542,7 @@ Sample parameters:
   "advanced_resources": [
     {}
   ],
-  "allow_experimental_bedrock_features": false,
+  "allow_experimental_bedrock_features": true,
   "assets": {},
   "compatibility_mode": "strict",
   "description": "example description",
@@ -586,7 +590,6 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "allow_experimental_bedrock_features": {
-    "default": false,
     "description": "Allow Bedrock experimental features when a selected component requires experiments.",
     "required": false,
     "type": "boolean"
@@ -976,7 +979,9 @@ Generated JSON parameter schema:
 
 Action slug: `validate-mod-project`
 
-Price: `25` credits
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/validate-mod-project/invoke`
+
+Price: `5` credits
 
 Validate a structured mod specification or source archive without writing artifacts. Use this before create_mod_project for complex specs, especially specs with events, client_modules, command parameters, machine recipes, radius conditions, or platform-specific behavior.
 
@@ -1005,7 +1010,7 @@ Sample parameters:
   "advanced_resources": [
     {}
   ],
-  "allow_experimental_bedrock_features": false,
+  "allow_experimental_bedrock_features": true,
   "assets": {},
   "compatibility_mode": "strict",
   "description": "example description",
@@ -1053,7 +1058,6 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "allow_experimental_bedrock_features": {
-    "default": false,
     "description": "Allow Bedrock experimental features when a selected component requires experiments.",
     "required": false,
     "type": "boolean"
