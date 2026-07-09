@@ -14,28 +14,31 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `15` credits
 
-Generate installable Minecraft artifacts and upload them to File Manager. Supports Bedrock .mcaddon, Bedrock skin packs, Fabric jars/source, and NeoForge jars/source from structured specs.
+Synchronous unverified source/debug generation. Accepts only verification_level='off'; use start_build_job for install-ready final artifacts.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `advanced_resources` | `array` | no | Escape hatch for raw files: path plus content_base64, content_text, or source_file_id. |
-| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when selected components require experiments. |
-| `assets` | `object` | no | Optional pre-bound textures, sounds, particles, models, and language entries. |
-| `build_jar` | `boolean` | no | Fabric/NeoForge only. Build the jar offline when true; for long Java jar builds use start_build_job instead of synchronous create_mod_project. |
+| `advanced_resources` | `array` | no | Raw files with path plus content_base64, content_text, or source_file_id. |
+| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when required. |
+| `assets` | `object` | no | Optional textures, sounds, particles, models, and language entries. |
+| `build_jar` | `boolean` | no | Fabric/NeoForge only. Build jar when true. |
 | `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
 | `description` | `string` | no | Short mod description. |
-| `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. See product instructions for exact nested fields and platform gates. |
+| `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, particles, sounds, functions, storage, worldgen, scoreboards, biomes, dimensions, effects, and skins. See get_instructions for nested fields. |
+| `fidelity_policy` | `string` | no | preserve_intent, acknowledged_approximation, or allow_explicit_stub. Stub policy produces non-install-ready scaffolding. |
 | `include_file_preview` | `boolean` | no | Include capped text previews in generated_files. |
-| `minecraft_version` | `string` | no | Pinned version. Omit unless the user explicitly asks for the supported pinned version. |
+| `minecraft_version` | `string` | no | Pinned version. Omit unless explicitly needed. |
 | `mod_id` | `string` | yes | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. |
-| `mod_metadata` | `object` | no | Optional metadata such as version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, and bedrock_experiments. |
+| `mod_metadata` | `object` | no | Optional metadata such as version, license, authors, logo_texture, brand_color_hex, java_side, and bedrock_experiments. |
 | `mod_name` | `string` | yes | Human-readable mod name. |
-| `output_mode` | `string` | no | installable, source, or both. Use source with build_jar=false for fast Java source generation. |
-| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture sources. |
-| `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. Legacy forge is rejected with a NeoForge migration message. |
+| `output_mode` | `string` | no | installable, source, or both. |
+| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
+| `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. |
+| `user_intent_summary` | `string` | no | Optional concise intent statement for deterministic classification; not used for silent reinterpretation. |
 | `validate_output` | `boolean` | no | Run output validation when supported. |
+| `verification_level` | `string` | no | Must be off for create_mod_project. Use start_build_job for boot_smoke or behavior. |
 
 Sample parameters:
 
@@ -49,33 +52,8 @@ Sample parameters:
   "build_jar": true,
   "compatibility_mode": "strict",
   "description": "example description",
-  "features": {
-    "animation_controllers": [
-      {}
-    ],
-    "animations": [
-      {}
-    ],
-    "biomes": [
-      {}
-    ],
-    "blocks": [
-      {}
-    ],
-    "client_modules": [
-      {}
-    ],
-    "commands": [
-      {}
-    ],
-    "damage_types": [
-      {}
-    ],
-    "dimensions": [
-      {}
-    ]
-  },
-  "include_file_preview": true
+  "features": {},
+  "fidelity_policy": "preserve_intent"
 }
 ```
 
@@ -84,7 +62,7 @@ Generated JSON parameter schema:
 ```json
 {
   "advanced_resources": {
-    "description": "Escape hatch for raw files: path plus content_base64, content_text, or source_file_id.",
+    "description": "Raw files with path plus content_base64, content_text, or source_file_id.",
     "items": {
       "type": "object"
     },
@@ -92,23 +70,21 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "allow_experimental_bedrock_features": {
-    "description": "Allow Bedrock experimental features when selected components require experiments.",
+    "description": "Allow Bedrock experimental features when required.",
     "required": false,
     "type": "boolean"
   },
   "assets": {
-    "description": "Optional pre-bound textures, sounds, particles, models, and language entries.",
+    "description": "Optional textures, sounds, particles, models, and language entries.",
     "required": false,
     "type": "object"
   },
   "build_jar": {
-    "default": true,
-    "description": "Fabric/NeoForge only. Build the jar offline when true; for long Java jar builds use start_build_job instead of synchronous create_mod_project.",
+    "description": "Fabric/NeoForge only. Build jar when true.",
     "required": false,
     "type": "boolean"
   },
   "compatibility_mode": {
-    "default": "strict",
     "description": "strict or allow_platform_passthrough.",
     "enum": [
       "strict",
@@ -123,251 +99,19 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "features": {
-    "description": "FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. See product instructions for exact nested fields and platform gates.",
-    "properties": {
-      "animation_controllers": {
-        "description": "Animation controller definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "animations": {
-        "description": "Animation definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "biomes": {
-        "description": "Custom biome definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "blocks": {
-        "description": "Custom blocks.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "client_modules": {
-        "description": "Java-only client utility modules.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "commands": {
-        "description": "Custom commands.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "damage_types": {
-        "description": "Damage type definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "dimensions": {
-        "description": "Custom dimension definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "effects": {
-        "description": "Status/effect definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "enchantments": {
-        "description": "Enchantment definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "entities": {
-        "description": "Custom mobs/entities.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "events": {
-        "description": "Event behaviors.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "functions": {
-        "description": "Bedrock/Java command function files.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "game_rules": {
-        "description": "Game rule definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "items": {
-        "description": "Custom items and tools.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "localizations": {
-        "description": "Localization entries.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "loot_tables": {
-        "description": "Loot tables.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "machines": {
-        "description": "Interact-driven machines.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "particles": {
-        "description": "Custom particles.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "recipes": {
-        "description": "Crafting/smelting/smithing/brewing recipes.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "render_controllers": {
-        "description": "Render controller definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "scoreboards": {
-        "description": "Scoreboard objectives.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "sounds": {
-        "description": "Custom or vanilla sounds.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "storage": {
-        "description": "Storage blocks and backpacks.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "structures": {
-        "description": "Structure assets and placements.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "tags": {
-        "description": "Named tag presets.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "trades": {
-        "description": "Trade definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "transportation": {
-        "description": "Transportation definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "ui": {
-        "description": "UI definitions.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      },
-      "worldgen": {
-        "description": "World generation features.",
-        "items": {
-          "type": "object"
-        },
-        "required": false,
-        "type": "array"
-      }
-    },
+    "description": "FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, particles, sounds, functions, storage, worldgen, scoreboards, biomes, dimensions, effects, and skins. See get_instructions for nested fields.",
     "required": false,
     "type": "object"
+  },
+  "fidelity_policy": {
+    "description": "preserve_intent, acknowledged_approximation, or allow_explicit_stub. Stub policy produces non-install-ready scaffolding.",
+    "enum": [
+      "preserve_intent",
+      "acknowledged_approximation",
+      "allow_explicit_stub"
+    ],
+    "required": false,
+    "type": "string"
   },
   "include_file_preview": {
     "description": "Include capped text previews in generated_files.",
@@ -375,7 +119,7 @@ Generated JSON parameter schema:
     "type": "boolean"
   },
   "minecraft_version": {
-    "description": "Pinned version. Omit unless the user explicitly asks for the supported pinned version.",
+    "description": "Pinned version. Omit unless explicitly needed.",
     "required": false,
     "type": "string"
   },
@@ -385,7 +129,7 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "mod_metadata": {
-    "description": "Optional metadata such as version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, and bedrock_experiments.",
+    "description": "Optional metadata such as version, license, authors, logo_texture, brand_color_hex, java_side, and bedrock_experiments.",
     "required": false,
     "type": "object"
   },
@@ -395,8 +139,7 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "output_mode": {
-    "default": "both",
-    "description": "installable, source, or both. Use source with build_jar=false for fast Java source generation.",
+    "description": "installable, source, or both.",
     "enum": [
       "installable",
       "source",
@@ -406,12 +149,12 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "skin_pack": {
-    "description": "Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture sources.",
+    "description": "Skin pack definition for target_platform=bedrock_skinpack.",
     "required": false,
     "type": "object"
   },
   "target_platform": {
-    "description": "bedrock, bedrock_skinpack, fabric, or neoforge. Legacy forge is rejected with a NeoForge migration message.",
+    "description": "bedrock, bedrock_skinpack, fabric, or neoforge.",
     "enum": [
       "bedrock",
       "bedrock_skinpack",
@@ -421,11 +164,25 @@ Generated JSON parameter schema:
     "required": true,
     "type": "string"
   },
+  "user_intent_summary": {
+    "description": "Optional concise intent statement for deterministic classification; not used for silent reinterpretation.",
+    "required": false,
+    "type": "string"
+  },
   "validate_output": {
-    "default": true,
     "description": "Run output validation when supported.",
     "required": false,
     "type": "boolean"
+  },
+  "verification_level": {
+    "description": "Must be off for create_mod_project. Use start_build_job for boot_smoke or behavior.",
+    "enum": [
+      "off",
+      "boot_smoke",
+      "behavior"
+    ],
+    "required": false,
+    "type": "string"
   }
 }
 ```
@@ -438,21 +195,21 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `2` credits
 
-Fetch one queued Minecraft build job by task_id. Poll after start_build_job until status is completed or failed.
+Fetch one queued Minecraft build job by task_id. Poll after start_build_job until status is completed or failed; inspect result.ready_for_install and quality_gate.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `task_id` | `string` | yes | Build job id returned by start_build_job. |
-| `timeout_seconds` | `integer` | no | HTTP timeout for the status lookup; defaults to 600 seconds and may be 10-1200. |
+| `timeout_seconds` | `integer` | no | HTTP timeout for the status lookup. |
 
 Sample parameters:
 
 ```json
 {
   "task_id": "example task id",
-  "timeout_seconds": 600
+  "timeout_seconds": 1
 }
 ```
 
@@ -466,14 +223,37 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "timeout_seconds": {
-    "default": 600,
-    "description": "HTTP timeout for the status lookup; defaults to 600 seconds and may be 10-1200.",
-    "maximum": 1200,
-    "minimum": 10,
+    "description": "HTTP timeout for the status lookup.",
     "required": false,
     "type": "integer"
   }
 }
+```
+
+## `get_instructions`
+
+Action slug: `get-instructions`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/get-instructions/invoke`
+
+Price: `1` credits
+
+Return the canonical Minecraft Mod Builder instructions. Call before authoring complex specs or source-archive verification contracts.
+
+Parameters:
+
+This action does not require parameters.
+
+Sample parameters:
+
+```json
+{}
+```
+
+Generated JSON parameter schema:
+
+```json
+{}
 ```
 
 ## `list_build_jobs`
@@ -484,21 +264,21 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `2` credits
 
-List recent Minecraft build jobs for the active budget. Use this to recover a task_id or inspect recent queued/completed builds.
+List recent Minecraft build jobs for the active budget to recover task_id values or inspect recent queued/completed builds.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `limit` | `integer` | no | Maximum number of build jobs to return, from 1 to 100. |
-| `timeout_seconds` | `integer` | no | HTTP timeout for the list lookup; defaults to 600 seconds and may be 10-1200. |
+| `limit` | `integer` | no | Maximum jobs to return, from 1 to 100. |
+| `timeout_seconds` | `integer` | no | HTTP timeout for the list lookup. |
 
 Sample parameters:
 
 ```json
 {
-  "limit": 20,
-  "timeout_seconds": 600
+  "limit": 1,
+  "timeout_seconds": 1
 }
 ```
 
@@ -507,18 +287,12 @@ Generated JSON parameter schema:
 ```json
 {
   "limit": {
-    "default": 20,
-    "description": "Maximum number of build jobs to return, from 1 to 100.",
-    "maximum": 100,
-    "minimum": 1,
+    "description": "Maximum jobs to return, from 1 to 100.",
     "required": false,
     "type": "integer"
   },
   "timeout_seconds": {
-    "default": 600,
-    "description": "HTTP timeout for the list lookup; defaults to 600 seconds and may be 10-1200.",
-    "maximum": 1200,
-    "minimum": 10,
+    "description": "HTTP timeout for the list lookup.",
     "required": false,
     "type": "integer"
   }
@@ -533,7 +307,7 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `2` credits
 
-Return supported platforms, pinned versions, feature kinds, event/action/condition matrices, client module kinds, and unsupported families. Use before planning complex Bedrock/Fabric/NeoForge behavior.
+Return supported platforms, pinned versions, feature/action matrices, implementation_status, quality-gate fields, and unsupported families.
 
 Parameters:
 
@@ -575,21 +349,14 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `5` credits
 
-Render and upload an enlarged PNG preview for an item, block, entity, texture, or generated source archive. Use after create_mod_project when visual assets matter.
+Render and upload an enlarged PNG preview for an item, block, entity, texture, source archive, or direct image file.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `advanced_resources` | `array` | no | Escape hatch for raw files. |
-| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when selected components require experiments. |
-| `assets` | `object` | no | Optional pre-bound textures, sounds, particles, models, and language entries. |
-| `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
-| `description` | `string` | no | Short mod description. |
 | `features` | `object` | no | FeatureSet object for spec preview. |
-| `minecraft_version` | `string` | no | Pinned version. Omit unless explicitly needed. |
 | `mod_id` | `string` | no | Lowercase namespace for spec/source preview. |
-| `mod_metadata` | `object` | no | Optional metadata. |
 | `mod_name` | `string` | no | Human-readable mod name for spec preview. |
 | `preview_background` | `string` | no | checkerboard, transparent, white, or black. |
 | `preview_size` | `integer` | no | Square preview PNG size from 32 to 1024 pixels. |
@@ -597,23 +364,21 @@ Parameters:
 | `preview_target_id` | `string` | no | Feature id or namespaced id, such as flame_sword or flame_tools:flame_sword. |
 | `preview_target_kind` | `string` | no | item, block, entity, or texture. |
 | `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
-| `source_archive_file_id` | `string` | no | File Manager file_id for a previously generated source zip to preview from. |
+| `source_archive_file_id` | `string` | no | File Manager file_id for a generated source zip to preview from. |
 | `target_platform` | `string` | no | Optional platform context. |
 
 Sample parameters:
 
 ```json
 {
-  "advanced_resources": [
-    {}
-  ],
-  "allow_experimental_bedrock_features": true,
-  "assets": {},
-  "compatibility_mode": "strict",
-  "description": "example description",
   "features": {},
-  "minecraft_version": "example minecraft version",
-  "mod_id": "example mod id"
+  "mod_id": "example mod id",
+  "mod_name": "example mod name",
+  "preview_background": "checkerboard",
+  "preview_size": 1,
+  "preview_source_file_id": "example preview source file id",
+  "preview_target_id": "example preview target id",
+  "preview_target_kind": "item"
 }
 ```
 
@@ -621,58 +386,15 @@ Generated JSON parameter schema:
 
 ```json
 {
-  "advanced_resources": {
-    "description": "Escape hatch for raw files.",
-    "items": {
-      "type": "object"
-    },
-    "required": false,
-    "type": "array"
-  },
-  "allow_experimental_bedrock_features": {
-    "description": "Allow Bedrock experimental features when selected components require experiments.",
-    "required": false,
-    "type": "boolean"
-  },
-  "assets": {
-    "description": "Optional pre-bound textures, sounds, particles, models, and language entries.",
-    "required": false,
-    "type": "object"
-  },
-  "compatibility_mode": {
-    "default": "strict",
-    "description": "strict or allow_platform_passthrough.",
-    "enum": [
-      "strict",
-      "allow_platform_passthrough"
-    ],
-    "required": false,
-    "type": "string"
-  },
-  "description": {
-    "description": "Short mod description.",
-    "required": false,
-    "type": "string"
-  },
   "features": {
     "description": "FeatureSet object for spec preview.",
     "required": false,
     "type": "object"
   },
-  "minecraft_version": {
-    "description": "Pinned version. Omit unless explicitly needed.",
-    "required": false,
-    "type": "string"
-  },
   "mod_id": {
     "description": "Lowercase namespace for spec/source preview.",
     "required": false,
     "type": "string"
-  },
-  "mod_metadata": {
-    "description": "Optional metadata.",
-    "required": false,
-    "type": "object"
   },
   "mod_name": {
     "description": "Human-readable mod name for spec preview.",
@@ -680,7 +402,6 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "preview_background": {
-    "default": "checkerboard",
     "description": "checkerboard, transparent, white, or black.",
     "enum": [
       "checkerboard",
@@ -692,10 +413,7 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "preview_size": {
-    "default": 256,
     "description": "Square preview PNG size from 32 to 1024 pixels.",
-    "maximum": 1024,
-    "minimum": 32,
     "required": false,
     "type": "integer"
   },
@@ -726,7 +444,7 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "source_archive_file_id": {
-    "description": "File Manager file_id for a previously generated source zip to preview from.",
+    "description": "File Manager file_id for a generated source zip to preview from.",
     "required": false,
     "type": "string"
   },
@@ -752,28 +470,34 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `15` credits
 
-Queue long-running Minecraft mod generation and return immediately with a task_id. Use this instead of create_mod_project for Fabric/NeoForge jar builds or requests likely to exceed chat/tool timeouts. The input spec is the same as create_mod_project; poll get_build_job until completed or failed.
+Queue verified async generation or uploaded-source testing. Poll get_build_job and ship only when result.ready_for_install=true and quality_gate.status='passed'.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `advanced_resources` | `array` | no | Escape hatch for raw files. |
-| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when selected components require experiments. |
-| `assets` | `object` | no | Optional pre-bound textures, sounds, particles, models, and language entries. |
-| `build_jar` | `boolean` | no | Fabric/NeoForge only. Defaults true; this queued action is intended for build_jar=true jar builds. |
+| `advanced_resources` | `array` | no | Raw files with path plus content_base64, content_text, or source_file_id. |
+| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when required. |
+| `assets` | `object` | no | Optional textures, sounds, particles, models, and language entries. |
+| `build_jar` | `boolean` | no | Fabric/NeoForge only. Build jar when true. |
 | `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
 | `description` | `string` | no | Short mod description. |
-| `features` | `object` | no | FeatureSet object. Same shape as create_mod_project. |
+| `features` | `object` | no | FeatureSet object for generated spec builds. Omit when testing uploaded source_archive_file_id. |
+| `fidelity_policy` | `string` | no | preserve_intent, acknowledged_approximation, or allow_explicit_stub. Stub policy produces non-install-ready scaffolding. |
 | `include_file_preview` | `boolean` | no | Include capped text previews in generated_files. |
 | `minecraft_version` | `string` | no | Pinned version. Omit unless explicitly needed. |
-| `mod_id` | `string` | yes | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. |
-| `mod_metadata` | `object` | no | Optional metadata. |
-| `mod_name` | `string` | yes | Human-readable mod name. |
+| `mod_id` | `string` | yes | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. Required for spec builds and source-archive jobs. |
+| `mod_metadata` | `object` | no | Optional metadata such as version, license, authors, logo_texture, brand_color_hex, java_side, and bedrock_experiments. |
+| `mod_name` | `string` | no | Human-readable mod name. Required for spec builds; not required when source_archive_file_id is provided. |
 | `output_mode` | `string` | no | installable, source, or both. |
 | `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
-| `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. Use this mainly for Fabric/NeoForge jar builds. |
+| `source_archive_file_id` | `string` | no | File Manager file_id for a generated or agent-edited source zip. When provided, the job tests the uploaded source without regenerating over edits. |
+| `source_test_mode` | `string` | no | For source_archive_file_id jobs: test_only for iteration, or test_and_package to return install artifacts only after the quality gate passes. |
+| `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. |
+| `user_intent_summary` | `string` | no | Optional concise intent statement for deterministic classification; not used for silent reinterpretation. |
 | `validate_output` | `boolean` | no | Run output validation when supported. |
+| `verification_contract` | `object` | no | Required for source_archive_file_id jobs with verification enabled. Include expected_checks describing what the edited source must prove. |
+| `verification_level` | `string` | no | behavior by default for install-ready builds; boot_smoke for runtime-load only; off for debug/unverified jobs. |
 
 Sample parameters:
 
@@ -788,7 +512,7 @@ Sample parameters:
   "compatibility_mode": "strict",
   "description": "example description",
   "features": {},
-  "include_file_preview": true
+  "fidelity_policy": "preserve_intent"
 }
 ```
 
@@ -797,7 +521,7 @@ Generated JSON parameter schema:
 ```json
 {
   "advanced_resources": {
-    "description": "Escape hatch for raw files.",
+    "description": "Raw files with path plus content_base64, content_text, or source_file_id.",
     "items": {
       "type": "object"
     },
@@ -805,23 +529,21 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "allow_experimental_bedrock_features": {
-    "description": "Allow Bedrock experimental features when selected components require experiments.",
+    "description": "Allow Bedrock experimental features when required.",
     "required": false,
     "type": "boolean"
   },
   "assets": {
-    "description": "Optional pre-bound textures, sounds, particles, models, and language entries.",
+    "description": "Optional textures, sounds, particles, models, and language entries.",
     "required": false,
     "type": "object"
   },
   "build_jar": {
-    "default": true,
-    "description": "Fabric/NeoForge only. Defaults true; this queued action is intended for build_jar=true jar builds.",
+    "description": "Fabric/NeoForge only. Build jar when true.",
     "required": false,
     "type": "boolean"
   },
   "compatibility_mode": {
-    "default": "strict",
     "description": "strict or allow_platform_passthrough.",
     "enum": [
       "strict",
@@ -836,9 +558,19 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "features": {
-    "description": "FeatureSet object. Same shape as create_mod_project.",
+    "description": "FeatureSet object for generated spec builds. Omit when testing uploaded source_archive_file_id.",
     "required": false,
     "type": "object"
+  },
+  "fidelity_policy": {
+    "description": "preserve_intent, acknowledged_approximation, or allow_explicit_stub. Stub policy produces non-install-ready scaffolding.",
+    "enum": [
+      "preserve_intent",
+      "acknowledged_approximation",
+      "allow_explicit_stub"
+    ],
+    "required": false,
+    "type": "string"
   },
   "include_file_preview": {
     "description": "Include capped text previews in generated_files.",
@@ -851,22 +583,21 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "mod_id": {
-    "description": "Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$.",
+    "description": "Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. Required for spec builds and source-archive jobs.",
     "required": true,
     "type": "string"
   },
   "mod_metadata": {
-    "description": "Optional metadata.",
+    "description": "Optional metadata such as version, license, authors, logo_texture, brand_color_hex, java_side, and bedrock_experiments.",
     "required": false,
     "type": "object"
   },
   "mod_name": {
-    "description": "Human-readable mod name.",
-    "required": true,
+    "description": "Human-readable mod name. Required for spec builds; not required when source_archive_file_id is provided.",
+    "required": false,
     "type": "string"
   },
   "output_mode": {
-    "default": "both",
     "description": "installable, source, or both.",
     "enum": [
       "installable",
@@ -881,8 +612,22 @@ Generated JSON parameter schema:
     "required": false,
     "type": "object"
   },
+  "source_archive_file_id": {
+    "description": "File Manager file_id for a generated or agent-edited source zip. When provided, the job tests the uploaded source without regenerating over edits.",
+    "required": false,
+    "type": "string"
+  },
+  "source_test_mode": {
+    "description": "For source_archive_file_id jobs: test_only for iteration, or test_and_package to return install artifacts only after the quality gate passes.",
+    "enum": [
+      "test_only",
+      "test_and_package"
+    ],
+    "required": false,
+    "type": "string"
+  },
   "target_platform": {
-    "description": "bedrock, bedrock_skinpack, fabric, or neoforge. Use this mainly for Fabric/NeoForge jar builds.",
+    "description": "bedrock, bedrock_skinpack, fabric, or neoforge.",
     "enum": [
       "bedrock",
       "bedrock_skinpack",
@@ -892,11 +637,30 @@ Generated JSON parameter schema:
     "required": true,
     "type": "string"
   },
+  "user_intent_summary": {
+    "description": "Optional concise intent statement for deterministic classification; not used for silent reinterpretation.",
+    "required": false,
+    "type": "string"
+  },
   "validate_output": {
-    "default": true,
     "description": "Run output validation when supported.",
     "required": false,
     "type": "boolean"
+  },
+  "verification_contract": {
+    "description": "Required for source_archive_file_id jobs with verification enabled. Include expected_checks describing what the edited source must prove.",
+    "required": false,
+    "type": "object"
+  },
+  "verification_level": {
+    "description": "behavior by default for install-ready builds; boot_smoke for runtime-load only; off for debug/unverified jobs.",
+    "enum": [
+      "off",
+      "boot_smoke",
+      "behavior"
+    ],
+    "required": false,
+    "type": "string"
   }
 }
 ```
@@ -909,40 +673,33 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `5` credits
 
-Validate a structured Minecraft mod spec or previously generated source archive without writing artifacts.
+Validate a structured Minecraft mod spec or a previously generated/uploaded source archive without writing install artifacts.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `advanced_resources` | `array` | no | Escape hatch for raw files: path plus content_base64, content_text, or source_file_id. |
-| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when selected components require experiments. |
-| `assets` | `object` | no | Optional pre-bound textures, sounds, particles, models, and language entries. |
-| `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
-| `description` | `string` | no | Short mod description. |
-| `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. See product instructions for exact nested fields and platform gates. |
-| `minecraft_version` | `string` | no | Pinned version. Omit unless the user explicitly asks for the supported pinned version. |
+| `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when required. |
+| `features` | `object` | no | FeatureSet object for spec mode. Use get_instructions for nested fields. |
+| `minecraft_version` | `string` | no | Pinned version. Omit unless explicitly needed. |
 | `mod_id` | `string` | no | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. |
-| `mod_metadata` | `object` | no | Optional metadata such as version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, and bedrock_experiments. |
-| `mod_name` | `string` | no | Human-readable mod name. |
-| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture sources. |
-| `source_archive_file_id` | `string` | no | File Manager file_id for a previously generated source zip to validate instead of a spec. |
-| `target_platform` | `string` | no | bedrock, bedrock_skinpack, fabric, or neoforge. Legacy forge is rejected with a NeoForge migration message. |
+| `mod_name` | `string` | no | Human-readable mod name for spec mode. |
+| `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
+| `source_archive_file_id` | `string` | no | File Manager file_id for a generated or agent-edited source zip to validate instead of a spec. |
+| `target_platform` | `string` | no | bedrock, bedrock_skinpack, fabric, or neoforge. |
 
 Sample parameters:
 
 ```json
 {
-  "advanced_resources": [
-    {}
-  ],
   "allow_experimental_bedrock_features": true,
-  "assets": {},
-  "compatibility_mode": "strict",
-  "description": "example description",
   "features": {},
   "minecraft_version": "example minecraft version",
-  "mod_id": "example mod id"
+  "mod_id": "example mod id",
+  "mod_name": "example mod name",
+  "skin_pack": {},
+  "source_archive_file_id": "example source archive file id",
+  "target_platform": "bedrock"
 }
 ```
 
@@ -950,46 +707,18 @@ Generated JSON parameter schema:
 
 ```json
 {
-  "advanced_resources": {
-    "description": "Escape hatch for raw files: path plus content_base64, content_text, or source_file_id.",
-    "items": {
-      "type": "object"
-    },
-    "required": false,
-    "type": "array"
-  },
   "allow_experimental_bedrock_features": {
-    "description": "Allow Bedrock experimental features when selected components require experiments.",
+    "description": "Allow Bedrock experimental features when required.",
     "required": false,
     "type": "boolean"
   },
-  "assets": {
-    "description": "Optional pre-bound textures, sounds, particles, models, and language entries.",
-    "required": false,
-    "type": "object"
-  },
-  "compatibility_mode": {
-    "default": "strict",
-    "description": "strict or allow_platform_passthrough.",
-    "enum": [
-      "strict",
-      "allow_platform_passthrough"
-    ],
-    "required": false,
-    "type": "string"
-  },
-  "description": {
-    "description": "Short mod description.",
-    "required": false,
-    "type": "string"
-  },
   "features": {
-    "description": "FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, loot_tables, worldgen, scoreboards, particles, sounds, functions, storage, structures, biomes, dimensions, effects, and skins. See product instructions for exact nested fields and platform gates.",
+    "description": "FeatureSet object for spec mode. Use get_instructions for nested fields.",
     "required": false,
     "type": "object"
   },
   "minecraft_version": {
-    "description": "Pinned version. Omit unless the user explicitly asks for the supported pinned version.",
+    "description": "Pinned version. Omit unless explicitly needed.",
     "required": false,
     "type": "string"
   },
@@ -998,28 +727,23 @@ Generated JSON parameter schema:
     "required": false,
     "type": "string"
   },
-  "mod_metadata": {
-    "description": "Optional metadata such as version, license, authors, homepage_url, issue_tracker_url, credits, logo_texture, brand_color_hex, java_side, and bedrock_experiments.",
-    "required": false,
-    "type": "object"
-  },
   "mod_name": {
-    "description": "Human-readable mod name.",
+    "description": "Human-readable mod name for spec mode.",
     "required": false,
     "type": "string"
   },
   "skin_pack": {
-    "description": "Skin pack definition for target_platform=bedrock_skinpack. Include skins with 64x64 texture sources.",
+    "description": "Skin pack definition for target_platform=bedrock_skinpack.",
     "required": false,
     "type": "object"
   },
   "source_archive_file_id": {
-    "description": "File Manager file_id for a previously generated source zip to validate instead of a spec.",
+    "description": "File Manager file_id for a generated or agent-edited source zip to validate instead of a spec.",
     "required": false,
     "type": "string"
   },
   "target_platform": {
-    "description": "bedrock, bedrock_skinpack, fabric, or neoforge. Legacy forge is rejected with a NeoForge migration message.",
+    "description": "bedrock, bedrock_skinpack, fabric, or neoforge.",
     "enum": [
       "bedrock",
       "bedrock_skinpack",
