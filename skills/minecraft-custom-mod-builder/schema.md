@@ -483,7 +483,7 @@ Parameters:
 | `mod_name` | `string` | no | Human-readable mod name. Required for spec builds; not required when source_archive_file_id is provided. |
 | `output_mode` | `string` | no | installable, source, or both. |
 | `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
-| `source_archive_file_id` | `string` | no | File Manager file_id for a generated or agent-edited source zip. When provided, the job tests the uploaded source without regenerating over edits. |
+| `source_archive_file_id` | `string` | no | File Manager file_id for a generated or agent-edited source zip. The job tests the uploaded source without regenerating over edits. Java zips must contain editable source/resources only; build/cache trees and precompiled .class, .jar, or native binaries are rejected. |
 | `source_test_mode` | `string` | no | For source_archive_file_id jobs: test_only for iteration, or test_and_package to return install artifacts only after the quality gate passes. |
 | `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. |
 | `user_intent_summary` | `string` | no | Optional concise intent statement for deterministic classification; not used for silent reinterpretation. |
@@ -613,7 +613,7 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "source_archive_file_id": {
-    "description": "File Manager file_id for a generated or agent-edited source zip. When provided, the job tests the uploaded source without regenerating over edits.",
+    "description": "File Manager file_id for a generated or agent-edited source zip. The job tests the uploaded source without regenerating over edits. Java zips must contain editable source/resources only; build/cache trees and precompiled .class, .jar, or native binaries are rejected.",
     "required": false,
     "type": "string"
   },
@@ -685,7 +685,7 @@ Parameters:
 | `mod_id` | `string` | no | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. |
 | `mod_name` | `string` | no | Human-readable mod name for spec mode. |
 | `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
-| `source_archive_file_id` | `string` | no | File Manager file_id for a generated or agent-edited source zip to validate instead of a spec. |
+| `source_archive_file_id` | `string` | no | File Manager file_id for a generated or agent-edited source zip to validate instead of a spec. Java zips must contain editable source/resources only; generated outputs and precompiled executables are rejected. |
 | `target_platform` | `string` | no | bedrock, bedrock_skinpack, fabric, or neoforge. |
 
 Sample parameters:
@@ -738,7 +738,7 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "source_archive_file_id": {
-    "description": "File Manager file_id for a generated or agent-edited source zip to validate instead of a spec.",
+    "description": "File Manager file_id for a generated or agent-edited source zip to validate instead of a spec. Java zips must contain editable source/resources only; generated outputs and precompiled executables are rejected.",
     "required": false,
     "type": "string"
   },
