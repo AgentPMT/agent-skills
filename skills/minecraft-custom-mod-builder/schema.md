@@ -20,14 +20,15 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `advanced_resources` | `array` | no | Raw files with path plus content_base64, content_text, or source_file_id. |
+| `advanced_resources` | `array` | no | Non-executable data/resource files or Bedrock .mcfunction files. Java source and Bedrock JavaScript are rejected. |
 | `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when required. |
 | `assets` | `object` | no | Optional textures, sounds, particles, models, and language entries. |
+| `authoring_mode` | `string` | no | Typed declarative generation mode. Agent-edited code must use start_build_job with source_archive_file_id. |
 | `build_jar` | `boolean` | no | Fabric/NeoForge only. Build jar when true. |
-| `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
+| `compatibility_mode` | `string` | no | Strict platform fidelity. Platform-mismatched features are rejected, never dropped. |
 | `description` | `string` | no | Short mod description. |
 | `features` | `object` | no | FeatureSet object. Use arrays such as items, blocks, entities, events, commands, client_modules, machines, recipes, particles, sounds, functions, storage, worldgen, scoreboards, biomes, dimensions, effects, and skins. See get_instructions for nested fields. |
-| `fidelity_policy` | `string` | no | preserve_intent, acknowledged_approximation, or allow_explicit_stub. Stub policy produces non-install-ready scaffolding. |
+| `fidelity_policy` | `string` | no | Preserve intent by default. acknowledged_approximation is valid only after explicit user approval of a fully implemented alternative; placeholders are never accepted. |
 | `include_file_preview` | `boolean` | no | Include capped text previews in generated_files. |
 | `minecraft_version` | `string` | no | Pinned version. Omit unless explicitly needed. |
 | `mod_id` | `string` | yes | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. |
@@ -38,7 +39,7 @@ Parameters:
 | `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. |
 | `user_intent_summary` | `string` | no | Optional concise intent statement for deterministic classification; not used for silent reinterpretation. |
 | `validate_output` | `boolean` | no | Run output validation when supported. |
-| `verification_level` | `string` | no | Must be off for create_mod_project. Use start_build_job for boot_smoke or behavior. |
+| `verification_level` | `string` | no | create_mod_project is unverified and accepts only off. |
 
 Sample parameters:
 
@@ -49,11 +50,11 @@ Sample parameters:
   ],
   "allow_experimental_bedrock_features": true,
   "assets": {},
+  "authoring_mode": "auto",
   "build_jar": true,
   "compatibility_mode": "strict",
   "description": "example description",
-  "features": {},
-  "fidelity_policy": "preserve_intent"
+  "features": {}
 }
 ```
 
@@ -62,7 +63,7 @@ Generated JSON parameter schema:
 ```json
 {
   "advanced_resources": {
-    "description": "Raw files with path plus content_base64, content_text, or source_file_id.",
+    "description": "Non-executable data/resource files or Bedrock .mcfunction files. Java source and Bedrock JavaScript are rejected.",
     "items": {
       "type": "object"
     },
@@ -79,16 +80,24 @@ Generated JSON parameter schema:
     "required": false,
     "type": "object"
   },
+  "authoring_mode": {
+    "description": "Typed declarative generation mode. Agent-edited code must use start_build_job with source_archive_file_id.",
+    "enum": [
+      "auto",
+      "declarative"
+    ],
+    "required": false,
+    "type": "string"
+  },
   "build_jar": {
     "description": "Fabric/NeoForge only. Build jar when true.",
     "required": false,
     "type": "boolean"
   },
   "compatibility_mode": {
-    "description": "strict or allow_platform_passthrough.",
+    "description": "Strict platform fidelity. Platform-mismatched features are rejected, never dropped.",
     "enum": [
-      "strict",
-      "allow_platform_passthrough"
+      "strict"
     ],
     "required": false,
     "type": "string"
@@ -104,11 +113,10 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "fidelity_policy": {
-    "description": "preserve_intent, acknowledged_approximation, or allow_explicit_stub. Stub policy produces non-install-ready scaffolding.",
+    "description": "Preserve intent by default. acknowledged_approximation is valid only after explicit user approval of a fully implemented alternative; placeholders are never accepted.",
     "enum": [
       "preserve_intent",
-      "acknowledged_approximation",
-      "allow_explicit_stub"
+      "acknowledged_approximation"
     ],
     "required": false,
     "type": "string"
@@ -175,11 +183,9 @@ Generated JSON parameter schema:
     "type": "boolean"
   },
   "verification_level": {
-    "description": "Must be off for create_mod_project. Use start_build_job for boot_smoke or behavior.",
+    "description": "create_mod_project is unverified and accepts only off.",
     "enum": [
-      "off",
-      "boot_smoke",
-      "behavior"
+      "off"
     ],
     "required": false,
     "type": "string"
@@ -195,21 +201,19 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `2` credits
 
-Fetch one queued Minecraft build job by task_id. Poll after start_build_job until status is completed or failed; inspect result.ready_for_install and quality_gate.
+Fetch one tenant-scoped build job by task_id. Poll until status is completed or failed, then inspect result.runtime_verification, result.quality_gate, result.ready_for_install, and artifacts.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `task_id` | `string` | yes | Build job id returned by start_build_job. |
-| `timeout_seconds` | `integer` | no | HTTP timeout for the status lookup. |
 
 Sample parameters:
 
 ```json
 {
-  "task_id": "example task id",
-  "timeout_seconds": 1
+  "task_id": "example task id"
 }
 ```
 
@@ -221,11 +225,6 @@ Generated JSON parameter schema:
     "description": "Build job id returned by start_build_job.",
     "required": true,
     "type": "string"
-  },
-  "timeout_seconds": {
-    "description": "HTTP timeout for the status lookup.",
-    "required": false,
-    "type": "integer"
   }
 }
 ```
@@ -271,14 +270,12 @@ Parameters:
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `limit` | `integer` | no | Maximum jobs to return, from 1 to 100. |
-| `timeout_seconds` | `integer` | no | HTTP timeout for the list lookup. |
 
 Sample parameters:
 
 ```json
 {
-  "limit": 1,
-  "timeout_seconds": 1
+  "limit": 1
 }
 ```
 
@@ -288,11 +285,6 @@ Generated JSON parameter schema:
 {
   "limit": {
     "description": "Maximum jobs to return, from 1 to 100.",
-    "required": false,
-    "type": "integer"
-  },
-  "timeout_seconds": {
-    "description": "HTTP timeout for the list lookup.",
     "required": false,
     "type": "integer"
   }
@@ -349,7 +341,7 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `5` credits
 
-Render and upload an enlarged PNG preview for an item, block, entity, texture, source archive, or direct image file.
+Render and upload an enlarged PNG preview for an item, block, or entity from a structured spec, source archive, or direct image file.
 
 Parameters:
 
@@ -362,7 +354,7 @@ Parameters:
 | `preview_size` | `integer` | no | Square preview PNG size from 32 to 1024 pixels. |
 | `preview_source_file_id` | `string` | no | File Manager image file_id for direct image preview. |
 | `preview_target_id` | `string` | no | Feature id or namespaced id, such as flame_sword or flame_tools:flame_sword. |
-| `preview_target_kind` | `string` | no | item, block, entity, or texture. |
+| `preview_target_kind` | `string` | no | item, block, or entity. |
 | `skin_pack` | `object` | no | Skin pack definition for target_platform=bedrock_skinpack. |
 | `source_archive_file_id` | `string` | no | File Manager file_id for a generated source zip to preview from. |
 | `target_platform` | `string` | no | Optional platform context. |
@@ -428,12 +420,11 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "preview_target_kind": {
-    "description": "item, block, entity, or texture.",
+    "description": "item, block, or entity.",
     "enum": [
       "item",
       "block",
-      "entity",
-      "texture"
+      "entity"
     ],
     "required": false,
     "type": "string"
@@ -470,20 +461,21 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `15` credits
 
-Queue verified async generation or uploaded-source testing. Poll get_build_job and ship only when result.ready_for_install=true and quality_gate.status='passed'.
+Queue generated or agent-edited source for compile, package, real Minecraft runtime checks, and the install-readiness gate. Poll get_build_job and ship only when result.ready_for_install=true and quality_gate.status='passed'.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `advanced_resources` | `array` | no | Raw files with path plus content_base64, content_text, or source_file_id. |
+| `advanced_resources` | `array` | no | Non-executable data/resource files or Bedrock .mcfunction files for generated spec builds. Edit executable source through source_archive_file_id. |
 | `allow_experimental_bedrock_features` | `boolean` | no | Allow Bedrock experimental features when required. |
 | `assets` | `object` | no | Optional textures, sounds, particles, models, and language entries. |
+| `authoring_mode` | `string` | no | Use auto/declarative for structured specs. Use agent_code only with source_archive_file_id for edited source. |
 | `build_jar` | `boolean` | no | Fabric/NeoForge only. Build jar when true. |
-| `compatibility_mode` | `string` | no | strict or allow_platform_passthrough. |
+| `compatibility_mode` | `string` | no | Strict platform fidelity. Platform-mismatched features are rejected, never dropped. |
 | `description` | `string` | no | Short mod description. |
 | `features` | `object` | no | FeatureSet object for generated spec builds. Omit when testing uploaded source_archive_file_id. |
-| `fidelity_policy` | `string` | no | preserve_intent, acknowledged_approximation, or allow_explicit_stub. Stub policy produces non-install-ready scaffolding. |
+| `fidelity_policy` | `string` | no | Preserve intent by default. acknowledged_approximation is valid only after explicit user approval of a fully implemented alternative; placeholders are never accepted. |
 | `include_file_preview` | `boolean` | no | Include capped text previews in generated_files. |
 | `minecraft_version` | `string` | no | Pinned version. Omit unless explicitly needed. |
 | `mod_id` | `string` | yes | Lowercase namespace matching ^[a-z][a-z0-9_]{1,63}$. Required for spec builds and source-archive jobs. |
@@ -496,8 +488,8 @@ Parameters:
 | `target_platform` | `string` | yes | bedrock, bedrock_skinpack, fabric, or neoforge. |
 | `user_intent_summary` | `string` | no | Optional concise intent statement for deterministic classification; not used for silent reinterpretation. |
 | `validate_output` | `boolean` | no | Run output validation when supported. |
-| `verification_contract` | `object` | no | Required for source_archive_file_id jobs with verification enabled. Include expected_checks describing what the edited source must prove. |
-| `verification_level` | `string` | no | behavior by default for install-ready builds; boot_smoke for runtime-load only; off for debug/unverified jobs. |
+| `verification_contract` | `object` | no | For edited-source behavior verification, define machine-observable expected_checks bound to the same target_platform and mod_id, including at least one behavior, render, or client check. |
+| `verification_level` | `string` | no | behavior is the default install-ready gate; boot_smoke proves loading only and remains non-install-ready; off is unverified. |
 
 Sample parameters:
 
@@ -508,11 +500,11 @@ Sample parameters:
   ],
   "allow_experimental_bedrock_features": true,
   "assets": {},
+  "authoring_mode": "auto",
   "build_jar": true,
   "compatibility_mode": "strict",
   "description": "example description",
-  "features": {},
-  "fidelity_policy": "preserve_intent"
+  "features": {}
 }
 ```
 
@@ -521,7 +513,7 @@ Generated JSON parameter schema:
 ```json
 {
   "advanced_resources": {
-    "description": "Raw files with path plus content_base64, content_text, or source_file_id.",
+    "description": "Non-executable data/resource files or Bedrock .mcfunction files for generated spec builds. Edit executable source through source_archive_file_id.",
     "items": {
       "type": "object"
     },
@@ -538,16 +530,25 @@ Generated JSON parameter schema:
     "required": false,
     "type": "object"
   },
+  "authoring_mode": {
+    "description": "Use auto/declarative for structured specs. Use agent_code only with source_archive_file_id for edited source.",
+    "enum": [
+      "auto",
+      "declarative",
+      "agent_code"
+    ],
+    "required": false,
+    "type": "string"
+  },
   "build_jar": {
     "description": "Fabric/NeoForge only. Build jar when true.",
     "required": false,
     "type": "boolean"
   },
   "compatibility_mode": {
-    "description": "strict or allow_platform_passthrough.",
+    "description": "Strict platform fidelity. Platform-mismatched features are rejected, never dropped.",
     "enum": [
-      "strict",
-      "allow_platform_passthrough"
+      "strict"
     ],
     "required": false,
     "type": "string"
@@ -563,11 +564,10 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "fidelity_policy": {
-    "description": "preserve_intent, acknowledged_approximation, or allow_explicit_stub. Stub policy produces non-install-ready scaffolding.",
+    "description": "Preserve intent by default. acknowledged_approximation is valid only after explicit user approval of a fully implemented alternative; placeholders are never accepted.",
     "enum": [
       "preserve_intent",
-      "acknowledged_approximation",
-      "allow_explicit_stub"
+      "acknowledged_approximation"
     ],
     "required": false,
     "type": "string"
@@ -648,12 +648,12 @@ Generated JSON parameter schema:
     "type": "boolean"
   },
   "verification_contract": {
-    "description": "Required for source_archive_file_id jobs with verification enabled. Include expected_checks describing what the edited source must prove.",
+    "description": "For edited-source behavior verification, define machine-observable expected_checks bound to the same target_platform and mod_id, including at least one behavior, render, or client check.",
     "required": false,
     "type": "object"
   },
   "verification_level": {
-    "description": "behavior by default for install-ready builds; boot_smoke for runtime-load only; off for debug/unverified jobs.",
+    "description": "behavior is the default install-ready gate; boot_smoke proves loading only and remains non-install-ready; off is unverified.",
     "enum": [
       "off",
       "boot_smoke",

@@ -1,7 +1,7 @@
 ---
 name: minecraft-custom-mod-builder
-description: "Minecraft Custom Mod Builder: Deterministically generate, validate, preview, and test Minecraft Bedrock, Bedrock skin pack, Fabric, and NeoForge projects from structured. Use when an agent needs minecraft custom mod builder, create verified minecraft bedrock add ons (.mcaddon), build fabric and neoforge source projects and jars through async build jobs, generate bedrock skin packs (.mcpack), create items, create mod project, target platform, mod id through AgentPMT-hosted remote tool calls."
-version: 1.0.4
+description: "Minecraft Custom Mod Builder: Generate and verify structured Minecraft Bedrock, Bedrock skin pack, Fabric, and NeoForge projects. Use when an agent needs minecraft custom mod builder, create runtime verified bedrock add ons and skin packs; build and verify fabric and neoforge jars; generate typed items, blocks, basic entities, commands, create mod project, target platform, mod id through AgentPMT-hosted remote tool calls. Discovery terms: minecraft custom mod builder."
+version: 1.0.5
 homepage: https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder"}}
@@ -9,39 +9,36 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Minecraft Custom Mod Builder
 
 ## Freshness
-Last updated: `2026-07-09`.
+Last updated: `2026-07-11`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
 ## What This Tool Does
-Create structured Minecraft Bedrock add-ons, Bedrock skin packs, and Java Fabric/NeoForge mod projects with strict schemas, texture binding, validation, async build jobs, and install-readiness reporting. Use the verified async build path for anything a user should install; use source output and uploaded-source test jobs when an agent needs to edit code directly.
+Build structured Minecraft Bedrock add-ons, Bedrock skin packs, and Fabric/NeoForge projects with strict schemas, real runtime behavior checks, async install-readiness gates, and a full test loop for agent-edited source.
 
 ## Product Instructions
-Use get_instructions as the canonical source before writing complex Minecraft specs. For final user-deliverable mods, call start_build_job, poll get_build_job, and ship only when result.ready_for_install is true and result.quality_gate.status is 'passed'. Synchronous create_mod_project is for quick unverified source/debug output; do not present it as a working final mod. If a requested behavior is beyond the declarative schema, use the agent-edited source loop: generate source, edit the code, upload the zip, then call start_build_job with source_archive_file_id, source_test_mode='test_only' while iterating, and a verification_contract.expected_checks list that states what the edited source must prove. Rerun with source_test_mode='test_and_package' only when the quality gate passes. Do not silently substitute a nearby mechanic for the user's intent; use fidelity_policy='acknowledged_approximation' only after explicit user approval. Placeholder/scaffolding-only actions require fidelity_policy='allow_explicit_stub' and always produce non-install-ready output until real source code is added and verified. Platform-mismatched features are validation failures, not warnings and not silently filtered.
+Call get_instructions before authoring a complex spec. Use start_build_job for final output, then poll get_build_job until status is completed or failed. A completed task is shippable only when result.ready_for_install=true, result.quality_gate.status='passed', result.verification_not_run=false, and all required behavior/render/client checks passed. create_mod_project accepts verification_level='off' only and is for unverified declarative source/debug iteration. There is no stub or placeholder mode. Unsupported mechanics and platform mismatches fail with actionable paths. Do not silently reinterpret user intent; acknowledged_approximation requires explicit user approval and still must be fully implemented and verified. For executable behavior outside the declarative schema, generate source, edit the complete project, upload the zip, and call start_build_job with authoring_mode='agent_code', source_archive_file_id, source_test_mode='test_only', and a verification_contract with machine-observable expected_checks. After that passes, rerun with source_test_mode='test_and_package' to receive install artifacts.
 
 ## When To Use
 - Use this skill for `Minecraft Custom Mod Builder` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
-- Search and activation keywords: minecraft custom mod builder, create verified minecraft bedrock add ons (.mcaddon), build fabric and neoforge source projects and jars through async build jobs, generate bedrock skin packs (.mcpack), create items, create mod project, target platform, mod id.
+- Search and activation keywords: minecraft custom mod builder, create runtime verified bedrock add ons and skin packs; build and verify fabric and neoforge jars; generate typed items, blocks, basic entities, commands, create mod project, target platform, mod id.
 - Supported action names: `create_mod_project`, `get_build_job`, `get_instructions`, `list_build_jobs`, `list_capabilities`, `render_preview_image`, `start_build_job`, `validate_mod_project`.
 
 ## Use Cases
-- Create verified Minecraft Bedrock add-ons (.mcaddon)
-- Build Fabric and NeoForge source projects and jars through async build jobs
-- Generate Bedrock skin packs (.mcpack)
-- Create items
-- weapons
-- tools
-- armor
+- Create runtime-verified Bedrock add-ons and skin packs; build and verify Fabric and NeoForge jars; generate typed items
 - blocks
-- ores
-- food
-- mobs
-- bosses
+- basic entities
+- commands
+- events
 - recipes
-- loot tables
-- enchantments
-- trades
+- particles
+- sounds
+- worldgen
+- scoreboards
+- processor machines
+- storage
+- and supported client modules; preview visible assets; download editable source; upload agent-edited source for isolated compile/package/server/client testing; detect broken or unverified artifacts before installation
 
 ## Related Product Skills
 - Icon Generator: ../product-icon-generator (ClawHub: `product-icon-generator`, page: https://clawhub.ai/agentpmt/product-icon-generator; skills.sh: `npx skills add AgentPMT/agent-skills --skill product-icon-generator`)
@@ -55,13 +52,13 @@ Complete generated action schema: `./schema.md`.
 Supported action count: `8`.
 x402 action routes are enabled and listed in `./schema.md`.
 
-- `create_mod_project` (action slug: `create-mod-project`): Synchronous unverified source/debug generation. Accepts only verification_level='off'; use start_build_job for install-ready final artifacts. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `build_jar`, `compatibility_mode`, `description`, `features`, `fidelity_policy`, plus 11 more.
-- `get_build_job` (action slug: `get-build-job`): Fetch one queued Minecraft build job by task_id. Poll after start_build_job until status is completed or failed; inspect result.ready_for_install and quality_gate. Price: `2` credits. Parameters: `task_id`, `timeout_seconds`.
+- `create_mod_project` (action slug: `create-mod-project`): Synchronous unverified source/debug generation. Accepts only verification_level='off'; use start_build_job for install-ready final artifacts. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `authoring_mode`, `build_jar`, `compatibility_mode`, `description`, `features`, plus 12 more.
+- `get_build_job` (action slug: `get-build-job`): Fetch one tenant-scoped build job by task_id. Poll until status is completed or failed, then inspect result.runtime_verification, result.quality_gate, result.ready_for_install, and artifacts. Price: `2` credits. Parameters: `task_id`.
 - `get_instructions` (action slug: `get-instructions`): Return the canonical Minecraft Mod Builder instructions. Call before authoring complex specs or source-archive verification contracts. Price: `1` credits. Parameters: none.
-- `list_build_jobs` (action slug: `list-build-jobs`): List recent Minecraft build jobs for the active budget to recover task_id values or inspect recent queued/completed builds. Price: `2` credits. Parameters: `limit`, `timeout_seconds`.
+- `list_build_jobs` (action slug: `list-build-jobs`): List recent Minecraft build jobs for the active budget to recover task_id values or inspect recent queued/completed builds. Price: `2` credits. Parameters: `limit`.
 - `list_capabilities` (action slug: `list-capabilities`): Return supported platforms, pinned versions, feature/action matrices, implementation_status, quality-gate fields, and unsupported families. Price: `2` credits. Parameters: `target_platform`.
-- `render_preview_image` (action slug: `render-preview-image`): Render and upload an enlarged PNG preview for an item, block, entity, texture, source archive, or direct image file. Price: `5` credits. Parameters: `features`, `mod_id`, `mod_name`, `preview_background`, `preview_size`, `preview_source_file_id`, `preview_target_id`, `preview_target_kind`, plus 3 more.
-- `start_build_job` (action slug: `start-build-job`): Queue verified async generation or uploaded-source testing. Poll get_build_job and ship only when result.ready_for_install=true and quality_gate.status='passed'. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `build_jar`, `compatibility_mode`, `description`, `features`, `fidelity_policy`, plus 14 more.
+- `render_preview_image` (action slug: `render-preview-image`): Render and upload an enlarged PNG preview for an item, block, or entity from a structured spec, source archive, or direct image file. Price: `5` credits. Parameters: `features`, `mod_id`, `mod_name`, `preview_background`, `preview_size`, `preview_source_file_id`, `preview_target_id`, `preview_target_kind`, plus 3 more.
+- `start_build_job` (action slug: `start-build-job`): Queue generated or agent-edited source for compile, package, real Minecraft runtime checks, and the install-readiness gate. Poll get_build_job and ship only when result.ready_for_install=true and quality_gate.status='passed'. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `authoring_mode`, `build_jar`, `compatibility_mode`, `description`, `features`, plus 15 more.
 - `validate_mod_project` (action slug: `validate-mod-project`): Validate a structured Minecraft mod spec or a previously generated/uploaded source archive without writing install artifacts. Price: `5` credits. Parameters: `allow_experimental_bedrock_features`, `features`, `minecraft_version`, `mod_id`, `mod_name`, `skin_pack`, `source_archive_file_id`, `target_platform`.
 
 ## Live Schema And Examples
@@ -166,11 +163,11 @@ MCP call shape after the main AgentPMT MCP server is connected:
       ],
       "allow_experimental_bedrock_features": true,
       "assets": {},
+      "authoring_mode": "auto",
       "build_jar": true,
       "compatibility_mode": "strict",
       "description": "example description",
-      "features": {},
-      "fidelity_policy": "preserve_intent"
+      "features": {}
     }
   }
 }
@@ -190,11 +187,11 @@ Authenticated AgentPMT REST call body:
     ],
     "allow_experimental_bedrock_features": true,
     "assets": {},
+    "authoring_mode": "auto",
     "build_jar": true,
     "compatibility_mode": "strict",
     "description": "example description",
-    "features": {},
-    "fidelity_policy": "preserve_intent"
+    "features": {}
   }
 }
 ```
