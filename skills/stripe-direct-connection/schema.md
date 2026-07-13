@@ -1,14 +1,16 @@
-# Stripe Direct Connection Schema
+# Stripe Schema
 
 This generated reference belongs to the adjacent `SKILL.md`. Use it for exact action names, action slugs, parameter summaries, sample parameters, and generated JSON parameter schemas.
 
 Product slug: `stripe-direct-connection`
 
-x402 availability: not enabled for this product.
+x402 action routes are enabled for this product through `https://www.agentpmt.com/api/external`.
 
 ## `cancel_subscription`
 
 Action slug: `cancel-subscription`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/cancel-subscription/invoke`
 
 Price: `5` credits
 
@@ -43,6 +45,8 @@ Generated JSON parameter schema:
 ## `create_coupon`
 
 Action slug: `create-coupon`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/create-coupon/invoke`
 
 Price: `5` credits
 
@@ -120,6 +124,8 @@ Generated JSON parameter schema:
 
 Action slug: `create-customer`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/create-customer/invoke`
+
 Price: `5` credits
 
 This tool will create a customer in Stripe. It takes two arguments: - name (str): The name of the customer. - email (str, optional): The email of the customer.
@@ -162,6 +168,8 @@ Generated JSON parameter schema:
 
 Action slug: `create-invoice`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/create-invoice/invoke`
+
 Price: `5` credits
 
 This tool will create an invoice in Stripe. It takes two arguments: - customer (str): The ID of the customer to create the invoice for. - days_until_due (int, optional): The number of days until the invoice is due.
@@ -202,6 +210,8 @@ Generated JSON parameter schema:
 ## `create_invoice_item`
 
 Action slug: `create-invoice-item`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/create-invoice-item/invoke`
 
 Price: `5` credits
 
@@ -251,6 +261,8 @@ Generated JSON parameter schema:
 
 Action slug: `create-payment-link`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/create-payment-link/invoke`
+
 Price: `5` credits
 
 This tool will create a payment link in Stripe. It takes two arguments: - price (str): The ID of the price to create the payment link for. - quantity (int): The quantity of the product to include in the payment link.
@@ -291,6 +303,8 @@ Generated JSON parameter schema:
 ## `create_price`
 
 Action slug: `create-price`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/create-price/invoke`
 
 Price: `5` credits
 
@@ -369,6 +383,8 @@ Generated JSON parameter schema:
 
 Action slug: `create-product`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/create-product/invoke`
+
 Price: `5` credits
 
 This tool will create a product in Stripe. It takes two arguments: - name (str): The name of the product. - description (str, optional): The description of the product.
@@ -409,6 +425,8 @@ Generated JSON parameter schema:
 ## `create_refund`
 
 Action slug: `create-refund`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/create-refund/invoke`
 
 Price: `5` credits
 
@@ -463,6 +481,8 @@ Generated JSON parameter schema:
 
 Action slug: `fetch-stripe-resources`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/fetch-stripe-resources/invoke`
+
 Price: `5` credits
 
 Retrieve Stripe object details by ID. IMPORTANT: Only call this tool after search_stripe_resources is called to get specific object IDs. Do not use this tool to discover or search for objects. This tool fetches the object information from Stripe including all available fields. It is only able to fetch the following resources (prefixes): - Payment Intents (pi_) - Charges (ch_) - Invoices (in_) - Prices (price_) - Products (prod_) - Subscriptions (sub_) - Customers (cus_) It takes one argument: - id (str): The unique identifier for the Stripe object (e.g. cus_123, pi_123). Note that any amount returned is in currency minor units, e.g. cents for USD and yen for JPY.
@@ -496,6 +516,8 @@ Generated JSON parameter schema:
 ## `finalize_invoice`
 
 Action slug: `finalize-invoice`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/finalize-invoice/invoke`
 
 Price: `5` credits
 
@@ -531,6 +553,8 @@ Generated JSON parameter schema:
 
 Action slug: `get-stripe-account-info`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/get-stripe-account-info/invoke`
+
 Price: `5` credits
 
 This will get the account info for the logged in Stripe account.
@@ -554,6 +578,8 @@ Generated JSON parameter schema:
 ## `list_coupons`
 
 Action slug: `list-coupons`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/list-coupons/invoke`
 
 Price: `5` credits
 
@@ -590,6 +616,8 @@ Generated JSON parameter schema:
 ## `list_customers`
 
 Action slug: `list-customers`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/list-customers/invoke`
 
 Price: `5` credits
 
@@ -633,6 +661,8 @@ Generated JSON parameter schema:
 ## `list_disputes`
 
 Action slug: `list-disputes`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/list-disputes/invoke`
 
 Price: `5` credits
 
@@ -685,6 +715,8 @@ Generated JSON parameter schema:
 
 Action slug: `list-invoices`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/list-invoices/invoke`
+
 Price: `5` credits
 
 This tool will fetch a list of Invoices from Stripe. It takes two arguments: - customer (str, optional): The ID of the customer to list invoices for. - limit (int, optional): The number of invoices to return.
@@ -727,6 +759,8 @@ Generated JSON parameter schema:
 ## `list_payment_intents`
 
 Action slug: `list-payment-intents`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/list-payment-intents/invoke`
 
 Price: `5` credits
 
@@ -771,6 +805,8 @@ Generated JSON parameter schema:
 
 Action slug: `list-prices`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/list-prices/invoke`
+
 Price: `5` credits
 
 This tool will fetch a list of Prices from Stripe. It takes two arguments. - product (str, optional): The ID of the product to list prices for. - limit (int, optional): The number of prices to return. Note that the price unit_amount returned is in currency minor units, e.g. cents for USD and yen for JPY.
@@ -814,6 +850,8 @@ Generated JSON parameter schema:
 
 Action slug: `list-products`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/list-products/invoke`
+
 Price: `5` credits
 
 This tool will fetch a list of Products from Stripe. It takes one optional argument: - limit (int, optional): The number of products to return.
@@ -849,6 +887,8 @@ Generated JSON parameter schema:
 ## `list_subscriptions`
 
 Action slug: `list-subscriptions`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/list-subscriptions/invoke`
 
 Price: `5` credits
 
@@ -917,6 +957,8 @@ Generated JSON parameter schema:
 
 Action slug: `retrieve-balance`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/retrieve-balance/invoke`
+
 Price: `5` credits
 
 This tool will retrieve the balance from Stripe. It takes no input.
@@ -940,6 +982,8 @@ Generated JSON parameter schema:
 ## `search_stripe_documentation`
 
 Action slug: `search-stripe-documentation`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/search-stripe-documentation/invoke`
 
 Price: `5` credits
 
@@ -999,6 +1043,8 @@ Generated JSON parameter schema:
 
 Action slug: `search-stripe-resources`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/search-stripe-resources/invoke`
+
 Price: `5` credits
 
 This tool can be used to search for specific Stripe resources using a custom Stripe query syntax. It is only able to search for the following resources: customers, payment_intents, charges, invoices, prices, products, subscriptions. It returns a maximum of 100 results. IMPORTANT: For most use cases, prefer using the specific `list_` tools (e.g., `list_customers`, `list_payment_intents`) when you know the resource type you need. Only use this search tool when you need to: - Search across multiple resource types simultaneously - Search by field values that aren't supported by list tools - Use complex query syntax that isn't supported by list tools It takes one argument: - query (str): The query consisting of the Stripe resource to query for and the query clause in Stripe's custom query syntax to query metadata for. Note that any amount returned is in currency minor units, e.g. cents for USD and yen for JPY.
@@ -1032,6 +1078,8 @@ Generated JSON parameter schema:
 ## `send_stripe_mcp_feedback`
 
 Action slug: `send-stripe-mcp-feedback`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/send-stripe-mcp-feedback/invoke`
 
 Price: `5` credits
 
@@ -1104,6 +1152,8 @@ Generated JSON parameter schema:
 
 Action slug: `stripe-integration-recommender`
 
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/stripe-integration-recommender/invoke`
+
 Price: `5` credits
 
 Guides users through Stripe integration planning via interactive Q&A. Analyzes payment requirements and recommends the appropriate Stripe products (Checkout, Elements, Billing, Connect, etc.) with step-by-step implementation guidance. WHEN TO USE: Call this tool when the user expresses: - Payment keywords: "payments", "checkout", "billing", "subscriptions", "invoices" - Commercial intent: "sell", "monetize", "charge users", "e-commerce" - Stripe mention: User references "Stripe" directly IMPORTANT BEHAVIOR: - You may call this tool with partial information—the tool will ask clarifying questions. Do not wait until you have complete requirements. - Once a plan is in progress, stay in the Q&A flow until completion. If the user asks for clarification or advice (e.g., "what's best for me?"), answer them, then continue with the plan. Only exit early if the user explicitly requests it or the tool returns an unrecoverable error. - When the tool returns type="question", present the question to the user exactly as provided. PARAMETERS: - plan_id (optional): Required for continuing/updating. Omit when starting new plan. - answer (required): For new plans, provide summary. For existing plans, provide user response. Accepts option selections ('Option 1'), natural language, clarifying questions, or 'UNKNOWN'. - notes (optional): Technical context you've observed (e.g., "Python/Flask backend", "user wants minimal code to go live quickly", "already has Stripe SDK installed"). Returns JSON: - type="question": Plan in progress. Contains `question` to present to user and `plan_id` to include in next call. - type="summary": plan_id, status, summary (blueprints, prerequisites, sample_code) - type="error": status, error (code, message, user_visible, agent_guidance) WORKFLOW: - New plan: Call without plan_id + answer → Present question EXACTLY → Get answer → Call with plan_id + answer → Repeat - Continue plan: Present question EXACTLY → Analyze code → Formulate answer → Get approval → Call with plan_id + answer + notes → Repeat LIMITATIONS: - Generates integration guidance only; does not execute code or create Stripe resources. - Cannot modify completed or expired plans—start a new plan instead.
@@ -1152,6 +1202,8 @@ Generated JSON parameter schema:
 ## `update_dispute`
 
 Action slug: `update-dispute`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/update-dispute/invoke`
 
 Price: `5` credits
 
@@ -1222,6 +1274,8 @@ Generated JSON parameter schema:
 ## `update_subscription`
 
 Action slug: `update-subscription`
+
+x402 action URL: `POST https://www.agentpmt.com/api/external/tools/stripe-direct-connection/actions/update-subscription/invoke`
 
 Price: `5` credits
 
