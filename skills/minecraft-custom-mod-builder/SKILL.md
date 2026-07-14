@@ -1,7 +1,7 @@
 ---
 name: minecraft-custom-mod-builder
 description: "Minecraft Custom Mod Builder: Generate and verify structured Minecraft Bedrock, Bedrock skin pack, Fabric, and NeoForge projects. Use when an agent needs minecraft custom mod builder, create runtime verified bedrock add ons and skin packs; build and verify fabric and neoforge jars; generate typed items, blocks, entities, commands, create mod project, target platform, mod id through AgentPMT-hosted remote tool calls. Discovery terms: minecraft custom mod builder."
-version: 1.0.7
+version: 1.0.8
 homepage: https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/minecraft-custom-mod-builder"}}
@@ -1181,7 +1181,7 @@ x402 action routes are enabled and listed in `./schema.md`.
 
 - `create_mod_project` (action slug: `create-mod-project`): Synchronous unverified source/debug generation. Accepts only verification_level='off'; use start_build_job for install-ready final artifacts. Price: `15` credits. Parameters: `advanced_resources`, `allow_experimental_bedrock_features`, `assets`, `authoring_mode`, `build_jar`, `compatibility_mode`, `description`, `features`, plus 12 more.
 - `get_build_job` (action slug: `get-build-job`): Fetch one tenant-scoped build job by task_id. Poll until status is completed or failed, then inspect result.runtime_verification, result.visual_proof (File Manager frame file_ids/signed_urls; also in artifacts with label=visual_proof_frame), result.quality_gate, result.ready_for_install, and artifacts. Open visual proof frames before customer delivery. Price: `2` credits. Parameters: `task_id`.
-- `get_instructions` (action slug: `get-instructions`): Return the canonical Minecraft Mod Builder instructions. Call before authoring complex specs or source-archive verification contracts. Price: `1` credits. Parameters: none.
+- `get_instructions` (action slug: `get-instructions`): Get tool instructions and available actions. Price: `15` credits. Parameters: none.
 - `list_build_jobs` (action slug: `list-build-jobs`): List recent Minecraft build jobs for the active budget to recover task_id values or inspect recent queued/completed builds. Price: `2` credits. Parameters: `limit`.
 - `list_capabilities` (action slug: `list-capabilities`): Return supported platforms, pinned versions, feature/action matrices, implementation_status, quality-gate fields, and unsupported families. Price: `2` credits. Parameters: `target_platform`.
 - `render_preview_image` (action slug: `render-preview-image`): Render and upload an enlarged PNG preview for an item, block, or entity from a structured spec, source archive, or direct image file. Price: `5` credits. Parameters: `features`, `mod_id`, `mod_name`, `preview_background`, `preview_size`, `preview_source_file_id`, `preview_target_id`, `preview_target_kind`, plus 3 more.

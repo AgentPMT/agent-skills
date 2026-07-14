@@ -65,6 +65,8 @@ Generated JSON parameter schema:
   "advanced_resources": {
     "description": "Non-executable data/resource files or Bedrock .mcfunction files. Java source and Bedrock JavaScript are rejected.",
     "items": {
+      "description": "",
+      "required": false,
       "type": "object"
     },
     "required": false,
@@ -235,9 +237,9 @@ Action slug: `get-instructions`
 
 x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-custom-mod-builder/actions/get-instructions/invoke`
 
-Price: `1` credits
+Price: `15` credits
 
-Return the canonical Minecraft Mod Builder instructions. Call before authoring complex specs or source-archive verification contracts.
+Get tool instructions and available actions.
 
 Parameters:
 
@@ -515,6 +517,8 @@ Generated JSON parameter schema:
   "advanced_resources": {
     "description": "Non-executable data/resource files or Bedrock .mcfunction files for generated spec builds. Edit executable source through source_archive_file_id.",
     "items": {
+      "description": "",
+      "required": false,
       "type": "object"
     },
     "required": false,
