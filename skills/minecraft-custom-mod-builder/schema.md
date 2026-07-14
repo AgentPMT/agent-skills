@@ -201,7 +201,7 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `2` credits
 
-Fetch one tenant-scoped build job by task_id. Poll until status is completed or failed, then inspect result.runtime_verification, result.quality_gate, result.ready_for_install, and artifacts.
+Fetch one tenant-scoped build job by task_id. Poll until status is completed or failed, then inspect result.runtime_verification, result.visual_proof (File Manager frame file_ids/signed_urls; also in artifacts with label=visual_proof_frame), result.quality_gate, result.ready_for_install, and artifacts. Open visual proof frames before customer delivery.
 
 Parameters:
 
@@ -461,7 +461,7 @@ x402 action URL: `POST https://www.agentpmt.com/api/external/tools/minecraft-cus
 
 Price: `15` credits
 
-Queue generated or agent-edited source for compile, package, real Minecraft runtime checks, and the install-readiness gate. Poll get_build_job and ship only when result.ready_for_install=true and quality_gate.status='passed'.
+Queue generated or agent-edited source for compile, package, real Minecraft runtime checks, File Manager visual_proof gallery, and the install-readiness gate. Poll get_build_job and ship only when result.ready_for_install=true and quality_gate.status='passed', after reviewing visual_proof frames.
 
 Parameters:
 
