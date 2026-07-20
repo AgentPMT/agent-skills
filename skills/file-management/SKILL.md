@@ -1,7 +1,7 @@
 ---
 name: file-management
 description: "File Management: Upload and manage files in one tool: upload_standard, upload_large, list with previews, get signed URLs, download, delete, share, update metadata, inspect access history, and extend expiration. Use when an agent needs file management, small file upload, large file upload, signed upload url generation, temporary file hosting, access history, file id, limit through AgentPMT-hosted remote tool calls. Discovery terms: file management, small file upload, large file upload."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/file-management
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/file-management"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # File Management
 
 ## Freshness
-Last updated: `2026-06-10`.
+Last updated: `2026-07-20`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -160,6 +160,9 @@ Required fields:
 - metadata tagging
 - file organization
 
+## Related Product Skills
+- Webhook - HTTP Request: ../webhook-http-request (ClawHub: `webhook-http-request`, page: https://clawhub.ai/agentpmt/webhook-http-request; skills.sh: `npx skills add AgentPMT/agent-skills --skill webhook-http-request`)
+
 ## Categories And Industries
 No categories or industry tags are published for this tool.
 
@@ -240,7 +243,7 @@ Product slug: `file-management`
 Marketplace page: https://www.agentpmt.com/marketplace/file-management
 
 - AgentPMT account route: first use `../agentpmt-account-mcp-rest-api-setup` to connect the main MCP server or REST API for an Agent Group where this tool is enabled.
-- No-account x402 route: first use `../agentpmt-no-account-agentaddress-x402` to create an AgentAddress and prepare the x402 payment flow.
+- No-account AgentAddress/x402 route: first use `../agentpmt-no-account-agentaddress-x402` for the canonical payment and wallet setup instructions.
 - AgentPMT overview: use `../what-is-agentpmt` for marketplace, Agent Group, workflow, MCP, REST, and payment concepts.
 
 If those setup skills are not installed beside this product skill, use the downloads below.
@@ -299,15 +302,6 @@ Authenticated AgentPMT REST call body:
 ```
 
 Use the setup skill for the account connection details before making REST calls.
-
-x402 action path: `POST https://www.agentpmt.com/api/external/tools/file-management/actions/access-history/invoke`.
-
-x402 wallet scope:
-
-- Direct x402 calls are scoped to the payer wallet that signs the payment authorization.
-- Files created through File Manager during x402 calls are owned by that wallet scope.
-- Reuse the same payer wallet for later x402 calls when listing, fetching, downloading, or passing those files between AgentPMT tools.
-- File Manager files normally expire after the retention window, up to 7 days, unless the file action returns a shorter expiration.
 
 ## Response Handling
 - Treat the returned JSON as the source of truth for this tool call.
