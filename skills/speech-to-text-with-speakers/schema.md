@@ -12,7 +12,7 @@ Action slug: `transcribe-extended`
 
 Price: `200` credits
 
-Transcribe audio up to 60 minutes. Returns the requested transcription inline and as a File Manager file.
+Transcribe audio up to 60 minutes. Returns the selected content inline with result_file_id and result_signed_url for the File Manager artifact.
 
 Parameters:
 
@@ -24,7 +24,7 @@ Parameters:
 | `file_id` | `string` | no | File ID from a prior upload. Provide either file_id or public_url. |
 | `language_code` | `string` | no | Optional BCP-47 language code such as en-US; defaults to en-US if omitted. |
 | `max_alternatives` | `integer` | no | Maximum number of alternative transcripts to return. Must be 1 when remove_filler_words is false. |
-| `output_format` | `string` | no | Output format for the transcription result. The selected result is returned inline and as a File Manager file: .txt, .srt, .vtt, or .json. |
+| `output_format` | `string` | no | Output format for the transcription result. Successful results include the selected content inline plus result_file_id and result_signed_url for the File Manager artifact. |
 | `public_url` | `string` | no | HTTPS URL to a downloadable audio file. Provide either public_url or file_id. |
 | `remove_filler_words` | `boolean` | no | When true (default), return a cleaned transcript with disfluencies removed. When false, preserve filler words and disfluencies; this path does not support diarization or max_alternatives greater than 1. |
 
@@ -85,7 +85,7 @@ Generated JSON parameter schema:
   },
   "output_format": {
     "default": "text",
-    "description": "Output format for the transcription result. The selected result is returned inline and as a File Manager file: .txt, .srt, .vtt, or .json.",
+    "description": "Output format for the transcription result. Successful results include the selected content inline plus result_file_id and result_signed_url for the File Manager artifact.",
     "enum": [
       "text",
       "srt",
@@ -115,7 +115,7 @@ Action slug: `transcribe-quick`
 
 Price: `100` credits
 
-Transcribe audio up to 15 minutes. Returns the requested transcription inline and as a File Manager file.
+Transcribe audio up to 15 minutes. Returns the selected content inline with result_file_id and result_signed_url for the File Manager artifact.
 
 Parameters:
 
@@ -127,7 +127,7 @@ Parameters:
 | `file_id` | `string` | no | File ID from a prior upload. Provide either file_id or public_url. |
 | `language_code` | `string` | no | Optional BCP-47 language code such as en-US; defaults to en-US if omitted. |
 | `max_alternatives` | `integer` | no | Maximum number of alternative transcripts to return. Must be 1 when remove_filler_words is false. |
-| `output_format` | `string` | no | Output format for the transcription result. The selected result is returned inline and as a File Manager file: .txt, .srt, .vtt, or .json. |
+| `output_format` | `string` | no | Output format for the transcription result. Successful results include the selected content inline plus result_file_id and result_signed_url for the File Manager artifact. |
 | `public_url` | `string` | no | HTTPS URL to a downloadable audio file. Provide either public_url or file_id. |
 | `remove_filler_words` | `boolean` | no | When true (default), return a cleaned transcript with disfluencies removed. When false, preserve filler words and disfluencies; this path does not support diarization or max_alternatives greater than 1. |
 
@@ -188,7 +188,7 @@ Generated JSON parameter schema:
   },
   "output_format": {
     "default": "text",
-    "description": "Output format for the transcription result. The selected result is returned inline and as a File Manager file: .txt, .srt, .vtt, or .json.",
+    "description": "Output format for the transcription result. Successful results include the selected content inline plus result_file_id and result_signed_url for the File Manager artifact.",
     "enum": [
       "text",
       "srt",
@@ -218,7 +218,7 @@ Action slug: `transcribe-standard`
 
 Price: `150` credits
 
-Transcribe audio up to 30 minutes. Returns the requested transcription inline and as a File Manager file.
+Transcribe audio up to 30 minutes. Returns the selected content inline with result_file_id and result_signed_url for the File Manager artifact.
 
 Parameters:
 
@@ -230,7 +230,7 @@ Parameters:
 | `file_id` | `string` | no | File ID from a prior upload. Provide either file_id or public_url. |
 | `language_code` | `string` | no | Optional BCP-47 language code such as en-US; defaults to en-US if omitted. |
 | `max_alternatives` | `integer` | no | Maximum number of alternative transcripts to return. Must be 1 when remove_filler_words is false. |
-| `output_format` | `string` | no | Output format for the transcription result. The selected result is returned inline and as a File Manager file: .txt, .srt, .vtt, or .json. |
+| `output_format` | `string` | no | Output format for the transcription result. Successful results include the selected content inline plus result_file_id and result_signed_url for the File Manager artifact. |
 | `public_url` | `string` | no | HTTPS URL to a downloadable audio file. Provide either public_url or file_id. |
 | `remove_filler_words` | `boolean` | no | When true (default), return a cleaned transcript with disfluencies removed. When false, preserve filler words and disfluencies; this path does not support diarization or max_alternatives greater than 1. |
 
@@ -291,7 +291,7 @@ Generated JSON parameter schema:
   },
   "output_format": {
     "default": "text",
-    "description": "Output format for the transcription result. The selected result is returned inline and as a File Manager file: .txt, .srt, .vtt, or .json.",
+    "description": "Output format for the transcription result. Successful results include the selected content inline plus result_file_id and result_signed_url for the File Manager artifact.",
     "enum": [
       "text",
       "srt",
