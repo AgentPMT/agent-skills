@@ -1,7 +1,7 @@
 ---
 name: speech-to-text-with-speakers
 description: "Speech to Text With Speakers: Transcribe audio from file_id or public_url with three tiered actions for recordings up to 15, 30, or 60 minutes. Use when an agent needs speech to text with speakers, transcribe meeting recordings, generate subtitles and captions for videos, convert voice memos to searchable text, transcribe podcast episodes, transcribe extended, file id, public url through AgentPMT-hosted remote tool calls. Discovery terms: speech to text with speakers."
-version: 1.0.4
+version: 1.0.5
 homepage: https://www.agentpmt.com/marketplace/speech-to-text-with-speakers
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/speech-to-text-with-speakers"}}
@@ -83,8 +83,9 @@ Transcribe audio with one tool and choose the action that matches the upload len
 - `remove_filler_words` defaults to `true`, which uses Google STT V2's cleaned transcript path.
 - Set `remove_filler_words` to `false` to preserve disfluencies through Vercel AI Gateway using the `openai/whisper-1` gateway model slug. This path always requests word-level timestamps from the gateway for clipping workflows.
 - `remove_filler_words=false` does not support `enable_diarization=true` or `max_alternatives` greater than `1`; use the default cleaned path for those features.
-- Every successful transcription returns the selected output inline and as a File Manager artifact: `text` returns `text` plus `transcription.txt`; `srt` returns `srt_content` plus `transcription.srt`; `vtt` returns `vtt_content` plus `transcription.vtt`; and `json` returns `json_data` plus `transcription.json`.
-- File artifacts are returned through the existing `result_file_id` and `result_signed_url` fields. Agents should use `result_file_id` for later File Manager operations.
+- Every successful transcription returns the selected output inline through `text`, `srt_content`, `vtt_content`, or `json_data`.
+- During invocations with File Manager storage available, `text` and `json` results are stored for every successful transcription; `srt` and `vtt` results are stored when the generated subtitle content is non-empty. The corresponding filenames are `transcription.txt`, `transcription.json`, `transcription.srt`, and `transcription.vtt`.
+- Stored artifacts are returned through the existing `result_file_id` and `result_signed_url` fields. Agents should use `result_file_id` for later File Manager operations.
 - If transcription succeeds but artifact storage fails, the inline result remains available and `result_file_error` explains that the File Manager file could not be created.
 
 ## When To Use
