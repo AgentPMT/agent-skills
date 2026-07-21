@@ -1,7 +1,7 @@
 ---
 name: speech-to-text-with-speakers
 description: "Speech to Text With Speakers: Transcribe audio from file_id or public_url with three tiered actions for recordings up to 15, 30, or 60 minutes. Use when an agent needs speech to text with speakers, transcribe meeting recordings, generate subtitles and captions for videos, convert voice memos to searchable text, transcribe podcast episodes, transcribe extended, file id, public url through AgentPMT-hosted remote tool calls. Discovery terms: speech to text with speakers."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/speech-to-text-with-speakers
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/speech-to-text-with-speakers"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Speech to Text With Speakers
 
 ## Freshness
-Last updated: `2026-06-24`.
+Last updated: `2026-07-21`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -75,15 +75,17 @@ Transcribe audio with one tool and choose the action that matches the upload len
 
 #### Notes
 
-- Provide either `file_id` or `public_url`.
+- For a transcription action, provide exactly one of `file_id` or `public_url`. Do not provide either source to `get_instructions`.
 - `public_url` must be an HTTPS URL and cannot point to private or internal network addresses.
 - If `language_code` is omitted, the tool defaults to `en-US`.
 - Supported output formats: `text`, `srt`, `vtt`, `json`.
 - Optional controls: `enable_diarization`, `enable_word_timestamps`, `remove_filler_words`, `enable_profanity_filter`, `max_alternatives`.
 - `remove_filler_words` defaults to `true`, which uses Google STT V2's cleaned transcript path.
-- Set `remove_filler_words` to `false` to preserve disfluencies through Vercel AI Gateway using the `openai/whisper-1` gateway model slug. This path always requests word-level timestamps from the gateway for clipping workflows.
+- Set `remove_filler_words` to `false` to select `openai/whisper-1`. Whisper preserves disfluencies and requests word-level timestamps for downstream clipping. It uses the shared LLM gateway configuration and its existing direct OpenAI fallback because Vercel does not provide a usable audio-transcription endpoint.
 - `remove_filler_words=false` does not support `enable_diarization=true` or `max_alternatives` greater than `1`; use the default cleaned path for those features.
-- Subtitle responses include inline subtitle content and may also include stored file links during normal platform invocations.
+- Every successful response includes the established inline output field and a reusable File Manager artifact in `result_file_id` and `result_signed_url`.
+- Artifact mappings are fixed: `text` uses `transcription.txt` with `text/plain`; `srt` uses `transcription.srt` with `text/srt`; `vtt` uses `transcription.vtt` with `text/vtt`; and `json` uses `transcription.json` with `application/json`.
+- The inline fields remain `text`, `srt_content`, `vtt_content`, and `json_data`; the File Manager fields are not aliases for them and are not renamed.
 
 ## When To Use
 - Use this skill for `Speech to Text With Speakers` on AgentPMT.
@@ -114,9 +116,9 @@ Complete generated action schema: `./schema.md`.
 Supported action count: `3`.
 x402 availability: not enabled for this product.
 
-- `transcribe_extended` (action slug: `transcribe-extended`): Transcribe audio up to 60 minutes. Price: `200` credits. Parameters: `enable_diarization`, `enable_profanity_filter`, `enable_word_timestamps`, `file_id`, `language_code`, `max_alternatives`, `output_format`, `public_url`, plus 1 more.
-- `transcribe_quick` (action slug: `transcribe-quick`): Transcribe audio up to 15 minutes. Price: `100` credits. Parameters: `enable_diarization`, `enable_profanity_filter`, `enable_word_timestamps`, `file_id`, `language_code`, `max_alternatives`, `output_format`, `public_url`, plus 1 more.
-- `transcribe_standard` (action slug: `transcribe-standard`): Transcribe audio up to 30 minutes. Price: `150` credits. Parameters: `enable_diarization`, `enable_profanity_filter`, `enable_word_timestamps`, `file_id`, `language_code`, `max_alternatives`, `output_format`, `public_url`, plus 1 more.
+- `transcribe_extended` (action slug: `transcribe-extended`): Transcribe audio up to 60 minutes and return inline content plus a File Manager artifact. Price: `200` credits. Parameters: `enable_diarization`, `enable_profanity_filter`, `enable_word_timestamps`, `file_id`, `language_code`, `max_alternatives`, `output_format`, `public_url`, plus 1 more.
+- `transcribe_quick` (action slug: `transcribe-quick`): Transcribe audio up to 15 minutes and return inline content plus a File Manager artifact. Price: `100` credits. Parameters: `enable_diarization`, `enable_profanity_filter`, `enable_word_timestamps`, `file_id`, `language_code`, `max_alternatives`, `output_format`, `public_url`, plus 1 more.
+- `transcribe_standard` (action slug: `transcribe-standard`): Transcribe audio up to 30 minutes and return inline content plus a File Manager artifact. Price: `150` credits. Parameters: `enable_diarization`, `enable_profanity_filter`, `enable_word_timestamps`, `file_id`, `language_code`, `max_alternatives`, `output_format`, `public_url`, plus 1 more.
 
 ## Live Schema And Examples
 Use the compact schema above for ordinary calls. Before a new production integration, or whenever parameters, enum values, nested objects, outputs, or examples are unclear, fetch live details first.
