@@ -1,7 +1,7 @@
 ---
 name: plaud-recordings-to-google-calendar-events
 description: "Plaud Recordings to Google Calendar Events: Puts the meetings you agree to out loud straight onto your Google Calendar, without Zapier in the middle. Plaud's own app has no Calendar integration, so this closes that gap directly: each new recording is scanned, the transcript pulled, and any genuine scheduling commitment spoken in it (\"let's do Tuesday at 3\", \"I'll come back out Thursday morning\") is extracted with the relative date resolved against the recording's own date and your timezone. Eac."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/agent-workflow-skills/plaud-recordings-to-google-calendar-events
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/agent-workflow-skills/plaud-recordings-to-google-calendar-events"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Plaud Recordings to Google Calendar Events
 
 ## Freshness
-Last updated: `2026-07-25`.
+Last updated: `2026-07-26`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -49,47 +49,49 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
 ```
 
 ## Workflow Process
-1. Get Current Date
+1. Get User Timezone and Date
    - Tool product: Get Users Current Time / Date.
    - Tool skill: `../get-users-current-time-date`.
    - ClawHub page: https://clawhub.ai/agentpmt/get-users-current-time-date.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill get-users-current-time-date`.
    - Marketplace: https://www.agentpmt.com/marketplace/user-timezone-datetime.
-   - Tool instructions: Get the user's current date, time and timezone. Every relative date spoken in a recording ('next Tuesday', 'in two weeks') is resolved against the recording's own date and this timezone.
-2. List Plaud Recordings
+   - Tool instructions: Get the user's current local date, time, timezone and UTC offset. The requested window, every recording timestamp, and every relative date spoken in a recording are resolved against this and never against the server clock.
+2. Ask for the Recording Window
+   - Prompt: Establish the exact window of recordings this run covers, in the user's own timezone.
+3. List Plaud Recordings
    - Tool product: Plaud.
    - Tool skill: `../plaud`.
    - ClawHub page: https://clawhub.ai/agentpmt/plaud.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill plaud`.
    - Marketplace: https://www.agentpmt.com/marketplace/plaud.
-   - Tool instructions: List the user's recordings. Skip any recording id already present in the ledger sheet so a scheduled run never processes the same conversation twice.
-3. Each New Recording
+   - Tool instructions: Call list_files with the widened UTC date_from and date_to from the previous step. Plaud's timestamps are inconsistent and must be handled deliberately: the name field carries the recording's LOCAL time (for example '2026-07-25 19:53:50') while start_at and created_at are UTC written as naive strings with no Z and no offset (the same recording reads '2026-07-25T23:53:50'). Treat start_at as UTC, convert it into the user's timezone, and only then decide whether the recording falls inside the requested local window. This matters twice over here, because the recording's local date is also the anchor for resolving every relative date spoken inside it. Then skip any recording id already in the ledger sheet.
+4. Each New Recording
    - Iterate over the configured collection, then continue through the connected workflow path.
-4. Fetch Transcript
+5. Fetch Transcript
    - Tool product: Plaud.
    - Tool skill: `../plaud`.
    - ClawHub page: https://clawhub.ai/agentpmt/plaud.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill plaud`.
    - Marketplace: https://www.agentpmt.com/marketplace/plaud.
-   - Tool instructions: Fetch the full transcript for this recording, reusing Plaud's existing transcript when one is available.
-5. Summarize the Run
+   - Tool instructions: Call get_transcript with this recording's file id, reusing Plaud's existing transcript when one is available.
+6. Summarize the Run
    - Prompt: Tell the user exactly what landed on their calendar and what was deliberately left off.
-6. Extract Scheduling Commitments
-   - Prompt: Find every concrete scheduling commitment spoken in the conversation and resolve it to a real calendar date and time.
-7. Create Calendar Events
+7. Extract Scheduling Commitments
+   - Prompt: Find every concrete scheduling commitment spoken in the conversation and resolve it to a real calendar date and time in the user's timezone.
+8. Create Calendar Events
    - Tool product: Google Calendar.
    - Tool skill: `../google-calendar`.
    - ClawHub page: https://clawhub.ai/agentpmt/google-calendar.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill google-calendar`.
    - Marketplace: https://www.agentpmt.com/marketplace/google-calendar.
-   - Tool instructions: Create each extracted event on the user's primary calendar, putting the source quote and the recording link in the description. If an event with the same title and start time already exists, leave it alone rather than creating a duplicate.
-8. Log to Ledger Sheet
+   - Tool instructions: Create each extracted event on the user's primary calendar in their own timezone, putting the source quote and the recording link in the description. If an event with the same title and start time already exists, leave it alone rather than creating a duplicate.
+9. Log to Ledger Sheet
    - Tool product: Google Sheets.
    - Tool skill: `../google-sheets`.
    - ClawHub page: https://clawhub.ai/agentpmt/google-sheets.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill google-sheets`.
    - Marketplace: https://www.agentpmt.com/marketplace/google-sheets-api.
-   - Tool instructions: Append the recording id, the events created, and any recordings that yielded nothing, so the next run skips them and the user has an audit trail of what was scheduled from which conversation.
+   - Tool instructions: Append the recording id, its local recorded time, the events created, and any recordings that yielded nothing, so the next run skips them and the user has an audit trail of what was scheduled from which conversation. Write all times in the user's local timezone.
 
 ## Tool Skill Links
 - Get Users Current Time / Date: `../get-users-current-time-date`; ClawHub https://clawhub.ai/agentpmt/get-users-current-time-date; skills.sh `npx skills add AgentPMT/agent-skills --skill get-users-current-time-date`; marketplace https://www.agentpmt.com/marketplace/user-timezone-datetime
