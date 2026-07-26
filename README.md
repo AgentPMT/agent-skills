@@ -190,6 +190,26 @@ This repo contains ready-to-use agent skills organized by use case. Each skill i
 | **Finance & Accounting** | Invoice processing, expense categorization, reconciliation |
 | **Sales & Outreach** | Lead qualification, proposal generation, follow-up sequences |
 
+## Generated Skills And Payment Setup
+
+Generated AgentPMT product and workflow skills are published by the AgentPMT
+skill publisher. They should describe the product or workflow-specific task and
+link to shared setup skills for account, MCP, REST, AgentAddress, and x402
+payment details. They must not copy x402 challenge handling, payment headers,
+canonical JSON/signing snippets, AgentAddress creation, private-key examples, or
+credit-purchase retry logic.
+
+Canonical setup skills:
+
+- `what-is-agentpmt`
+- `agentpmt-account-mcp-rest-api-setup`
+- `agentpmt-no-account-agentaddress-x402`
+
+Run `python3 scripts/audit_generated_payment_duplication.py` before publishing
+or reviewing generated skill changes. The audit fails if generated skill folders
+contain copied payment mechanics outside the canonical static setup/reference
+skills.
+
 ---
 
 ## Getting Started
