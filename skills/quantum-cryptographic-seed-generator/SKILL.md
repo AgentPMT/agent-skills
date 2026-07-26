@@ -1,7 +1,7 @@
 ---
 name: quantum-cryptographic-seed-generator
 description: "Quantum Cryptographic Seed Generator: Generate cryptographic seeds, UUIDs, tokens, passwords, and prime numbers using quantum-derived randomness with verification certificates. Use when an agent needs quantum cryptographic seed generator, key derivation and encryption seed generation, session tokens and api key creation, secure password generation, unique identifier production for databases and distributed systems, password, source, length through AgentPMT-hosted remote tool calls."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/quantum-cryptographic-seed-generator
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/quantum-cryptographic-seed-generator"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Quantum Cryptographic Seed Generator
 
 ## Freshness
-Last updated: `2026-06-10`.
+Last updated: `2026-06-29`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -19,214 +19,39 @@ Cryptographic primitives and secure random generation powered by quantum or pseu
 ## Product Instructions
 ### Quantum Cryptographic Seed Generator
 
-#### Overview
-Generate cryptographically secure seeds, UUIDs, tokens, passwords, and prime numbers using quantum or standard random sources. All operations support both quantum-derived randomness and standard cryptographic randomness.
+Generate cryptographic seeds, UUIDs, tokens, passwords, and prime numbers. Use the product action name in `action`; the backend also accepts legacy `operation` for compatibility.
 
 #### Actions
 
-##### seed — Generate Cryptographic Seed
-Generates a random seed with an optional timestamp certificate for verification.
+##### seed
+Required: `action:"seed"`.
+Optional: `source:"quantum"|"standard"` default `quantum`, `bit_length` 128-2048 default 256, `include_certificate` boolean default true.
+Example: `{"action":"seed","bit_length":256,"include_certificate":true}`
 
-**Required fields:**
-- `operation`: `"seed"`
+##### uuid
+Required: `action:"uuid"`.
+Optional: `source`, `count` 1-1000 default 1.
+Example: `{"action":"uuid","count":5,"source":"quantum"}`
 
-**Optional fields:**
-- `source`: `"quantum"` (default) or `"standard"` — random source
-- `bit_length`: Integer 128–2048 (default 256) — seed size in bits
-- `include_certificate`: Boolean (default true) — include a SHA-256 hash certificate with timestamp
+##### token
+Required: `action:"token"`.
+Optional: `source`, `length` 8-256 default 32, `charset:"alphanumeric"|"hex"|"base64"|"ascii"` default `alphanumeric`.
+Example: `{"action":"token","length":64,"charset":"hex"}`
 
-**Example:**
-```json
-{
-  "operation": "seed",
-  "bit_length": 512,
-  "include_certificate": true
-}
-```
+##### password
+Required: `action:"password"`.
+Optional: `source`, `length` 8-256 default 32, `uppercase`, `lowercase`, `digits`, `symbols`, `exclude_ambiguous`.
+Example: `{"action":"password","length":24,"symbols":true,"exclude_ambiguous":true}`
 
----
+##### prime
+Required: `action:"prime"`.
+Optional: `source`, `bit_length` 128-2048 default 256, `count` 1-1000 default 1. With `source:"quantum"`, `bit_length * count` must be <= 1900.
+Example: `{"action":"prime","bit_length":256,"count":3}`
 
-##### uuid — Generate UUIDs
-Generates one or more version-4 UUIDs.
-
-**Required fields:**
-- `operation`: `"uuid"`
-
-**Optional fields:**
-- `source`: `"quantum"` or `"standard"` (default `"quantum"`)
-- `count`: Integer 1–1000 (default 1) — number of UUIDs to generate
-
-**Example:**
-```json
-{
-  "operation": "uuid",
-  "count": 5,
-  "source": "quantum"
-}
-```
-
----
-
-##### token — Generate Secure Token
-Generates a random token string in a specified character set.
-
-**Required fields:**
-- `operation`: `"token"`
-
-**Optional fields:**
-- `source`: `"quantum"` or `"standard"` (default `"quantum"`)
-- `length`: Integer 8–256 (default 32) — token length in characters
-- `charset`: `"alphanumeric"` (default), `"hex"`, `"base64"`, or `"ascii"`
-
-**Example — hex API key:**
-```json
-{
-  "operation": "token",
-  "length": 64,
-  "charset": "hex"
-}
-```
-
-**Example — base64 token:**
-```json
-{
-  "operation": "token",
-  "length": 44,
-  "charset": "base64"
-}
-```
-
----
-
-##### password — Generate Secure Password
-Generates a random password with configurable character classes.
-
-**Required fields:**
-- `operation`: `"password"`
-
-**Optional fields:**
-- `source`: `"quantum"` or `"standard"` (default `"quantum"`)
-- `length`: Integer 8–256 (default 32) — password length
-- `uppercase`: Boolean (default true) — include uppercase letters
-- `lowercase`: Boolean (default true) — include lowercase letters
-- `digits`: Boolean (default true) — include digits
-- `symbols`: Boolean (default true) — include punctuation symbols
-- `exclude_ambiguous`: Boolean (default true) — exclude visually ambiguous characters (0, O, 1, l, I)
-
-**Example:**
-```json
-{
-  "operation": "password",
-  "length": 20,
-  "symbols": false,
-  "exclude_ambiguous": true
-}
-```
-
----
-
-##### prime — Generate Prime Numbers
-Generates one or more prime numbers of a specified bit length using Miller-Rabin primality testing.
-
-**Required fields:**
-- `operation`: `"prime"`
-
-**Optional fields:**
-- `source`: `"quantum"` or `"standard"` (default `"quantum"`)
-- `bit_length`: Integer 128–2048 (default 256) — bit length of each prime
-- `count`: Integer 1–1000 (default 1) — number of primes to generate
-
-**Quantum source limit:** When using `"quantum"` source, `bit_length * count` must not exceed 1900.
-
-**Example:**
-```json
-{
-  "operation": "prime",
-  "bit_length": 256,
-  "count": 3
-}
-```
-
----
-
-##### prime_pair — Generate RSA Prime Pair
-Generates two distinct prime numbers suitable for RSA key generation, along with their product (n = p * q).
-
-**Required fields:**
-- `operation`: `"prime_pair"`
-
-**Optional fields:**
-- `source`: `"quantum"` or `"standard"` (default `"quantum"`)
-- `bit_length`: Integer 128–2048 (default 256) — bit length of each prime
-- `min_difference`: Integer, minimum 0 (default 100) — minimum numeric difference between the two primes
-
-**Quantum source limit:** When using `"quantum"` source, `bit_length` must not exceed 950 (since two primes are generated).
-
-**Example:**
-```json
-{
-  "operation": "prime_pair",
-  "bit_length": 512,
-  "min_difference": 1000
-}
-```
-
----
-
-#### Common Workflows
-
-##### Generate a secure API key
-```json
-{
-  "operation": "token",
-  "length": 64,
-  "charset": "hex",
-  "source": "quantum"
-}
-```
-
-##### Generate a user-friendly password
-```json
-{
-  "operation": "password",
-  "length": 16,
-  "symbols": false,
-  "exclude_ambiguous": true
-}
-```
-
-##### Generate a certified seed for auditable randomness
-```json
-{
-  "operation": "seed",
-  "bit_length": 256,
-  "include_certificate": true,
-  "source": "quantum"
-}
-```
-
-##### Generate an RSA key pair foundation
-```json
-{
-  "operation": "prime_pair",
-  "bit_length": 512,
-  "source": "quantum"
-}
-```
-
-##### Generate batch UUIDs for record identifiers
-```json
-{
-  "operation": "uuid",
-  "count": 100
-}
-```
-
-#### Important Notes
-- **Quantum vs Standard:** The `"quantum"` source uses hardware-derived quantum randomness. The `"standard"` source uses Python's `secrets` module (cryptographically secure but not quantum-derived). Default is `"quantum"` for all operations.
-- **Quantum limits for primes:** When using quantum source, total bits requested for prime generation are capped (bit_length * count ≤ 1900 for `prime`; bit_length ≤ 950 for `prime_pair`).
-- **At least one character class required:** For password generation, at least one of uppercase, lowercase, digits, or symbols must be enabled.
-- **Seed certificates** include a UTC timestamp, the random source used, and a SHA-256 hash of the seed for independent verification.
+##### prime_pair
+Required: `action:"prime_pair"`.
+Optional: `source`, `bit_length` 128-2048 default 256, `min_difference` default 100. With `source:"quantum"`, `bit_length` must be <= 950.
+Example: `{"action":"prime_pair","bit_length":512,"min_difference":1000}`
 
 ## When To Use
 - Use this skill for `Quantum Cryptographic Seed Generator` on AgentPMT.
