@@ -1,7 +1,7 @@
 ---
 name: plaud-spoken-field-notes-to-a-structured-sheet
 description: "Plaud Spoken Field Notes to a Structured Sheet: Turns a spoken site visit into a filled-in spreadsheet row, so measurements and specs never get typed up twice. Built for anyone who dictates structured details on the job rather than writing them down: window and flooring measurements, equipment specs, inspection findings, punch lists, service call notes. Say the details out loud in the same order each visit (client, room, width, drop, colour, notes) and the workflow reads each new Plaud recordin."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/agent-workflow-skills/plaud-spoken-field-notes-to-a-structured-sheet
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/agent-workflow-skills/plaud-spoken-field-notes-to-a-structured-sheet"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Plaud Spoken Field Notes to a Structured Sheet
 
 ## Freshness
-Last updated: `2026-07-25`.
+Last updated: `2026-07-26`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -49,40 +49,42 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
 ```
 
 ## Workflow Process
-1. Get Current Date
+1. Get User Timezone and Date
    - Tool product: Get Users Current Time / Date.
    - Tool skill: `../get-users-current-time-date`.
    - ClawHub page: https://clawhub.ai/agentpmt/get-users-current-time-date.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill get-users-current-time-date`.
    - Marketplace: https://www.agentpmt.com/marketplace/user-timezone-datetime.
-   - Tool instructions: Get the user's current date, time and timezone. Every spoken relative date in a recording is resolved against this.
-2. List Plaud Recordings
+   - Tool instructions: Get the user's current local date, time, timezone and UTC offset. Everything downstream, the requested window, the recording timestamps and any spoken relative date, is resolved against this and never against the server clock.
+2. Ask for the Recording Window
+   - Prompt: Establish the exact window of recordings this run covers, in the user's own timezone.
+3. List Plaud Recordings
    - Tool product: Plaud.
    - Tool skill: `../plaud`.
    - ClawHub page: https://clawhub.ai/agentpmt/plaud.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill plaud`.
    - Marketplace: https://www.agentpmt.com/marketplace/plaud.
-   - Tool instructions: List the user's recordings. Compare against the Processed tab of the target spreadsheet and carry forward only recordings whose Plaud recording id is not already logged, so the workflow is safe to run on a schedule.
-3. Each New Recording
+   - Tool instructions: Call list_files with the widened UTC date_from and date_to from the previous step. Plaud's timestamps are inconsistent and must be handled deliberately: the name field carries the recording's LOCAL time (for example '2026-07-25 19:53:50') while start_at and created_at are UTC written as naive strings with no Z and no offset (the same recording reads '2026-07-25T23:53:50'). Treat start_at as UTC, convert it into the user's timezone, and only then decide whether the recording falls inside the requested local window. An evening local recording carries the next day's UTC date, so comparing the raw string silently misfiles it. Display and log times in the user's local timezone. Then drop any recording id already in the Processed tab so a scheduled run never repeats work.
+4. Each New Recording
    - Iterate over the configured collection, then continue through the connected workflow path.
-4. Fetch Transcript
+5. Fetch Transcript
    - Tool product: Plaud.
    - Tool skill: `../plaud`.
    - ClawHub page: https://clawhub.ai/agentpmt/plaud.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill plaud`.
    - Marketplace: https://www.agentpmt.com/marketplace/plaud.
-   - Tool instructions: Fetch the full transcript for this recording. Reuse Plaud's own transcript when one already exists rather than re-transcribing.
-5. Summarize the Run
+   - Tool instructions: Call get_transcript with this recording's file id. Reuse Plaud's own transcript rather than re-transcribing.
+6. Summarize the Run
    - Prompt: Report what was captured this run so the user can spot a bad extraction before acting on it.
-6. Extract Spoken Fields
+7. Extract Spoken Fields
    - Prompt: Turn a spoken site-visit dictation into one structured row matching the column headers of the target sheet.
-7. Append Row to Sheet
+8. Append Row to Sheet
    - Tool product: Google Sheets.
    - Tool skill: `../google-sheets`.
    - ClawHub page: https://clawhub.ai/agentpmt/google-sheets.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill google-sheets`.
    - Marketplace: https://www.agentpmt.com/marketplace/google-sheets-api.
-   - Tool instructions: Append the extracted row to the data tab at the true table end, then log the recording id to the Processed tab so it is never handled twice. Skipped recordings are logged to Processed with their reason and no data row.
+   - Tool instructions: Append the extracted row to the data tab at the true table end, writing any timestamp in the user's local timezone. Then log the recording id to the Processed tab so it is never handled twice. Skipped recordings are logged to Processed with their reason and no data row.
 
 ## Tool Skill Links
 - Get Users Current Time / Date: `../get-users-current-time-date`; ClawHub https://clawhub.ai/agentpmt/get-users-current-time-date; skills.sh `npx skills add AgentPMT/agent-skills --skill get-users-current-time-date`; marketplace https://www.agentpmt.com/marketplace/user-timezone-datetime
