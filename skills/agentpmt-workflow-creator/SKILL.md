@@ -1,7 +1,7 @@
 ---
 name: agentpmt-workflow-creator
 description: "AgentPMT Workflow Creator: Build and manage multi-step AI agent workflows (skill chains) that orchestrate tools, prompts, loops, and human notifications into reusable DAG pipelines. Use when an agent needs agentpmt workflow creator, build custom ai agent workflows, automate multi step business processes, chain tools together into reusable pipelines, create no code automation workflows, add showcase example, skill id, showcase example through AgentPMT-hosted remote tool calls."
-version: 1.0.2
+version: 1.0.3
 homepage: https://www.agentpmt.com/marketplace/agentpmt-workflow-creator
 compatibility: "Requires AgentPMT internal handler access through the external marketplace API. Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/agentpmt-workflow-creator"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # AgentPMT Workflow Creator
 
 ## Freshness
-Last updated: `2026-07-27`.
+Last updated: `2026-07-28`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -264,7 +264,7 @@ x402 availability: not enabled for this product.
 - `add_showcase_example` (action slug: `add-showcase-example`): Add a single showcase example to a workflow skill. Price: `0` credits. Parameters: `expected_draft_revision`, `showcase_example`, `skill_id`.
 - `attach_context` (action slug: `attach-context`): Attach one Agent Context document to a workflow skill draft. Price: `0` credits. Parameters: `context_document_id`, `expected_draft_revision`, `skill_id`.
 - `checkpoint` (action slug: `checkpoint`): Append an autosave checkpoint if the current draft differs from the newest retained checkpoint. Price: `0` credits. Parameters: `checkpoint_reason`, `expected_draft_revision`, `skill_id`.
-- `create_new` (action slug: `create-new`): Create a new workflow skill. Price: `0` credits. Parameters: `chat_model`, `context_document_ids`, `default_export_target`, `description`, `edges`, `expected_draft_revision`, `industry_tags`, `mcp_server_name`, plus 6 more.
+- `create_new` (action slug: `create-new`): Create a new workflow skill. Price: `0` credits. Parameters: `chat_model`, `context_document_ids`, `default_export_target`, `description`, `edges`, `industry_tags`, `mcp_server_name`, `name`, plus 5 more.
 - `delete` (action slug: `delete`): Delete a workflow skill draft. Price: `0` credits. Parameters: `expected_draft_revision`, `skill_id`.
 - `detach_context` (action slug: `detach-context`): Detach one Agent Context document from a workflow skill draft. Price: `0` credits. Parameters: `context_document_id`, `expected_draft_revision`, `skill_id`.
 - `fetch_existing` (action slug: `fetch-existing`): Fetch workflow skills, optionally filtered to one skill. Price: `0` credits. Parameters: `include_published_only`, `skill_id`.
@@ -279,7 +279,7 @@ x402 availability: not enabled for this product.
 - `restore_published` (action slug: `restore-published`): Restore the server-authoritative published snapshot into the current draft. Price: `0` credits. Parameters: `expected_draft_revision`, `skill_id`.
 - `restore_version` (action slug: `restore-version`): Restore a retained checkpoint into the current draft. Price: `0` credits. Parameters: `expected_draft_revision`, `skill_id`, `version_id`.
 - `search_public` (action slug: `search-public`): Search public workflow skills. Price: `0` credits. Parameters: `categories`, `industry_tags_filter`, `limit`, `publisher`, `query`, `skip`.
-- `update_existing` (action slug: `update-existing`): Update an existing workflow skill draft. Price: `0` credits. Parameters: `chat_model`, `context_document_ids`, `default_export_target`, `description`, `edges`, `industry_tags`, `mcp_server_name`, `name`, plus 4 more.
+- `update_existing` (action slug: `update-existing`): Update an existing workflow skill draft. Price: `0` credits. Parameters: `chat_model`, `context_document_ids`, `default_export_target`, `description`, `edges`, `expected_draft_revision`, `industry_tags`, `mcp_server_name`, plus 5 more.
 - `validate` (action slug: `validate`): Dry-run validate workflow graph nodes and edges without persisting. Price: `0` credits. Parameters: `edges`, `nodes`, `validation_mode`.
 
 ## Live Schema And Examples
