@@ -1,7 +1,7 @@
 ---
 name: ai-gmail-inbox-classifier-auto-archive-with-hourly-telegram
-description: "AI Gmail Inbox Classifier & Auto-Archive with Hourly Telegram Alerts: Automatically organize and clean up your Gmail inbox every hour, hands-free. This AI email automation reads each new message, classifies it into one of nine of your own Gmail labels (across the \\\"00 Automated\\\" and \\\"00 Human\\\" label groups), applies the right label, and archives it out of your inbox — so you reach inbox zero without lifting a finger. The moment a message is tagged Important, you get an instant Telegram alert."
-version: 1.0.1
+description: "AI Gmail Inbox Classifier & Auto-Archive with Hourly Telegram Alerts: Automatically organize and clean up your Gmail inbox every hour, hands-free. This AI email automation reads each new message, classifies it into one of eleven of your own Gmail labels (across the \"00 Automated\", \"00 Human\", and \"00 Bookkeeping\" label groups), applies the right label, and archives it out of your inbox — so you reach inbox zero without lifting a finger. The moment a message is tagged Important, you get an insta."
+version: 1.0.2
 homepage: https://www.agentpmt.com/agent-workflow-skills/ai-gmail-inbox-classifier-auto-archive-with-hourly-telegram-alerts
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/agent-workflow-skills/ai-gmail-inbox-classifier-auto-archive-with-hourly-telegram-alerts"}}
@@ -14,7 +14,7 @@ Last updated: `2026-08-06`.
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
 ## What This Workflow Does
-Automatically organize and clean up your Gmail inbox every hour, hands-free. This AI email automation reads each new message, classifies it into one of nine of your own Gmail labels (across the \"00 Automated\" and \"00 Human\" label groups), applies the right label, and archives it out of your inbox — so you reach inbox zero without lifting a finger. The moment a message is tagged Important, you get an instant Telegram alert with a direct link to that email, so urgent messages never slip through. Ideal for busy professionals and teams who want smart email sorting, automated inbox triage, and real-time Telegram notifications for the emails that actually matter.
+Automatically organize and clean up your Gmail inbox every hour, hands-free. This AI email automation reads each new message, classifies it into one of eleven of your own Gmail labels (across the "00 Automated", "00 Human", and "00 Bookkeeping" label groups), applies the right label, and archives it out of your inbox — so you reach inbox zero without lifting a finger. The moment a message is tagged Important, you get an instant Telegram alert with a direct link to that email, so urgent messages never slip through. Ideal for busy professionals and teams who want smart email sorting, automated inbox triage, and real-time Telegram notifications for the emails that actually matter.
 
 ## Required Setup
 - AgentPMT overview: `../what-is-agentpmt`.
@@ -68,7 +68,7 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
    - Tool instructions: Fetch the full details of the current email using email.id as the message ID.
    - Default parameters are configured on this workflow node; use the linked tool skill for schema details.
 4. Classify Email Into Label
-   - Prompt: Classify the email into exactly ONE of the nine defined Gmail labels based on sender, subject, body content, and automated signals.
+   - Prompt: Classify the email into exactly ONE of the eleven defined Gmail labels based on sender, subject, body content, and automated signals.
 5. Apply Gmail Label to Email
    - Tool product: Gmail - All Email Actions.
    - Tool skill: `../gmail-all-email-actions`.
@@ -98,7 +98,7 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
    - Tool instructions: Send a Telegram message alerting the user to an important email.
    - Default parameters are configured on this workflow node; use the linked tool skill for schema details.
 10. Hourly Run Summary
-   - Prompt: Summarize the completed hourly Gmail inbox processing run. Report: total emails processed, how many were assigned to each of the nine labels, how many Telegram notifications were sent, and confirm all emails archived.
+   - Prompt: Summarize the completed hourly Gmail inbox processing run. Report: total emails processed, how many were assigned to each of the eleven labels, how many Telegram notifications were sent, and confirm all emails archived.
 
 ## Tool Skill Links
 - Gmail - All Email Actions: `../gmail-all-email-actions`; ClawHub https://clawhub.ai/agentpmt/gmail-all-email-actions; skills.sh `npx skills add AgentPMT/agent-skills --skill gmail-all-email-actions`; marketplace https://www.agentpmt.com/marketplace/gmail-all-email-actions
