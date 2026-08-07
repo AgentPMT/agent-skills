@@ -1,7 +1,7 @@
 ---
 name: plaud-recordings-to-google-drive-sync
-description: "Plaud Recordings to Google Drive Sync: Keeps a Google Sheet and Drive folder called \"Plaud Recordings\" in sync with your Plaud account, with transcripts. Finds or creates the sheet (Recording ID, Recording Link, Status, Recording Type, Transcript Link, Recorded At) and the Drive folder, lists every Plaud recording, and for each one not already logged (matched on Plaud's durable recording id): claims a row in the sheet, downloads the audio to Drive, obtains a transcript — reusing Plaud's own dia."
-version: 1.0.0
+description: "Plaud Recordings to Google Drive Sync: Automatically backs up your Plaud recordings to Google Drive and keeps a tracking spreadsheet in Google Sheets. Each time you run this workflow, it downloads any new recordings from your Plaud account to a \"Plaud Recordings\" folder in Drive, creates a transcript for each recording (using Plaud's built-in transcripts when available, or automatic speech-to-text otherwise), saves the transcript alongside the audio file, identifies what each recording is about."
+version: 1.0.1
 homepage: https://www.agentpmt.com/agent-workflow-skills/plaud-recordings-to-google-drive-sync
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/agent-workflow-skills/plaud-recordings-to-google-drive-sync"}}
@@ -9,12 +9,12 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Plaud Recordings to Google Drive Sync
 
 ## Freshness
-Last updated: `2026-08-03`.
+Last updated: `2026-08-07`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
 ## What This Workflow Does
-Keeps a Google Sheet and Drive folder called "Plaud Recordings" in sync with your Plaud account, with transcripts. Finds or creates the sheet (Recording ID, Recording Link, Status, Recording Type, Transcript Link, Recorded At) and the Drive folder, lists every Plaud recording, and for each one not already logged (matched on Plaud's durable recording id): claims a row in the sheet, downloads the audio to Drive, obtains a transcript — reusing Plaud's own diarized transcript via get_transcript when one exists, otherwise transcribing through Speech-to-Text's background tasks (submit, then poll get_task; diarization on for recordings up to 20 minutes) — saves the transcript to the same folder as "<id> - transcription.json", distills the recording's purpose from the first ~30 seconds of speech into a Recording Type, and finalises the row with the id, Drive audio link, status, type, transcript link, and the recording's original date and time. Safe to re-run and safe to run concurrently: each recording is claimed in the sheet before any upload or transcription happens, and the claim step re-reads the Recording ID column at that moment rather than trusting the set read at the start of the run, so two overlapping runs cannot process or upload the same recording twice. Recordings over 60 minutes are downloaded but not transcribed; a null audio URL is retried before being treated as unavailable.
+Automatically backs up your Plaud recordings to Google Drive and keeps a tracking spreadsheet in Google Sheets. Each time you run this workflow, it downloads any new recordings from your Plaud account to a "Plaud Recordings" folder in Drive, creates a transcript for each recording (using Plaud's built-in transcripts when available, or automatic speech-to-text otherwise), saves the transcript alongside the audio file, identifies what each recording is about (meeting, interview, note, etc.), and logs everything in a spreadsheet with links to the audio and transcript files. You can run this as often as you like - it only processes new recordings and won't duplicate anything. Just connect your Plaud, Google Drive, and Google Sheets accounts and run it whenever you want to sync your latest recordings.
 
 ## Required Setup
 - AgentPMT overview: `../what-is-agentpmt`.
@@ -85,7 +85,9 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
    - Prompt: Determine which Plaud recordings are not yet logged in the spreadsheet.
 6. For Each New Recording
    - Iterate over the configured collection, then continue through the connected workflow path.
-7. Get Plaud File
+7. Summarize Run
+   - Prompt: Report the results of the sync run.
+8. Get Plaud File
    - Tool product: Plaud.
    - Tool skill: `../plaud`.
    - ClawHub page: https://clawhub.ai/agentpmt/plaud.
@@ -101,8 +103,6 @@ PLAUD'S OWN TRANSCRIPT: do NOT try to read transcripts out of get_file's 'source
 
 Output: presigned_url (or unavailable), recording id, start_at (naive ISO, UTC), duration (ms), has_plaud_transcript, and the collected utterances array when present.
    - Default parameters are configured on this workflow node; use the linked tool skill for schema details.
-8. Summarize Run
-   - Prompt: Report the results of the sync run.
 9. Claim Row in Sheet
    - Tool product: Google Sheets.
    - Tool skill: `../google-sheets`.
