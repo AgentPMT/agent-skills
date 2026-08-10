@@ -1,7 +1,7 @@
 ---
 name: ai-gmail-inbox-classifier-auto-archive-with-hourly-telegram
 description: "AI Gmail Inbox Classifier & Auto-Archive with Hourly Telegram Alerts: Automatically organize and clean up your Gmail inbox every hour, hands-free. This AI email automation reads each new message, classifies it into one of eleven of your own Gmail labels (across the \"00 Automated\", \"00 Human\", and \"00 Bookkeeping\" label groups), applies the right label, and archives it out of your inbox — so you reach inbox zero without lifting a finger. The moment a message is tagged Important, you get an insta."
-version: 1.0.2
+version: 1.0.3
 homepage: https://www.agentpmt.com/agent-workflow-skills/ai-gmail-inbox-classifier-auto-archive-with-hourly-telegram-alerts
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/agent-workflow-skills/ai-gmail-inbox-classifier-auto-archive-with-hourly-telegram-alerts"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # AI Gmail Inbox Classifier & Auto-Archive with Hourly Telegram Alerts
 
 ## Freshness
-Last updated: `2026-08-06`.
+Last updated: `2026-08-10`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -65,11 +65,19 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
    - ClawHub page: https://clawhub.ai/agentpmt/gmail-all-email-actions.
    - skills.sh install: `npx skills add AgentPMT/agent-skills --skill gmail-all-email-actions`.
    - Marketplace: https://www.agentpmt.com/marketplace/gmail-all-email-actions.
-   - Tool instructions: Fetch the full details of the current email using email.id as the message ID.
+   - Tool instructions: Fetch the full details of the current email using email.id as the message ID. Extract and note: the sender email address, subject, body content, threadId, and how many messages are in this thread. If the thread has multiple messages, this email is part of an ongoing conversation.
    - Default parameters are configured on this workflow node; use the linked tool skill for schema details.
-4. Classify Email Into Label
-   - Prompt: Classify the email into exactly ONE of the eleven defined Gmail labels based on sender, subject, body content, and automated signals.
-5. Apply Gmail Label to Email
+4. Check Prior Correspondence with Sender
+   - Tool product: Gmail - All Email Actions.
+   - Tool skill: `../gmail-all-email-actions`.
+   - ClawHub page: https://clawhub.ai/agentpmt/gmail-all-email-actions.
+   - skills.sh install: `npx skills add AgentPMT/agent-skills --skill gmail-all-email-actions`.
+   - Marketplace: https://www.agentpmt.com/marketplace/gmail-all-email-actions.
+   - Tool instructions: Search for any prior messages to or from this email sender. Use the sender email address from get-email-detail to construct a search query: 'from:sender@example.com OR to:sender@example.com'. Also check the threadId: if the current thread contains multiple messages, the email is part of an ongoing conversation. Return whether prior correspondence was found (true/false) and whether the email is in a multi-message thread (true/false). This data is critical for the classification step.
+   - Default parameters are configured on this workflow node; use the linked tool skill for schema details.
+5. Classify Email Into Label
+   - Prompt: Classify the email into exactly ONE of the eleven defined Gmail labels using priority-ordered rules, incorporating thread history and prior correspondence data.
+6. Apply Gmail Label to Email
    - Tool product: Gmail - All Email Actions.
    - Tool skill: `../gmail-all-email-actions`.
    - ClawHub page: https://clawhub.ai/agentpmt/gmail-all-email-actions.
@@ -77,7 +85,7 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
    - Marketplace: https://www.agentpmt.com/marketplace/gmail-all-email-actions.
    - Tool instructions: Apply the label returned by the classify-email prompt to the current email.
    - Default parameters are configured on this workflow node; use the linked tool skill for schema details.
-6. Archive Email (Remove from Inbox)
+7. Archive Email (Remove from Inbox)
    - Tool product: Gmail - All Email Actions.
    - Tool skill: `../gmail-all-email-actions`.
    - ClawHub page: https://clawhub.ai/agentpmt/gmail-all-email-actions.
@@ -85,11 +93,11 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
    - Marketplace: https://www.agentpmt.com/marketplace/gmail-all-email-actions.
    - Tool instructions: Archive the current email by removing the INBOX label.
    - Default parameters are configured on this workflow node; use the linked tool skill for schema details.
-7. Is Label Important?
+8. Is Label Important?
    - Evaluate the configured branch options and follow the matching workflow path.
-8. Build Gmail Direct Link
+9. Build Gmail Direct Link
    - Prompt: Build the direct Gmail deep link: https://mail.google.com/mail/u/0/#all/{messageId}. Output JSON with 'gmail_link' and 'subject'.
-9. Send Telegram Important Alert
+10. Send Telegram Important Alert
    - Tool product: Telegram Instant Messenger.
    - Tool skill: `../telegram-instant-messenger`.
    - ClawHub page: https://clawhub.ai/agentpmt/telegram-instant-messenger.
@@ -97,7 +105,7 @@ Call `AgentPMT-Workflow-Skills` with `start_workflow` before the first step and 
    - Marketplace: https://www.agentpmt.com/marketplace/telegram-instant-messenger.
    - Tool instructions: Send a Telegram message alerting the user to an important email.
    - Default parameters are configured on this workflow node; use the linked tool skill for schema details.
-10. Hourly Run Summary
+11. Hourly Run Summary
    - Prompt: Summarize the completed hourly Gmail inbox processing run. Report: total emails processed, how many were assigned to each of the eleven labels, how many Telegram notifications were sent, and confirm all emails archived.
 
 ## Tool Skill Links
