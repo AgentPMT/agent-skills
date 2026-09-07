@@ -1,7 +1,7 @@
 ---
 name: quantum-circuit-builder-with-proof
-description: "Quantum Circuit Builder with Proof: Use this product when the user needs more than agent-generated quantum code: a normalized circuit bound to explicit claims, an inline and downloadable. Use when an agent needs quantum circuit builder with proof, proof carrying circuit delivery, independent verification of externally received qpcerts, audit ready quantum artifacts, fail closed bounded qiskit cirq and braket intake, certify circuit, circuit, claims through AgentPMT-hosted remote tool calls."
-version: 1.0.0
+description: "Quantum Circuit Builder with Proof: Use this product when a quantum circuit needs verifiable evidence, not just. Use when an agent needs quantum circuit builder with proof, formally verified quantum circuit design, proof carrying quantum circuit certificates (qpcert), independent verification of a quantum proof certificate from another party, audit ready quantum computing artifacts for research and compliance, certify circuit, circuit, claims through AgentPMT-hosted remote tool calls."
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/quantum-circuit-builder-with-proof
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/quantum-circuit-builder-with-proof"}}
@@ -9,12 +9,12 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Quantum Circuit Builder with Proof
 
 ## Freshness
-Last updated: `2026-09-05`.
+Last updated: `2026-09-07`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
 ## What This Tool Does
-Build proof-carrying quantum circuits when generated code alone is not enough. Strictly parse and normalize a circuit, inspect it inline as a downloadable digest-bound PNG or JPEG, verify explicit claims with the pinned Lean kernel, issue an independently replayable qpcert, and surface translation or measurement changes in checked provider exports. For quick experiments, direct Qiskit is simpler; use this when a circuit must cross a trust boundary, be audited, reused, or exchanged with verifiable evidence. Circuit images are explanatory; the qpcert remains the proof artifact.
+Build quantum circuits that ship with a machine-checked proof. Quantum Circuit Builder with Proof turns an algorithm template, a Qiskit, Cirq, or Braket snippet, or Lean source into a normalized circuit, draws it as a downloadable PNG or JPEG diagram, and verifies the claims you state with the Lean 4 proof kernel. The result is a qpcert: a proof certificate anyone can replay independently, without trusting the agent that produced it. Export checked OpenQASM 3, Qiskit, Cirq, and Braket programs, run local simulations, and keep audit receipts for every step. Use it when a circuit must be audited, shared, or relied on. Plain Qiskit is simpler for throwaway experiments.
 
 ## Product Instructions
 ### Proof-Carrying Quantum
@@ -248,22 +248,22 @@ Use only with the exact `task_id` returned by a long-running action. This action
 ## When To Use
 - Use this skill for `Quantum Circuit Builder with Proof` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
-- Search and activation keywords: quantum circuit builder with proof, proof carrying circuit delivery, independent verification of externally received qpcerts, audit ready quantum artifacts, fail closed bounded qiskit cirq and braket intake, certify circuit, circuit, claims.
+- Search and activation keywords: quantum circuit builder with proof, formally verified quantum circuit design, proof carrying quantum circuit certificates (qpcert), independent verification of a quantum proof certificate from another party, audit ready quantum computing artifacts for research and compliance, certify circuit, circuit, claims.
 - Supported action names: `certify_circuit`, `certify_from_lean`, `execute_locally`, `export_provider_programs`, `extract_circuit`, `get_corpus_example`, `get_document`, `get_task`, `import_provider_circuit`, `inspect_circuit`, `instantiate_template`, `search_corpus_examples`, `search_knowledge`, `search_lean`, `verify_certificate`.
 
 ## Use Cases
-- Proof-carrying circuit delivery
-- Independent verification of externally received qpcerts
-- Audit-ready quantum artifacts
-- Fail-closed bounded Qiskit Cirq and Braket intake
-- Exact claim verification with Lean
-- Translation-integrity checks across OpenQASM Qiskit Cirq and Braket
-- Explicit measurement and observation accounting
-- Reproducible circuit exchange between agents and systems
-- Local simulation clearly separated from proof
-- Quantum research using bundled knowledge and Lean corpus
-- Inline normalized circuit visualization
-- Downloadable digest-bound PNG and JPEG circuit diagrams
+- Formally verified quantum circuit design
+- Proof-carrying quantum circuit certificates (qpcert)
+- Independent verification of a quantum proof certificate from another party
+- Audit-ready quantum computing artifacts for research and compliance
+- Import Qiskit Cirq and Braket circuits without executing code
+- Export verified OpenQASM 3 Qiskit Cirq and Braket programs
+- Quantum circuit diagrams as downloadable PNG or JPEG
+- GHZ Bernstein-Vazirani teleportation Grover and QFT circuit templates
+- Lean 4 quantum circuit proofs and theorem search
+- Local quantum circuit simulation with explicit measurement accounting
+- Reproducible quantum circuit exchange between AI agents and systems
+- Quantum computing research with a searchable knowledge base and Lean corpus
 
 ## Related Product Skills
 - File Management: ../file-management (ClawHub: `file-management`, page: https://clawhub.ai/agentpmt/file-management; skills.sh: `npx skills add AgentPMT/agent-skills --skill file-management`)
