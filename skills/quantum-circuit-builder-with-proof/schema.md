@@ -12,7 +12,7 @@ Action slug: `certify-circuit`
 
 Price: `10` credits
 
-Use when a normalized circuit and an exact claim ledger are ready for kernel-backed certificate construction. The service validates the circuit, constructs the qpcert, and verifies its generated certificate; do not automatically call verify_certificate or extract_circuit on the fresh result.
+Use when a normalized circuit and an exact claim ledger are ready for kernel-backed certificate construction. The request is accepted as a background task even while the proof service starts; poll free get_task and do not resubmit it. The service validates the circuit, constructs the qpcert, and verifies its generated certificate; do not automatically call verify_certificate or extract_circuit on the fresh result.
 
 Parameters:
 
@@ -286,7 +286,7 @@ Action slug: `certify-from-lean`
 
 Price: `15` credits
 
-Use when restricted, internally trusted Lean CircuitSpec source is authoritative. Cloud Run executes Lean as trusted_direct_v1 in the shared service container; IAM authentication is not untrusted-code isolation. On success, returns a verified qpcert in File Manager; receipts report execution_mode and untrusted_code_isolation.
+Use when restricted, internally trusted Lean CircuitSpec source is authoritative. The request is accepted as a background task even while the proof service starts; poll free get_task and do not resubmit it. Cloud Run executes Lean as trusted_direct_v1 in the shared service container; IAM authentication is not untrusted-code isolation. On success, returns a verified qpcert in File Manager; receipts report execution_mode and untrusted_code_isolation.
 
 Parameters:
 
@@ -410,6 +410,8 @@ Generated JSON parameter schema:
   },
   "lean_source": {
     "description": "Complete CircuitSpec authoring fragment defining spec. Use search_lean with authoring_only=true and a worked .lean corpus example when authoring. Maximum 1048576 characters.",
+    "maxLength": 1048576,
+    "minLength": 1,
     "required": true,
     "type": "string"
   },
@@ -431,7 +433,7 @@ Action slug: `execute-locally`
 
 Price: `15` credits
 
-Use for local simulator observations from internally trusted Lean-owned construction, routing, and lowering. Lean runs as trusted_direct_v1 in the shared Cloud Run service container, not an untrusted-code sandbox. With no classical bits, .auto selects terminal_z_all; compact results expose observation and measurement_injected. Simulation is never a proof tier or hardware execution.
+Use for local simulator observations from internally trusted Lean-owned construction, routing, and lowering. The request is accepted as a background task even while the proof service starts; poll free get_task and do not resubmit it. Lean runs as trusted_direct_v1 in the shared Cloud Run service container, not an untrusted-code sandbox. With no classical bits, .auto selects terminal_z_all; compact results expose observation and measurement_injected. Simulation is never a proof tier or hardware execution.
 
 Parameters:
 
@@ -457,6 +459,8 @@ Generated JSON parameter schema:
 {
   "lean_source": {
     "description": "Complete admitted Lean source defining spec with a LeanCPExecutableSpec instance.",
+    "maxLength": 1048576,
+    "minLength": 1,
     "required": true,
     "type": "string"
   },
@@ -485,7 +489,7 @@ Action slug: `export-provider-programs`
 
 Price: `10` credits
 
-Use to generate checked offline provider observation programs from internally trusted Lean. Lean runs as trusted_direct_v1 in the shared Cloud Run service container, not an untrusted-code sandbox. With no classical bits, .auto selects terminal_z_all and provider output materializes or records terminal measurement; compact results expose observation and measurement_injected. Output is not hardware execution or proof.
+Use to generate checked offline provider observation programs from internally trusted Lean. The request is accepted as a background task even while the proof service starts; poll free get_task and do not resubmit it. Lean runs as trusted_direct_v1 in the shared Cloud Run service container, not an untrusted-code sandbox. With no classical bits, .auto selects terminal_z_all and provider output materializes or records terminal measurement; compact results expose observation and measurement_injected. Output is not hardware execution or proof.
 
 Parameters:
 
@@ -530,6 +534,8 @@ Generated JSON parameter schema:
   },
   "lean_source": {
     "description": "Complete CircuitSpec authoring fragment defining spec. The current service export contract is Lean-owned; this action does not accept a qpcert.",
+    "maxLength": 1048576,
+    "minLength": 1,
     "required": true,
     "type": "string"
   },
@@ -551,7 +557,7 @@ Action slug: `extract-circuit`
 
 Price: `10` credits
 
-Use after receiving an existing qpcert when the normalized circuit and projections must be recovered by proof replay. Do not call merely to inspect a certificate just produced in the same flow.
+Use after receiving an existing qpcert when the normalized circuit and projections must be recovered by proof replay. The request is accepted as a background task even while the proof service starts; poll free get_task and do not resubmit it. Do not call merely to inspect a certificate just produced in the same flow.
 
 Parameters:
 
@@ -573,6 +579,8 @@ Generated JSON parameter schema:
 {
   "certificate_file_id": {
     "description": "Budget-visible File Manager ID containing a typed qpcert. The kernel replays the evidence before returning the normalized circuit.",
+    "maxLength": 200,
+    "minLength": 1,
     "required": true,
     "type": "string"
   }
@@ -585,7 +593,7 @@ Action slug: `get-corpus-example`
 
 Price: `1` credits
 
-Use after search_corpus_examples to retrieve one exact Lean, circuit, claims, qpcert, template, provider-intake, or designer-sample asset. The path is corpus-relative; traversal and absolute paths reject.
+Use after search_corpus_examples to retrieve one exact Lean, circuit, claims, qpcert, template, provider-intake, or designer-sample asset. The path is corpus-relative; traversal and absolute paths reject. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it.
 
 Parameters:
 
@@ -607,6 +615,8 @@ Generated JSON parameter schema:
 {
   "example_path": {
     "description": "Exact relative asset path returned by search_corpus_examples, such as authored_specs/bell_spec.lean.",
+    "maxLength": 500,
+    "minLength": 1,
     "required": true,
     "type": "string"
   }
@@ -619,7 +629,7 @@ Action slug: `get-document`
 
 Price: `1` credits
 
-Use after search_knowledge to retrieve the complete selected knowledge record and provenance. Do not guess document IDs.
+Use after search_knowledge to retrieve the complete selected knowledge record and provenance. Do not guess document IDs. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it.
 
 Parameters:
 
@@ -654,19 +664,21 @@ Action slug: `get-task`
 
 Price: `0` credits
 
-Free polling action for one known background task. While processing, progress remains 0 because Lean exposes no trustworthy percentage; a moving date_updated and stage such as waiting_on_kernel show worker liveness. Poll with bounded backoff until completed or failed; outputs may contain File Manager references.
+Free polling action for an always-background action or a direct action retained during startup. Use wait_seconds=120 while processing so the server waits for a stage or terminal change and the chat does not exhaust its tool-call limit. The response keeps action=get_task and reports the retained operation as task_action. warming_service means the accepted request is waiting for proof-service startup; waiting_on_kernel means proof-related work is running; running_action means a deferred direct action is running. While processing, progress remains 0 because no trustworthy percentage is available; a moving date_updated shows worker liveness. Never resubmit a processing paid action; outputs may contain File Manager references.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `task_id` | `string` | yes | Exact budget-scoped UUID returned by the initiating action. Task IDs from another budget are not visible. |
+| `wait_seconds` | `integer` | no | Long-poll duration. Use 120 while processing; the call returns sooner when status, stage, progress, error, or outputs change. Defaults to 0 for an immediate snapshot. |
 
 Sample parameters:
 
 ```json
 {
-  "task_id": "example task id"
+  "task_id": "example task id",
+  "wait_seconds": 0
 }
 ```
 
@@ -676,9 +688,19 @@ Generated JSON parameter schema:
 {
   "task_id": {
     "description": "Exact budget-scoped UUID returned by the initiating action. Task IDs from another budget are not visible.",
+    "maxLength": 36,
+    "minLength": 36,
     "pattern": "^[0-9a-fA-F-]{36}$",
     "required": true,
     "type": "string"
+  },
+  "wait_seconds": {
+    "default": 0,
+    "description": "Long-poll duration. Use 120 while processing; the call returns sooner when status, stage, progress, error, or outputs change. Defaults to 0 for an immediate snapshot.",
+    "maximum": 120,
+    "minimum": 0,
+    "required": false,
+    "type": "integer"
   }
 }
 ```
@@ -689,7 +711,7 @@ Action slug: `import-provider-circuit`
 
 Price: `3` credits
 
-Use to parse bounded hand-authored Qiskit, Cirq, or Braket Python into normalized circuit IR without executing the source. This is parsing and round-trip validation, not proof. Use certify_circuit afterward when certification is required.
+Use to parse bounded hand-authored Qiskit, Cirq, or Braket Python into normalized circuit IR without executing the source. This is parsing and round-trip validation, not proof. Use certify_circuit afterward when certification is required. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it.
 
 Parameters:
 
@@ -755,6 +777,8 @@ Generated JSON parameter schema:
   },
   "source": {
     "description": "UTF-8 hand-authored provider source ending in exactly one newline. Qiskit requires exactly `from qiskit import QuantumCircuit` followed by `circuit = QuantumCircuit(N)`; aliases such as qc reject. Maximum 262144 characters. Generated or dynamic Python is outside the bounded grammar.",
+    "maxLength": 262144,
+    "minLength": 1,
     "required": true,
     "type": "string"
   }
@@ -767,7 +791,7 @@ Action slug: `inspect-circuit`
 
 Price: `3` credits
 
-Use for structural/semantic validation and subject-address computation before certification, or when visual explanations are useful. Validation and visualization are not proof or hardware execution. Set image_format to store a logical wire-circuit PNG or JPEG in the current budget's File Manager for display with AgentPMT's image card.
+Use for structural/semantic validation and subject-address computation before certification, or when visual explanations are useful. Validation and visualization are not proof or hardware execution. Set image_format to store a logical wire-circuit PNG or JPEG in the current budget's File Manager for display with AgentPMT's image card. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it.
 
 Parameters:
 
@@ -843,7 +867,7 @@ Sample parameters:
     "semantic_profile": "unsigned_binary_symplectic_clifford_v1"
   },
   "image_format": "png",
-  "include_visualizations": true
+  "include_visualizations": false
 }
 ```
 
@@ -856,6 +880,8 @@ Generated JSON parameter schema:
     "properties": {
       "circuit_id": {
         "description": "Stable circuit identifier.",
+        "maxLength": 64,
+        "minLength": 1,
         "required": true,
         "type": "string"
       },
@@ -1133,6 +1159,7 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "include_visualizations": {
+    "default": false,
     "description": "When true, return all applicable structured semantic visualization lenses after validation. Defaults to false. This is independent of image_format.",
     "required": false,
     "type": "boolean"
@@ -1146,7 +1173,7 @@ Action slug: `instantiate-template`
 
 Price: `2` credits
 
-Use to create a normalized circuit from a supported GHZ, Bernstein-Vazirani, teleportation, Grover, or QFT template. This expands a template but does not certify it; pass the resulting circuit and claims to certify_circuit when proof is required.
+Use to create a normalized circuit from a supported GHZ, Bernstein-Vazirani, teleportation, Grover, or QFT template. This expands a template but does not certify it; pass the resulting circuit and claims to certify_circuit when proof is required. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it.
 
 Parameters:
 
@@ -1202,6 +1229,8 @@ Generated JSON parameter schema:
       },
       "secret": {
         "description": "Required only for bernstein_vazirani; a nonempty bit string containing only 0 and 1.",
+        "maxLength": 4096,
+        "minLength": 1,
         "required": false,
         "type": "string"
       },
@@ -1231,7 +1260,7 @@ Action slug: `search-corpus-examples`
 
 Price: `1` credits
 
-Use to find worked proof chains, template inputs, provider-intake samples, or designer samples in the bundled corpus. With no query, returns a bounded index. Results contain exact relative paths accepted by get_corpus_example.
+Use to find worked proof chains, template inputs, provider-intake samples, or designer samples in the bundled corpus. With no query, returns a bounded index. Results contain exact relative paths accepted by get_corpus_example. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it.
 
 Parameters:
 
@@ -1255,6 +1284,8 @@ Generated JSON parameter schema:
 {
   "query": {
     "description": "Optional space-separated terms matched case-insensitively against stable example IDs, kinds, and asset paths.",
+    "maxLength": 4000,
+    "minLength": 1,
     "required": false,
     "type": "string"
   },
@@ -1275,7 +1306,7 @@ Action slug: `search-knowledge`
 
 Price: `2` credits
 
-Use when the agent needs conceptual, research, architecture, or repository context before acting. Do not call as a mandatory preflight. Returns ranked results with source provenance; use get_document for the selected full record.
+Use when the agent needs conceptual, research, architecture, or repository context before acting. Do not call as a mandatory preflight. Returns ranked results with source provenance; use get_document for the selected full record. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it.
 
 Parameters:
 
@@ -1301,6 +1332,8 @@ Generated JSON parameter schema:
 {
   "query": {
     "description": "Natural-language question, concept, quotation fragment, or repository term to find. Maximum 4000 characters.",
+    "maxLength": 4000,
+    "minLength": 1,
     "required": true,
     "type": "string"
   },
@@ -1332,7 +1365,7 @@ Action slug: `search-lean`
 
 Price: `2` credits
 
-Use after starting from a worked CircuitSpec corpus example when the agent needs a Lean declaration, theorem, namespace, signature, or authoring primitive. authoring_only restricts results to the four modules admitted by submitted specs; false browses the wider reference corpus.
+Use after starting from a worked CircuitSpec corpus example when the agent needs a Lean declaration, theorem, namespace, signature, or authoring primitive. authoring_only restricts results to the four modules admitted by submitted specs; false browses the wider reference corpus. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it.
 
 Parameters:
 
@@ -1346,7 +1379,7 @@ Sample parameters:
 
 ```json
 {
-  "authoring_only": true,
+  "authoring_only": false,
   "query": "example search query",
   "result_count": 8
 }
@@ -1357,12 +1390,15 @@ Generated JSON parameter schema:
 ```json
 {
   "authoring_only": {
+    "default": false,
     "description": "When true, prefilter declarations to CircuitSpec, Qasm3Subset, Edifice.ProductionPurePipeline, and Edifice.ProductionEffectfulPipeline before ranking. Use true when writing submitted Lean; false browses the full reference catalog.",
     "required": false,
     "type": "boolean"
   },
   "query": {
     "description": "Lean concept, identifier, theorem name, namespace, or signature fragment. Maximum 4000 characters.",
+    "maxLength": 4000,
+    "minLength": 1,
     "required": true,
     "type": "string"
   },
@@ -1383,7 +1419,7 @@ Action slug: `verify-certificate`
 
 Price: `10` credits
 
-Use at a trust boundary to independently replay a qpcert received from another party against separately supplied circuit and claims. Do not automatically re-verify a qpcert just produced by certify_circuit or certify_from_lean, because those actions already verify their generated certificate.
+Use at a trust boundary to independently replay a qpcert received from another party against separately supplied circuit and claims. The request is accepted as a background task even while the proof service starts; poll free get_task and do not resubmit it. Do not automatically re-verify a qpcert just produced by certify_circuit or certify_from_lean, because those actions already verify their generated certificate.
 
 Parameters:
 
@@ -1441,6 +1477,8 @@ Generated JSON parameter schema:
 {
   "certificate_file_id": {
     "description": "Budget-visible File Manager ID containing an application/vnd.heyting.qpcert+json certificate. Upload an external qpcert to File Manager first.",
+    "maxLength": 200,
+    "minLength": 1,
     "required": true,
     "type": "string"
   },
