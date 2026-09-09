@@ -19,7 +19,7 @@ Parameters:
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `circuit` | `object` | yes | Complete validated heyting.quantum_circuit_ir.v1 object. Required fields are schema, circuit_id, semantic_profile, nonempty qubits, classical_bits, initial_state, operations, and optional metadata; use inspect_circuit or a corpus .qcir.json example for the exact shape. |
-| `claims` | `object` | yes | Complete heyting.quantum_claim_evidence.v1 ledger bound to circuit_subject_sha256. Use a matching corpus .claims.json example; certification rejects unsupported or unbound claims. |
+| `claims` | `object` | yes | Complete heyting.quantum_claim_evidence.v1 ledger bound to circuit_subject_sha256. Pass dashboard certification_claims unchanged or use a matching corpus .claims.json example; certification rejects unsupported, malformed, or unbound claims. |
 
 Sample parameters:
 
@@ -61,7 +61,14 @@ Sample parameters:
         "claim_id": "example claim id",
         "description": "example description",
         "statement": {
-          "claim_type": "example claim type",
+          "claim_type": "well_formed",
+          "parameters": {},
+          "predicate": {
+            "name": "example name",
+            "namespace": "example namespace",
+            "version": "example version"
+          },
+          "profile": "example profile",
           "relation": "example relation"
         }
       }
@@ -192,7 +199,7 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "claims": {
-    "description": "Complete heyting.quantum_claim_evidence.v1 ledger bound to circuit_subject_sha256. Use a matching corpus .claims.json example; certification rejects unsupported or unbound claims.",
+    "description": "Complete heyting.quantum_claim_evidence.v1 ledger bound to circuit_subject_sha256. Pass dashboard certification_claims unchanged or use a matching corpus .claims.json example; certification rejects unsupported, malformed, or unbound claims.",
     "properties": {
       "circuit_subject_sha256": {
         "description": "Canonical subject digest returned by inspection/import/template work.",
@@ -231,15 +238,57 @@ Generated JSON parameter schema:
               "type": "string"
             },
             "statement": {
-              "description": "Typed statement copied or adapted from a matching corpus example.",
+              "description": "Copy the complete typed statement without translating it. well_formed requires profile; circuit_property requires predicate, parameters, and relation.",
               "properties": {
                 "claim_type": {
-                  "description": "Claim family.",
+                  "description": "Exact claim family; preserve this value and its corresponding fields.",
+                  "enum": [
+                    "well_formed",
+                    "normalization_equivalent",
+                    "lowering_equivalent",
+                    "circuit_property",
+                    "resource_optimality",
+                    "simulation_crosscheck",
+                    "execution_attestation",
+                    "visualization_correspondence"
+                  ],
                   "required": true,
                   "type": "string"
                 },
+                "parameters": {
+                  "description": "Required string map for circuit_property; preserve all supplied entries.",
+                  "required": false,
+                  "type": "object"
+                },
+                "predicate": {
+                  "description": "Required for circuit_property; preserve namespace, name, and version exactly.",
+                  "properties": {
+                    "name": {
+                      "description": "Predicate name.",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "namespace": {
+                      "description": "Predicate namespace.",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "Predicate version.",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": false,
+                  "type": "object"
+                },
+                "profile": {
+                  "description": "Required for well_formed; must match the circuit profile.",
+                  "required": false,
+                  "type": "string"
+                },
                 "relation": {
-                  "description": "Exact relation when applicable.",
+                  "description": "Required exact equivalence relation for claim families that use one.",
                   "required": false,
                   "type": "string"
                 }
@@ -299,7 +348,7 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `claims` | `object` | no | Optional complete heyting.quantum_claim_evidence.v1 ledger. Omit to request the service's minimal well-formed claim; provide only when exact additional claims are required. |
+| `claims` | `object` | no | Optional complete heyting.quantum_claim_evidence.v1 ledger. Omit to request the service's minimal well-formed claim; when supplied, copy the complete ledger from a trusted matching source without dropping nested statement fields. |
 | `lean_source` | `string` | yes | Complete CircuitSpec authoring fragment defining spec. Use search_lean with authoring_only=true and a worked .lean corpus example when authoring. Maximum 1048576 characters. |
 | `resource_class` | `string` | no | small supports up to 2 qubits; standard supports up to 4. Each admitted Lean source run is capped at 1,200 seconds and 20,000,000 heartbeats. |
 
@@ -317,7 +366,15 @@ Sample parameters:
         "claim_id": "example claim id",
         "description": "example description",
         "statement": {
-          "claim_type": "example claim type"
+          "claim_type": "well_formed",
+          "parameters": {},
+          "predicate": {
+            "name": "example name",
+            "namespace": "example namespace",
+            "version": "example version"
+          },
+          "profile": "example profile",
+          "relation": "example relation"
         }
       }
     ],
@@ -335,7 +392,7 @@ Generated JSON parameter schema:
 ```json
 {
   "claims": {
-    "description": "Optional complete heyting.quantum_claim_evidence.v1 ledger. Omit to request the service's minimal well-formed claim; provide only when exact additional claims are required.",
+    "description": "Optional complete heyting.quantum_claim_evidence.v1 ledger. Omit to request the service's minimal well-formed claim; when supplied, copy the complete ledger from a trusted matching source without dropping nested statement fields.",
     "properties": {
       "circuit_subject_sha256": {
         "description": "Canonical circuit subject digest.",
@@ -374,11 +431,58 @@ Generated JSON parameter schema:
               "type": "string"
             },
             "statement": {
-              "description": "Typed claim statement.",
+              "description": "Copy the complete typed statement. well_formed requires profile; circuit_property requires predicate, parameters, and relation.",
               "properties": {
                 "claim_type": {
-                  "description": "Claim family.",
+                  "description": "Exact claim family; preserve this value and its corresponding fields.",
+                  "enum": [
+                    "well_formed",
+                    "normalization_equivalent",
+                    "lowering_equivalent",
+                    "circuit_property",
+                    "resource_optimality",
+                    "simulation_crosscheck",
+                    "execution_attestation",
+                    "visualization_correspondence"
+                  ],
                   "required": true,
+                  "type": "string"
+                },
+                "parameters": {
+                  "description": "Required string map for circuit_property; preserve all supplied entries.",
+                  "required": false,
+                  "type": "object"
+                },
+                "predicate": {
+                  "description": "Required for circuit_property; preserve namespace, name, and version exactly.",
+                  "properties": {
+                    "name": {
+                      "description": "Predicate name.",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "namespace": {
+                      "description": "Predicate namespace.",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "Predicate version.",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": false,
+                  "type": "object"
+                },
+                "profile": {
+                  "description": "Required for well_formed; must match the circuit profile.",
+                  "required": false,
+                  "type": "string"
+                },
+                "relation": {
+                  "description": "Required exact equivalence relation for claim families that use one.",
+                  "required": false,
                   "type": "string"
                 }
               },
@@ -678,14 +782,14 @@ Action slug: `get-task`
 
 Price: `0` credits
 
-Free polling action for an always-background action or a direct action retained during startup. Use wait_seconds=120 while processing so the server waits for a stage or terminal change and the chat does not exhaust its tool-call limit. The response keeps action=get_task and reports the retained operation as task_action. warming_service means the accepted request is waiting for proof-service startup; waiting_on_kernel means proof-related work is running; running_action means a deferred direct action is running. While processing, progress remains 0 because no trustworthy percentage is available; a moving date_updated shows worker liveness. Never resubmit a processing paid action; outputs may contain File Manager references.
+Free polling action for an always-background action or a direct action retained during startup. Use wait_seconds=60 while processing so the server waits for a stage or terminal change while remaining below the chat tool-call deadline. The response keeps action=get_task and reports the retained operation as task_action. warming_service means the accepted request is waiting for proof-service startup; waiting_on_kernel means proof-related work is running; running_action means a deferred direct action is running. While processing, progress remains 0 because no trustworthy percentage is available; a moving date_updated shows worker liveness. Never resubmit a processing paid action; outputs may contain File Manager references.
 
 Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `task_id` | `string` | yes | Exact budget-scoped UUID returned by the initiating action. Task IDs from another budget are not visible. |
-| `wait_seconds` | `integer` | no | Long-poll duration. Use 120 while processing; the call returns sooner when status, stage, progress, error, or outputs change. Defaults to 0 for an immediate snapshot. |
+| `wait_seconds` | `integer` | no | Long-poll duration. Use 60 while processing; the call returns sooner when status, stage, progress, error, or outputs change and remains below the chat tool-call deadline. Defaults to 0 for an immediate snapshot. |
 
 Sample parameters:
 
@@ -710,8 +814,8 @@ Generated JSON parameter schema:
   },
   "wait_seconds": {
     "default": 0,
-    "description": "Long-poll duration. Use 120 while processing; the call returns sooner when status, stage, progress, error, or outputs change. Defaults to 0 for an immediate snapshot.",
-    "maximum": 120,
+    "description": "Long-poll duration. Use 60 while processing; the call returns sooner when status, stage, progress, error, or outputs change and remains below the chat tool-call deadline. Defaults to 0 for an immediate snapshot.",
+    "maximum": 60,
     "minimum": 0,
     "required": false,
     "type": "integer"
@@ -870,7 +974,13 @@ Sample parameters:
         "claim_id": "example claim id",
         "description": "example description",
         "statement": {
-          "claim_type": "example claim type",
+          "claim_type": "well_formed",
+          "parameters": {},
+          "predicate": {
+            "name": "example name",
+            "namespace": "example namespace",
+            "version": "example version"
+          },
           "profile": "example profile",
           "relation": "example relation"
         }
@@ -1112,20 +1222,57 @@ Generated JSON parameter schema:
               "type": "string"
             },
             "statement": {
-              "description": "Typed claim statement. Use a corpus example matching the intended semantics.",
+              "description": "Copy the complete typed statement from the dashboard or a matching corpus example without dropping nested fields. well_formed requires profile; circuit_property requires predicate, parameters, and relation.",
               "properties": {
                 "claim_type": {
-                  "description": "Claim family.",
+                  "description": "Exact claim family; preserve this value and its corresponding fields.",
+                  "enum": [
+                    "well_formed",
+                    "normalization_equivalent",
+                    "lowering_equivalent",
+                    "circuit_property",
+                    "resource_optimality",
+                    "simulation_crosscheck",
+                    "execution_attestation",
+                    "visualization_correspondence"
+                  ],
                   "required": true,
                   "type": "string"
                 },
+                "parameters": {
+                  "description": "Required string map for circuit_property; preserve all supplied entries.",
+                  "required": false,
+                  "type": "object"
+                },
+                "predicate": {
+                  "description": "Required for circuit_property; preserve namespace, name, and version exactly.",
+                  "properties": {
+                    "name": {
+                      "description": "Predicate name.",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "namespace": {
+                      "description": "Predicate namespace.",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "Predicate version.",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": false,
+                  "type": "object"
+                },
                 "profile": {
-                  "description": "Profile for well_formed claims.",
+                  "description": "Required for well_formed; must match the circuit profile.",
                   "required": false,
                   "type": "string"
                 },
                 "relation": {
-                  "description": "Exact relation asserted by circuit_property claims.",
+                  "description": "Required exact equivalence relation for claim families that use one.",
                   "required": false,
                   "type": "string"
                 }
@@ -1448,7 +1595,7 @@ Parameters:
 |---|---|---|---|
 | `certificate_file_id` | `string` | yes | Budget-visible File Manager ID containing an application/vnd.heyting.qpcert+json certificate. Upload an external qpcert to File Manager first. |
 | `circuit` | `object` | yes | Complete independently supplied heyting.quantum_circuit_ir.v1 object expected to be bound by the certificate. |
-| `claims` | `object` | yes | Complete independently supplied heyting.quantum_claim_evidence.v1 ledger expected to be bound by the certificate. |
+| `claims` | `object` | yes | Complete independently supplied heyting.quantum_claim_evidence.v1 ledger expected to be bound by the certificate. Preserve every nested statement field exactly. |
 
 Sample parameters:
 
@@ -1481,7 +1628,15 @@ Sample parameters:
         "claim_id": "example claim id",
         "description": "example description",
         "statement": {
-          "claim_type": "example claim type"
+          "claim_type": "well_formed",
+          "parameters": {},
+          "predicate": {
+            "name": "example name",
+            "namespace": "example namespace",
+            "version": "example version"
+          },
+          "profile": "example profile",
+          "relation": "example relation"
         }
       }
     ],
@@ -1578,7 +1733,7 @@ Generated JSON parameter schema:
     "type": "object"
   },
   "claims": {
-    "description": "Complete independently supplied heyting.quantum_claim_evidence.v1 ledger expected to be bound by the certificate.",
+    "description": "Complete independently supplied heyting.quantum_claim_evidence.v1 ledger expected to be bound by the certificate. Preserve every nested statement field exactly.",
     "properties": {
       "circuit_subject_sha256": {
         "description": "Expected circuit subject digest.",
@@ -1617,11 +1772,58 @@ Generated JSON parameter schema:
               "type": "string"
             },
             "statement": {
-              "description": "Typed statement.",
+              "description": "Copy the complete typed statement. well_formed requires profile; circuit_property requires predicate, parameters, and relation.",
               "properties": {
                 "claim_type": {
-                  "description": "Claim family.",
+                  "description": "Exact claim family; preserve this value and its corresponding fields.",
+                  "enum": [
+                    "well_formed",
+                    "normalization_equivalent",
+                    "lowering_equivalent",
+                    "circuit_property",
+                    "resource_optimality",
+                    "simulation_crosscheck",
+                    "execution_attestation",
+                    "visualization_correspondence"
+                  ],
                   "required": true,
+                  "type": "string"
+                },
+                "parameters": {
+                  "description": "Required string map for circuit_property; preserve all supplied entries.",
+                  "required": false,
+                  "type": "object"
+                },
+                "predicate": {
+                  "description": "Required for circuit_property; preserve namespace, name, and version exactly.",
+                  "properties": {
+                    "name": {
+                      "description": "Predicate name.",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "namespace": {
+                      "description": "Predicate namespace.",
+                      "required": true,
+                      "type": "string"
+                    },
+                    "version": {
+                      "description": "Predicate version.",
+                      "required": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": false,
+                  "type": "object"
+                },
+                "profile": {
+                  "description": "Required for well_formed; must match the circuit profile.",
+                  "required": false,
+                  "type": "string"
+                },
+                "relation": {
+                  "description": "Required exact equivalence relation for claim families that use one.",
+                  "required": false,
                   "type": "string"
                 }
               },

@@ -1,7 +1,7 @@
 ---
 name: quantum-circuit-builder-with-proof
 description: "Quantum Circuit Builder with Proof: Use this product when a quantum circuit needs verifiable evidence, not just. Use when an agent needs quantum circuit builder with proof, formally verified quantum circuit design, proof carrying quantum circuit certificates (qpcert), independent verification of a quantum proof certificate from another party, audit ready quantum computing artifacts for research and compliance, certify circuit, circuit, claims through AgentPMT-hosted remote tool calls."
-version: 1.0.3
+version: 1.0.4
 homepage: https://www.agentpmt.com/marketplace/quantum-circuit-builder-with-proof
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/quantum-circuit-builder-with-proof"}}
@@ -75,7 +75,7 @@ If an exact semantic proof exhausts Lean heartbeats or another kernel resource l
 
 #### Background tasks and files
 
-Certification, certificate replay, extraction, provider export, and execution always start persisted background tasks. Other service-dependent actions return directly when the service is ready. During a cold start, however, every service-dependent request is retained instead of failing: it returns `status: processing` and a `task_id`, then runs after startup. Call the free `get_task` action with that ID and `wait_seconds: 120`; the call returns sooner when the task changes. If it is still processing, repeat the same free long poll. Do not rapidly poll or submit a duplicate paid action. Proof certification commonly takes 3-5 minutes, and larger or more complex proofs can take longer.
+Certification, certificate replay, extraction, provider export, and execution always start persisted background tasks. Other service-dependent actions return directly when the service is ready. During a cold start, however, every service-dependent request is retained instead of failing: it returns `status: processing` and a `task_id`, then runs after startup. Call the free `get_task` action with that ID and `wait_seconds: 60`; the call returns sooner when the task changes and remains below the chat tool-call deadline. If it is still processing, repeat the same free long poll. Do not rapidly poll or submit a duplicate paid action. Proof certification commonly takes 3-5 minutes, and larger or more complex proofs can take longer.
 
 While processing, `progress` remains 0 because no trustworthy percentage is available. `get_task` responses keep `action: get_task` and identify the retained operation in `task_action`. `stage: warming_service` means the accepted request is waiting for the proof service. `stage: waiting_on_kernel` means a proof, replay, extraction, export, or execution action is running; `stage: running_action` means a deferred direct action such as inspection is running. `awaiting_resume` or `resuming` means an interrupted MCP worker is being recovered from its saved request; continue polling the same task ID. A changing `date_updated` means the worker is alive. Stages then move through `packaging_result` to `completed`.
 
@@ -241,10 +241,10 @@ Use for local simulator observations from Lean-owned construction, routing, and 
 
 ##### `get_task`
 
-Use only with the exact `task_id` returned by an always-background action or a direct action deferred during startup. This action costs zero credits. While processing, set `wait_seconds` to 120 so one call waits for a meaningful task change instead of consuming the chat tool-call limit with rapid snapshots. Repeat only after that long poll returns, and do not create duplicate paid work. The response keeps `action: get_task`; `task_action` identifies the retained operation. `warming_service` is an accepted request waiting for startup, `waiting_on_kernel` is running proof-related work, `running_action` is running a deferred direct action, and `awaiting_resume` or `resuming` is recovering an interrupted worker. `progress` deliberately stays 0 rather than inventing a percentage; a moving `date_updated` heartbeat and the current `stage` show that the worker is alive.
+Use only with the exact `task_id` returned by an always-background action or a direct action deferred during startup. This action costs zero credits. While processing, set `wait_seconds` to 60 so one call waits for a meaningful task change without reaching the chat tool-call deadline. Repeat only after that long poll returns, and do not create duplicate paid work. The response keeps `action: get_task`; `task_action` identifies the retained operation. `warming_service` is an accepted request waiting for startup, `waiting_on_kernel` is running proof-related work, `running_action` is running a deferred direct action, and `awaiting_resume` or `resuming` is recovering an interrupted worker. `progress` deliberately stays 0 rather than inventing a percentage; a moving `date_updated` heartbeat and the current `stage` show that the worker is alive.
 
 ```json
-{"action":"get_task","task_id":"12345678-1234-1234-1234-123456789012","wait_seconds":120}
+{"action":"get_task","task_id":"12345678-1234-1234-1234-123456789012","wait_seconds":60}
 ```
 
 ## When To Use
@@ -285,7 +285,7 @@ x402 availability: not enabled for this product.
 - `extract_circuit` (action slug: `extract-circuit`): Use after receiving an existing qpcert when the normalized circuit and projections must be recovered by proof replay. The request is accepted as a background task even while the proof service starts; poll free get_task and do not resubmit it. Do not call merely to inspect a certificate just produced in the same flow. Price: `10` credits. Parameters: `certificate_file_id`.
 - `get_corpus_example` (action slug: `get-corpus-example`): Use after search_corpus_examples to retrieve one exact Lean, circuit, claims, qpcert, template, provider-intake, or designer-sample asset. The path is corpus-relative; traversal and absolute paths reject. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it. Price: `1` credits. Parameters: `example_path`.
 - `get_document` (action slug: `get-document`): Use after search_knowledge to retrieve the complete selected knowledge record and provenance. Do not guess document IDs. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it. Price: `1` credits. Parameters: `document_id`.
-- `get_task` (action slug: `get-task`): Free polling action for an always-background action or a direct action retained during startup. Use wait_seconds=120 while processing so the server waits for a stage or terminal change and the chat does not exhaust its tool-call limit. The response keeps action=get_task and reports the retained operation as task_action. warming_service means the accepted request is waiting for proof-service startup; waiting_on_kernel means proof-related work is running; running_action means a deferred direct action is running. While processing, progress remains 0 because no trustworthy percentage is available; a moving date_updated shows worker liveness. Never resubmit a processing paid action; outputs may contain File Manager references. Price: `0` credits. Parameters: `task_id`, `wait_seconds`.
+- `get_task` (action slug: `get-task`): Free polling action for an always-background action or a direct action retained during startup. Use wait_seconds=60 while processing so the server waits for a stage or terminal change while remaining below the chat tool-call deadline. The response keeps action=get_task and reports the retained operation as task_action. warming_service means the accepted request is waiting for proof-service startup; waiting_on_kernel means proof-related work is running; running_action means a deferred direct action is running. While processing, progress remains 0 because no trustworthy percentage is available; a moving date_updated shows worker liveness. Never resubmit a processing paid action; outputs may contain File Manager references. Price: `0` credits. Parameters: `task_id`, `wait_seconds`.
 - `import_provider_circuit` (action slug: `import-provider-circuit`): Use to parse bounded hand-authored Qiskit, Cirq, or Braket Python into normalized circuit IR without executing the source. This is parsing and round-trip validation, not proof. Use certify_circuit afterward when certification is required. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it. Price: `3` credits. Parameters: `circuit_id`, `provider_target`, `qubit_count`, `semantic_profile`, `source`.
 - `inspect_circuit` (action slug: `inspect-circuit`): Use for structural/semantic validation and subject-address computation before certification, or when visual explanations are useful. Validation and visualization are not proof or hardware execution. Set image_format to store a logical wire-circuit PNG or JPEG in the current budget's File Manager for display with AgentPMT's image card. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it. Price: `3` credits. Parameters: `circuit`, `claims`, `image_format`, `include_visualizations`.
 - `instantiate_template` (action slug: `instantiate-template`): Use to create a normalized circuit from a supported GHZ, Bernstein-Vazirani, teleportation, Grover, or QFT template. This expands a template but does not certify it; pass the resulting circuit and claims to certify_circuit when proof is required. If the proof service is starting, the request is retained as a background task; poll free get_task and do not resubmit it. Price: `2` credits. Parameters: `descriptor`.
@@ -422,7 +422,14 @@ MCP call shape after the main AgentPMT MCP server is connected:
             "claim_id": "example claim id",
             "description": "example description",
             "statement": {
-              "claim_type": "example claim type",
+              "claim_type": "well_formed",
+              "parameters": {},
+              "predicate": {
+                "name": "example name",
+                "namespace": "example namespace",
+                "version": "example version"
+              },
+              "profile": "example profile",
               "relation": "example relation"
             }
           }
@@ -481,7 +488,14 @@ Authenticated AgentPMT REST call body:
           "claim_id": "example claim id",
           "description": "example description",
           "statement": {
-            "claim_type": "example claim type",
+            "claim_type": "well_formed",
+            "parameters": {},
+            "predicate": {
+              "name": "example name",
+              "namespace": "example namespace",
+              "version": "example version"
+            },
+            "profile": "example profile",
             "relation": "example relation"
           }
         }
