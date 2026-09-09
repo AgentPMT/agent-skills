@@ -56,7 +56,7 @@ Sample parameters:
     "claims": [
       {
         "accepted_evidence_tiers": [
-          "example accepted evidence tier"
+          "kernel_certified"
         ],
         "claim_id": "example claim id",
         "description": "example description",
@@ -207,6 +207,13 @@ Generated JSON parameter schema:
             "accepted_evidence_tiers": {
               "description": "Allowed evidence tiers.",
               "items": {
+                "enum": [
+                  "kernel_certified",
+                  "checker_verified",
+                  "simulator_crosscheck",
+                  "provider_attested",
+                  "reported"
+                ],
                 "type": "string"
               },
               "minItems": 1,
@@ -294,7 +301,7 @@ Parameters:
 |---|---|---|---|
 | `claims` | `object` | no | Optional complete heyting.quantum_claim_evidence.v1 ledger. Omit to request the service's minimal well-formed claim; provide only when exact additional claims are required. |
 | `lean_source` | `string` | yes | Complete CircuitSpec authoring fragment defining spec. Use search_lean with authoring_only=true and a worked .lean corpus example when authoring. Maximum 1048576 characters. |
-| `resource_class` | `string` | no | small supports up to 2 qubits; standard supports up to 4. The private runtime enforces a 300-second Lean budget. |
+| `resource_class` | `string` | no | small supports up to 2 qubits; standard supports up to 4. Each admitted Lean source run is capped at 1,200 seconds and 20,000,000 heartbeats. |
 
 Sample parameters:
 
@@ -305,7 +312,7 @@ Sample parameters:
     "claims": [
       {
         "accepted_evidence_tiers": [
-          "example accepted evidence tier"
+          "kernel_certified"
         ],
         "claim_id": "example claim id",
         "description": "example description",
@@ -343,6 +350,13 @@ Generated JSON parameter schema:
             "accepted_evidence_tiers": {
               "description": "Allowed evidence tiers.",
               "items": {
+                "enum": [
+                  "kernel_certified",
+                  "checker_verified",
+                  "simulator_crosscheck",
+                  "provider_attested",
+                  "reported"
+                ],
                 "type": "string"
               },
               "minItems": 1,
@@ -416,7 +430,7 @@ Generated JSON parameter schema:
     "type": "string"
   },
   "resource_class": {
-    "description": "small supports up to 2 qubits; standard supports up to 4. The private runtime enforces a 300-second Lean budget.",
+    "description": "small supports up to 2 qubits; standard supports up to 4. Each admitted Lean source run is capped at 1,200 seconds and 20,000,000 heartbeats.",
     "enum": [
       "small",
       "standard"
@@ -851,7 +865,7 @@ Sample parameters:
     "claims": [
       {
         "accepted_evidence_tiers": [
-          "example accepted evidence tier"
+          "kernel_certified"
         ],
         "claim_id": "example claim id",
         "description": "example description",
@@ -1074,6 +1088,13 @@ Generated JSON parameter schema:
             "accepted_evidence_tiers": {
               "description": "Evidence tiers allowed to discharge this claim.",
               "items": {
+                "enum": [
+                  "kernel_certified",
+                  "checker_verified",
+                  "simulator_crosscheck",
+                  "provider_attested",
+                  "reported"
+                ],
                 "type": "string"
               },
               "minItems": 1,
@@ -1455,7 +1476,7 @@ Sample parameters:
     "claims": [
       {
         "accepted_evidence_tiers": [
-          "example accepted evidence tier"
+          "kernel_certified"
         ],
         "claim_id": "example claim id",
         "description": "example description",
@@ -1572,6 +1593,13 @@ Generated JSON parameter schema:
             "accepted_evidence_tiers": {
               "description": "Allowed evidence tiers.",
               "items": {
+                "enum": [
+                  "kernel_certified",
+                  "checker_verified",
+                  "simulator_crosscheck",
+                  "provider_attested",
+                  "reported"
+                ],
                 "type": "string"
               },
               "minItems": 1,

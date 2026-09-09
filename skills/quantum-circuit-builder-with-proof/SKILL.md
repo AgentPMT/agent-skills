@@ -1,7 +1,7 @@
 ---
 name: quantum-circuit-builder-with-proof
 description: "Quantum Circuit Builder with Proof: Use this product when a quantum circuit needs verifiable evidence, not just. Use when an agent needs quantum circuit builder with proof, formally verified quantum circuit design, proof carrying quantum circuit certificates (qpcert), independent verification of a quantum proof certificate from another party, audit ready quantum computing artifacts for research and compliance, certify circuit, circuit, claims through AgentPMT-hosted remote tool calls."
-version: 1.0.2
+version: 1.0.3
 homepage: https://www.agentpmt.com/marketplace/quantum-circuit-builder-with-proof
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/quantum-circuit-builder-with-proof"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Quantum Circuit Builder with Proof
 
 ## Freshness
-Last updated: `2026-09-08`.
+Last updated: `2026-09-09`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -183,7 +183,7 @@ Then display the returned file with the chat card:
 
 ##### `certify_circuit`
 
-Use when a normalized circuit and exact claim ledger are ready. This is the normal path for a circuit built on the canvas, imported from a provider, or returned by a template. Required: complete `circuit` and `claims`. The claim ledger must use `heyting.quantum_claim_evidence.v1`, match the circuit's semantic profile and canonical subject digest, and contain nonempty typed claim obligations. Unless the user explicitly requested a supported stronger property, use a `well_formed` obligation. Start from matching `certification_inputs` or a `.claims.json` corpus example rather than inventing a relation or evidence tier.
+Use when a normalized circuit and exact claim ledger are ready. This is the normal path for a circuit built on the canvas, imported from a provider, or returned by a template. Required: complete `circuit` and `claims`. The claim ledger must use `heyting.quantum_claim_evidence.v1`, match the circuit's semantic profile and canonical subject digest, and contain nonempty typed claim obligations. Unless the user explicitly requested a supported stronger property, use a `well_formed` obligation. Start from matching `certification_inputs` or a `.claims.json` corpus example rather than inventing a relation or evidence tier. When the Quantum Agent dashboard supplies `certification_claims`, pass that object unchanged. The only accepted evidence-tier names are `kernel_certified`, `checker_verified`, `simulator_crosscheck`, `provider_attested`, and `reported`.
 
 This action validates the circuit, runs kernel-backed bundle construction, verifies the generated qpcert, stores it in File Manager, and returns a compact certificate summary. Do not automatically call verification or extraction on this fresh result.
 
@@ -417,7 +417,7 @@ MCP call shape after the main AgentPMT MCP server is connected:
         "claims": [
           {
             "accepted_evidence_tiers": [
-              "example accepted evidence tier"
+              "kernel_certified"
             ],
             "claim_id": "example claim id",
             "description": "example description",
@@ -476,7 +476,7 @@ Authenticated AgentPMT REST call body:
       "claims": [
         {
           "accepted_evidence_tiers": [
-            "example accepted evidence tier"
+            "kernel_certified"
           ],
           "claim_id": "example claim id",
           "description": "example description",
