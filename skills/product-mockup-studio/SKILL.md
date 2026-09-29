@@ -1,7 +1,7 @@
 ---
 name: product-mockup-studio
 description: "Product Mockup Studio: Create branded product mockup images, refine approved stills, and animate them into short videos. Use when an agent needs product mockup studio, ai product photography from phone photos, shopify and woocommerce product page hero images, amazon and etsy listing photos on clean backgrounds, lifestyle product scenes without a photoshoot, animate product mockup, source task id, source file id through AgentPMT-hosted remote tool calls."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/product-mockup-studio
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/product-mockup-studio"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Product Mockup Studio
 
 ## Freshness
-Last updated: `2026-09-16`.
+Last updated: `2026-09-29`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -62,7 +62,11 @@ Required: `source_task_id`, `instruction`. The source must be a completed image 
 
 ##### `animate_product_mockup`
 
-Provide exactly one of `source_task_id` or `source_file_id`. Video uses ElevenLabs only. Optional controls include `motion_preset`, `motion_prompt`, `duration_seconds` (`4|6|8`), `aspect_ratio` (`16:9|9:16`, default `16:9`), `resolution`, `render_mode` (`preview|final`), `generate_audio`, `end_frame_file_id`, `negative_prompt`, and `seed`.
+Provide exactly one of `source_task_id` or `source_file_id`. Video uses ElevenLabs only. Optional controls include `motion_preset`, `motion_prompt`, `duration_seconds` (`4|6|8`), `aspect_ratio` (`16:9|9:16`), `resolution`, `render_mode` (`preview|final`), `generate_audio`, `end_frame_file_id`, `negative_prompt`, and `seed`.
+
+When `aspect_ratio` is omitted it follows the still's orientation: a portrait still animates as `9:16` and every other still as `16:9`. The chosen value is returned as `aspect_ratio` on the create response.
+
+A still that does not already match the video aspect is center-cropped before it is sent, because the video model otherwise pads the mismatch with black bars. The response reports the crop as `start_frame_adjustment`. To control the framing yourself, refine the still to the video aspect first, then animate that task.
 
 ```json
 {"action":"animate_product_mockup","source_task_id":"completed_image_task_id","motion_preset":"slow_push_in","duration_seconds":6,"render_mode":"preview"}
