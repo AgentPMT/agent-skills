@@ -1,7 +1,7 @@
 ---
 name: product-mockup-studio
-description: "Product Mockup Studio: Create branded product mockup images, refine approved stills, and animate them into short videos. Use when an agent needs product mockup studio, ai product photography from phone photos, shopify and woocommerce product page hero images, amazon and etsy listing photos on clean backgrounds, lifestyle product scenes without a photoshoot, animate product mockup, source task id, source file id through AgentPMT-hosted remote tool calls."
-version: 1.0.1
+description: "Product Mockup Studio: Create branded product mockup images, refine approved stills, and animate them into short videos. Use when an agent needs product mockup studio, ai product photography from phone photos, shopify and woocommerce product page hero images, amazon and etsy listing photos on clean white backgrounds, lifestyle product scenes without a photoshoot, animate product mockup, source task id, source file id through AgentPMT-hosted remote tool calls."
+version: 1.0.2
 homepage: https://www.agentpmt.com/marketplace/product-mockup-studio
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/product-mockup-studio"}}
@@ -14,7 +14,7 @@ Last updated: `2026-09-29`.
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
 ## What This Tool Does
-AI product photography and product video generator for e-commerce brands, marketers, and agencies. Upload one to five ordinary photos of your product and Product Mockup Studio turns them into polished studio hero shots, lifestyle scenes, flat lays, in-hand shots, packaging mockups, and clean marketplace-ready e-commerce images, with no photoshoot required. Lock in the details that matter using brand constraints for exact label text, brand colors, and must-keep product features, then fix any render with a plain-language revision. Once a still is approved, animate it into a 4, 6, or 8 second MP4 product clip with a slow push-in, orbit, turntable, light sweep, or floating motion in landscape 16:9 or vertical 9:16 for Shopify, Amazon, Etsy, Instagram Reels, TikTok, and YouTube Shorts. Powered by ElevenLabs Image & Video, including Google Veo 3.1 for motion, with Nano Banana available as an alternate still-image engine. Every PNG and MP4 is saved to your AgentPMT File Manager. Requires your own ElevenLabs API key.
+Photograph your product with your phone and get back pictures you can actually sell with. Tell your agent what you want in plain words, like put my candle on a sunlit marble counter, give me a plain white version for Amazon, or make it vertical for Reels, and it creates the shot. Don't like something? Say so. Lighter background, softer shadow, move the eucalyptus, different angle, and it fixes just that while the product stays exactly the same. When a picture looks right, turn it into a short product video with a slow zoom, a turntable spin, an orbit, or a light sweep, sized for Shopify, Amazon, Etsy, Instagram Reels, TikTok, and YouTube Shorts. Tell it the exact words printed on your label and the details that must not change, and it holds onto them. Your agent handles the rest: the sizes, the formats, the revisions, and saving the finished files for you to download. AI product photography and product videos without a studio, a photographer, or editing software.
 
 ## Product Instructions
 ### Product Mockup Studio
@@ -91,20 +91,20 @@ Creation actions return a `task_id` immediately. Completed jobs contain an `outp
 ## When To Use
 - Use this skill for `Product Mockup Studio` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
-- Search and activation keywords: product mockup studio, ai product photography from phone photos, shopify and woocommerce product page hero images, amazon and etsy listing photos on clean backgrounds, lifestyle product scenes without a photoshoot, animate product mockup, source task id, source file id.
+- Search and activation keywords: product mockup studio, ai product photography from phone photos, shopify and woocommerce product page hero images, amazon and etsy listing photos on clean white backgrounds, lifestyle product scenes without a photoshoot, animate product mockup, source task id, source file id.
 - Supported action names: `animate_product_mockup`, `create_product_mockup`, `get_mockup_job`, `list_mockup_jobs`, `refine_product_mockup`.
 
 ## Use Cases
 - AI product photography from phone photos
 - Shopify and WooCommerce product page hero images
-- Amazon and Etsy listing photos on clean backgrounds
+- Amazon and Etsy listing photos on clean white backgrounds
 - Lifestyle product scenes without a photoshoot
 - Packaging and label mockups that keep exact brand text
 - Flat-lay and in-hand product shots for social media
-- Vertical 9:16 product videos for Instagram Reels and TikTok
+- Vertical product videos for Instagram Reels and TikTok
 - Turntable and orbit product clips for launch pages
-- Ad creative variations in multiple aspect ratios
-- Refining backgrounds lighting and props on an approved product image
+- Ad creative in square vertical and widescreen sizes
+- Fixing the background lighting or props on a product photo
 
 ## Related Product Skills
 - File Management: ../file-management (ClawHub: `file-management`, page: https://clawhub.ai/agentpmt/file-management; skills.sh: `npx skills add AgentPMT/agent-skills --skill file-management`)

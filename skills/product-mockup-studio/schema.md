@@ -18,7 +18,7 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `aspect_ratio` | `string` | no | Video aspect ratio. Default 16:9. |
+| `aspect_ratio` | `string` | no | Video aspect ratio. Defaults to the still's orientation: 9:16 for a portrait still, otherwise 16:9. A still that does not match is center-cropped so the clip has no black bars. |
 | `duration_seconds` | `integer` | no | Video length in seconds. Default 6. |
 | `end_frame_file_id` | `string` | no | Optional File Manager image to use as the final frame. |
 | `generate_audio` | `boolean` | no | Generate native sound with the clip. Default false. |
@@ -51,7 +51,7 @@ Generated JSON parameter schema:
 ```json
 {
   "aspect_ratio": {
-    "description": "Video aspect ratio. Default 16:9.",
+    "description": "Video aspect ratio. Defaults to the still's orientation: 9:16 for a portrait still, otherwise 16:9. A still that does not match is center-cropped so the clip has no black bars.",
     "enum": [
       "16:9",
       "9:16"
@@ -95,11 +95,13 @@ Generated JSON parameter schema:
   },
   "motion_prompt": {
     "description": "Optional custom motion, camera, lighting, and sound direction.",
+    "maxLength": 2000,
     "required": false,
     "type": "string"
   },
   "negative_prompt": {
     "description": "Optional description of motion or visual artifacts to avoid.",
+    "maxLength": 1000,
     "required": false,
     "type": "string"
   },
@@ -124,7 +126,7 @@ Generated JSON parameter schema:
   },
   "seed": {
     "description": "Optional seed for similar reruns.",
-    "maximum": 4294967295.0,
+    "maximum": 4294967295,
     "minimum": 0,
     "required": false,
     "type": "integer"
@@ -307,6 +309,7 @@ Generated JSON parameter schema:
   },
   "product_description": {
     "description": "Optional factual description of the product, materials, scale, and important features.",
+    "maxLength": 1500,
     "required": false,
     "type": "string"
   },
@@ -332,6 +335,8 @@ Generated JSON parameter schema:
   },
   "scene_prompt": {
     "description": "Describe the desired setting, lighting, composition, and marketing result.",
+    "maxLength": 3000,
+    "minLength": 3,
     "required": true,
     "type": "string"
   },
@@ -575,6 +580,8 @@ Generated JSON parameter schema:
   },
   "instruction": {
     "description": "Describe only the changes to make and what must remain unchanged.",
+    "maxLength": 3000,
+    "minLength": 3,
     "required": true,
     "type": "string"
   },
