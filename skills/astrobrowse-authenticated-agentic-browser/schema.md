@@ -24,7 +24,7 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id"
+  "browser_session_id": null
 }
 ```
 
@@ -33,6 +33,7 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
@@ -59,8 +60,8 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id",
-  "download_name": "example download name"
+  "browser_session_id": null,
+  "download_name": null
 }
 ```
 
@@ -69,11 +70,13 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
   },
   "download_name": {
+    "default": null,
     "description": "For download_file: the download filename to persist (from list_downloads). Omit to persist the most recent completed download.",
     "required": false,
     "type": "string"
@@ -101,9 +104,9 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id",
-  "include_html": true,
-  "selector": "example selector"
+  "browser_session_id": null,
+  "include_html": false,
+  "selector": null
 }
 ```
 
@@ -112,16 +115,19 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
   },
   "include_html": {
+    "default": false,
     "description": "Whether extract_page should include capped outer HTML.",
     "required": false,
     "type": "boolean"
   },
   "selector": {
+    "default": null,
     "description": "Optional selector for extract_page or upload_file.",
     "required": false,
     "type": "string"
@@ -153,6 +159,41 @@ Generated JSON parameter schema:
 {}
 ```
 
+## `heartbeat`
+
+Action slug: `heartbeat`
+
+Price: `5` credits
+
+Refresh the runtime session's 10-minute idle deadline before long non-browser work. It never extends the 30-minute hard cap.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `browser_session_id` | `string` | yes | Opaque browser runtime session id returned by initialize_browser. |
+
+Sample parameters:
+
+```json
+{
+  "browser_session_id": null
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "browser_session_id": {
+    "default": null,
+    "description": "Opaque browser runtime session id returned by initialize_browser.",
+    "required": true,
+    "type": "string"
+  }
+}
+```
+
 ## `initialize_browser`
 
 Action slug: `initialize-browser`
@@ -174,10 +215,10 @@ Sample parameters:
 
 ```json
 {
-  "account_id": "example account id",
-  "idempotency_key": "example idempotency key",
-  "initial_url": "https://example.com",
-  "region": "example region"
+  "account_id": null,
+  "idempotency_key": null,
+  "initial_url": null,
+  "region": null
 }
 ```
 
@@ -186,21 +227,25 @@ Generated JSON parameter schema:
 ```json
 {
   "account_id": {
+    "default": null,
     "description": "Saved account id for an account-backed session. Omit it to start a general-browsing session (no saved login).",
     "required": false,
     "type": "string"
   },
   "idempotency_key": {
+    "default": null,
     "description": "Caller-supplied idempotency key for initialize_browser (the agent/request id).",
     "required": true,
     "type": "string"
   },
   "initial_url": {
+    "default": null,
     "description": "Optional URL to navigate to after initialization. Must match the account's allowed origins.",
     "required": false,
     "type": "string"
   },
   "region": {
+    "default": null,
     "description": "Optional region override for a general-browsing session.",
     "required": false,
     "type": "string"
@@ -250,7 +295,7 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id"
+  "browser_session_id": null
 }
 ```
 
@@ -259,6 +304,7 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
@@ -285,8 +331,8 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id",
-  "reason": "example reason"
+  "browser_session_id": null,
+  "reason": null
 }
 ```
 
@@ -295,11 +341,13 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
   },
   "reason": {
+    "default": null,
     "description": "Reason to show the user when requesting browser takeover.",
     "required": true,
     "type": "string"
@@ -320,25 +368,14 @@ Parameters:
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `browser_session_id` | `string` | yes | Opaque browser runtime session id returned by initialize_browser. |
-| `steps` | `array` | yes | Browser automation steps for run_steps. Each request accepts 1-20 steps. Caller-supplied JavaScript is not supported. |
+| `steps` | `array` | yes | One to 20 AstroBrowse steps, validated as a complete batch before execution. JavaScript is not supported. Target an element with a CSS selector, or with role (+ optional name) when class names are generated and unstable; run snapshot first to read the page's roles and names. Required fields by action: goto=url; click=(selector\|role); click_at=(selector\|role)+offset_x+offset_y; hover=(selector\|role); drag=(selector\|role)+target_selector; drag_by=(selector\|role)+dx+dy; fill=(selector\|role)+text; type_text=(selector\|role)+text; press=key (selector optional); select=(selector\|role)+value; wait_for_load_state=none; wait_for_selector=(selector\|role); wait_for_text=text; snapshot=none; find=text; extract_text=(selector\|role); extract_html=(selector\|role); screenshot=none (selector optional). Empty fill.text and select.value values are valid. |
 
 Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id",
-  "steps": [
-    {
-      "action": "goto",
-      "blur": null,
-      "key": null,
-      "marker": null,
-      "selector": null,
-      "text": null,
-      "timeout_ms": 10000,
-      "url": null
-    }
-  ]
+  "browser_session_id": null,
+  "steps": null
 }
 ```
 
@@ -347,25 +384,35 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
   },
   "steps": {
-    "description": "Browser automation steps for run_steps. Each request accepts 1-20 steps. Caller-supplied JavaScript is not supported.",
+    "default": null,
+    "description": "One to 20 AstroBrowse steps, validated as a complete batch before execution. JavaScript is not supported. Target an element with a CSS selector, or with role (+ optional name) when class names are generated and unstable; run snapshot first to read the page's roles and names. Required fields by action: goto=url; click=(selector|role); click_at=(selector|role)+offset_x+offset_y; hover=(selector|role); drag=(selector|role)+target_selector; drag_by=(selector|role)+dx+dy; fill=(selector|role)+text; type_text=(selector|role)+text; press=key (selector optional); select=(selector|role)+value; wait_for_load_state=none; wait_for_selector=(selector|role); wait_for_text=text; snapshot=none; find=text; extract_text=(selector|role); extract_html=(selector|role); screenshot=none (selector optional). Empty fill.text and select.value values are valid.",
     "items": {
-      "description": "",
+      "description": "AstroBrowse step shape, validated before the worker receives a batch.",
       "properties": {
         "action": {
           "description": "",
           "enum": [
             "goto",
             "click",
+            "click_at",
+            "hover",
+            "drag",
+            "drag_by",
             "fill",
+            "type_text",
             "press",
             "select",
             "wait_for_load_state",
             "wait_for_selector",
+            "wait_for_text",
+            "snapshot",
+            "find",
             "extract_text",
             "extract_html",
             "screenshot"
@@ -382,6 +429,41 @@ Generated JSON parameter schema:
           },
           "required": false,
           "type": "array"
+        },
+        "button": {
+          "default": null,
+          "description": "Mouse button for click. Defaults to left.",
+          "enum": [
+            "left",
+            "right",
+            "middle"
+          ],
+          "required": false,
+          "type": "string"
+        },
+        "click_count": {
+          "default": null,
+          "description": "Click repetitions. Use 2 for a double-click.",
+          "maximum": 3,
+          "minimum": 1,
+          "required": false,
+          "type": "integer"
+        },
+        "dx": {
+          "default": null,
+          "description": "Horizontal pixels to drag for drag_by. May be negative.",
+          "maximum": 10000,
+          "minimum": -10000,
+          "required": false,
+          "type": "integer"
+        },
+        "dy": {
+          "default": null,
+          "description": "Vertical pixels to drag for drag_by. May be negative.",
+          "maximum": 10000,
+          "minimum": -10000,
+          "required": false,
+          "type": "integer"
         },
         "key": {
           "default": null,
@@ -415,9 +497,59 @@ Generated JSON parameter schema:
           "required": false,
           "type": "object"
         },
+        "modifiers": {
+          "default": null,
+          "description": "Modifier keys held during click, e.g. ['Shift'].",
+          "items": {
+            "description": "",
+            "enum": [
+              "Alt",
+              "Control",
+              "Meta",
+              "Shift"
+            ],
+            "type": "string"
+          },
+          "required": false,
+          "type": "array"
+        },
+        "name": {
+          "default": null,
+          "description": "Accessible name filter used with role (substring match).",
+          "required": false,
+          "type": "string"
+        },
+        "offset_x": {
+          "default": null,
+          "description": "X offset inside the target element for click_at.",
+          "maximum": 10000,
+          "minimum": 0,
+          "required": false,
+          "type": "integer"
+        },
+        "offset_y": {
+          "default": null,
+          "description": "Y offset inside the target element for click_at.",
+          "maximum": 10000,
+          "minimum": 0,
+          "required": false,
+          "type": "integer"
+        },
+        "role": {
+          "default": null,
+          "description": "Accessibility role to target instead of a CSS selector, e.g. 'button'. Pair with name for an exact element. Survives generated class names; read available roles with a snapshot step.",
+          "required": false,
+          "type": "string"
+        },
         "selector": {
           "default": null,
           "description": "",
+          "required": false,
+          "type": "string"
+        },
+        "target_selector": {
+          "default": null,
+          "description": "Drop target for drag, as a CSS selector.",
           "required": false,
           "type": "string"
         },
@@ -476,7 +608,7 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id"
+  "browser_session_id": null
 }
 ```
 
@@ -485,6 +617,7 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
@@ -511,7 +644,7 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id",
+  "browser_session_id": null,
   "show_cursor": true
 }
 ```
@@ -521,6 +654,7 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
@@ -552,7 +686,7 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id"
+  "browser_session_id": null
 }
 ```
 
@@ -561,6 +695,7 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
@@ -586,7 +721,7 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id"
+  "browser_session_id": null
 }
 ```
 
@@ -595,6 +730,7 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
@@ -622,11 +758,9 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id",
-  "file_ids": [
-    "example file id"
-  ],
-  "selector": "example selector"
+  "browser_session_id": null,
+  "file_ids": null,
+  "selector": null
 }
 ```
 
@@ -635,11 +769,13 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"
   },
   "file_ids": {
+    "default": null,
     "description": "File Manager file_id values for upload_file.",
     "items": {
       "description": "",
@@ -649,6 +785,7 @@ Generated JSON parameter schema:
     "type": "array"
   },
   "selector": {
+    "default": null,
     "description": "Optional selector for extract_page or upload_file.",
     "required": true,
     "type": "string"
@@ -674,7 +811,7 @@ Sample parameters:
 
 ```json
 {
-  "browser_session_id": "example browser session id"
+  "browser_session_id": null
 }
 ```
 
@@ -683,6 +820,7 @@ Generated JSON parameter schema:
 ```json
 {
   "browser_session_id": {
+    "default": null,
     "description": "Opaque browser runtime session id returned by initialize_browser.",
     "required": true,
     "type": "string"

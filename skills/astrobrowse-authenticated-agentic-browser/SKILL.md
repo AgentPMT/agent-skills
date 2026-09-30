@@ -1,7 +1,7 @@
 ---
 name: astrobrowse-authenticated-agentic-browser
 description: "AstroBrowse - Authenticated Agentic Browser: Operate a real, authenticated web browser on the user's. Use when an agent needs astrobrowse authenticated agentic browser, astrobrowse authenticated agentic browser, post and schedule content across social media accounts, pull reports and update records in crms and erps, operate saas platforms and portals that have no api, fill and submit web forms on the user's behalf, close browser, browser session id through AgentPMT-hosted remote tool calls."
-version: 1.0.0
+version: 1.0.1
 homepage: https://www.agentpmt.com/marketplace/astrobrowse-authenticated-agentic-browser
 compatibility: "Requires AgentPMT internal handler access through the external marketplace API. Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/astrobrowse-authenticated-agentic-browser"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # AstroBrowse - Authenticated Agentic Browser
 
 ## Freshness
-Last updated: `2026-08-11`.
+Last updated: `2026-09-30`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -61,7 +61,7 @@ Full setup and configuration guide: https://www.agentpmt.com/docs/tool-specific/
 - Use this skill for `AstroBrowse - Authenticated Agentic Browser` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
 - Search and activation keywords: astrobrowse   authenticated agentic browser, astrobrowse authenticated agentic browser, post and schedule content across social media accounts, pull reports and update records in crms and erps, operate saas platforms and portals that have no api, fill and submit web forms on the user's behalf, close browser, browser session id.
-- Supported action names: `close_browser`, `download_file`, `extract_page`, `get_policy`, `initialize_browser`, `list_accounts`, `list_downloads`, `request_user_takeover`, `run_steps`, `screenshot`, `start_recording`, `status`, `stop_recording`, `upload_file`, `wait_for_takeover`.
+- Supported action names: `close_browser`, `download_file`, `extract_page`, `get_policy`, `heartbeat`, `initialize_browser`, `list_accounts`, `list_downloads`, `request_user_takeover`, `run_steps`, `screenshot`, `start_recording`, `status`, `stop_recording`, `upload_file`, `wait_for_takeover`.
 
 ## Use Cases
 - Post and schedule content across social media accounts
@@ -83,13 +83,14 @@ No categories or industry tags are published for this tool.
 
 ## Actions And Schema
 Complete generated action schema: `./schema.md`.
-Supported action count: `15`.
+Supported action count: `16`.
 x402 availability: not enabled for this product.
 
 - `close_browser` (action slug: `close-browser`): Release the session: it is wiped and destroyed. Always call this when finished. Price: `5` credits. Parameters: `browser_session_id`.
 - `download_file` (action slug: `download-file`): Persist a file the browser downloaded into the File Manager (size-capped, requires workflow budget context). Pass download_name from list_downloads, or omit it to save the most recent download. Price: `5` credits. Parameters: `browser_session_id`, `download_name`.
 - `extract_page` (action slug: `extract-page`): Extract visible text (or HTML) from the active page or a selector. Price: `5` credits. Parameters: `browser_session_id`, `include_html`, `selector`.
 - `get_policy` (action slug: `get-policy`): Read the user's browsing policy (saved-only vs general browsing). The policy is set only by the human from their dashboard; there is no agent action to change it. Price: `5` credits. Parameters: none.
+- `heartbeat` (action slug: `heartbeat`): Refresh the runtime session's 10-minute idle deadline before long non-browser work. It never extends the 30-minute hard cap. Price: `5` credits. Parameters: `browser_session_id`.
 - `initialize_browser` (action slug: `initialize-browser`): Start a fresh, single-use, isolated browser session. Pass a stable idempotency_key (required) so a retry never starts a second session. Provide account_id to resume a saved login, or omit account_id for a general-browsing session (allowed only when the user has enabled general browsing). Call list_accounts first. Price: `5` credits. Parameters: `account_id`, `idempotency_key`, `initial_url`, `region`.
 - `list_accounts` (action slug: `list-accounts`): List the user's saved AstroBrowse logins (accounts). Call this first to find a saved site before initialize_browser. Price: `5` credits. Parameters: none.
 - `list_downloads` (action slug: `list-downloads`): List files the browser has downloaded in this session (name, size, type) so you can pick one to save with download_file. Price: `5` credits. Parameters: `browser_session_id`.
@@ -194,7 +195,7 @@ MCP call shape after the main AgentPMT MCP server is connected:
     "name": "AstroBrowse---Authenticated-Agentic-Browser",
     "arguments": {
       "action": "close_browser",
-      "browser_session_id": "example browser session id"
+      "browser_session_id": null
     }
   }
 }
@@ -209,7 +210,7 @@ Authenticated AgentPMT REST call body:
   "name": "astrobrowse-authenticated-agentic-browser",
   "parameters": {
     "action": "close_browser",
-    "browser_session_id": "example browser session id"
+    "browser_session_id": null
   }
 }
 ```
