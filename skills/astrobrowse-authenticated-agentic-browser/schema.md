@@ -361,7 +361,7 @@ Action slug: `run-steps`
 
 Price: `5` credits
 
-Run bounded browser automation steps (goto/click/fill/press/select/wait/extract/screenshot) in an initialized session.
+Run bounded browser steps in an initialized session, including navigation, role/name targeting, drag and drop, accessible-name search, screenshots, and tab listing or switching.
 
 Parameters:
 

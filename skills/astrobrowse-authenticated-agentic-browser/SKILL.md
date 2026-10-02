@@ -1,7 +1,7 @@
 ---
 name: astrobrowse-authenticated-agentic-browser
 description: "AstroBrowse - Authenticated Agentic Browser: Operate a real, authenticated web browser on the user's. Use when an agent needs astrobrowse authenticated agentic browser, astrobrowse authenticated agentic browser, post and schedule content across social media accounts, pull reports and update records in crms and erps, operate saas platforms and portals that have no api, fill and submit web forms on the user's behalf, close browser, browser session id through AgentPMT-hosted remote tool calls."
-version: 1.0.2
+version: 1.0.3
 homepage: https://www.agentpmt.com/marketplace/astrobrowse-authenticated-agentic-browser
 compatibility: "Requires AgentPMT internal handler access through the external marketplace API. Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/astrobrowse-authenticated-agentic-browser"}}
@@ -26,7 +26,7 @@ Full setup guide (Tailscale network egress, enabling the tool, saving a login): 
 #### Workflow
 1. `list_accounts` to see the user's saved logins.
 2. `initialize_browser` with a stable `idempotency_key` (required, so a retry never starts a second session) plus `account_id` to resume a saved login, or omit `account_id` for a general-browsing session when the user's policy allows it. Returns a `browser_session_id`.
-3. Operate the page with `run_steps`, `extract_page`, `screenshot`, `start_recording` / `stop_recording`, `upload_file`, and `list_downloads` / `download_file`.
+3. Operate the page with `run_steps` (including drag and tab switching), `extract_page`, `screenshot`, `start_recording` / `stop_recording`, `upload_file`, and `list_downloads` / `download_file`.
 4. If a site needs a human (CAPTCHA, MFA, or an unusual login), call `request_user_takeover` then poll `wait_for_takeover`. The user steps in on the live session.
 5. Always `close_browser` when finished.
 
@@ -36,15 +36,23 @@ Full setup guide (Tailscale network egress, enabling the tool, saving a login): 
 - `list_accounts` — list saved logins. Call this first.
 - `get_policy` — read the browsing policy. It is set only by the user from their dashboard.
 - `initialize_browser` — required `idempotency_key`; optional `account_id`, `initial_url`, `region`. Omit `account_id` for a general-browsing session only when the user has enabled it.
-- `run_steps` (`browser_session_id`, `steps[]`) — execute 1 to 20 browser steps in one request; an empty steps list is invalid. Supported step actions are `goto`, `click`, `fill`, `press`, `select`, `wait_for_load_state`, `wait_for_selector`, `extract_text`, `extract_html`, and `screenshot`. Each step accepts only the fields defined by the tool schema, such as `selector`, `text`, `url`, `key`, `value`, and `timeout_ms` (500 to 60000). Caller-supplied JavaScript and script fields are not supported. The 20-step allowance resets for each `run_steps` request; it is not a per-session quota. Screenshot steps save PNGs to File Manager and return `artifact.file_id` plus a fresh `artifact.signed_url`, never inline image base64.
+- `run_steps` (`browser_session_id`, `steps[]`) — execute 1 to 20 validated steps per request. Supported actions: `goto`, `click`, `click_at`, `hover`, `drag`, `drag_by`, `fill`, `type_text`, `press`, `select`, `wait_for_load_state`, `wait_for_selector`, `wait_for_text`, `snapshot`, `find`, `extract_text`, `extract_html`, `screenshot`, `list_tabs`, and `switch_tab`. Read each result's `ok` and `error`; a batch can return a failed step while the tool call itself succeeds. JavaScript is not supported. Screenshot steps save PNGs to File Manager and return `artifact.file_id` and `artifact.signed_url`.
 - `extract_page` (`browser_session_id`, `selector?`, `include_html?`) — return visible text or capped HTML.
 - `screenshot` (`browser_session_id`) — save a PNG to File Manager and return `artifact.file_id` plus a fresh seven-day `artifact.signed_url`. Raw image base64 is not returned inline.
-- `upload_file` (`browser_session_id`, `selector`, `file_ids[]`) — attach File Manager files to a visible `<input type=file>`. Reveal the input with supported `run_steps` actions first.
-- `list_downloads` / `download_file` (`browser_session_id`, `download_name?`) — list files the page downloaded and persist one to File Manager.
+- `upload_file` (`browser_session_id`, `selector`, `file_ids[]`) — attach File Manager files to a matching `<input type=file>` on the active tab. Hidden inputs are supported; they do not need to be revealed or clicked first.
+- `list_downloads` / `download_file` (`browser_session_id`, `download_name?`) — list completed downloads from any tab, including popup tabs, then save one to File Manager. Use the filename returned by `list_downloads` as `download_name`; wait and list again if the transfer is still in progress.
 - `start_recording` (`show_cursor?`) / `stop_recording` — save an MP4 of the session to File Manager. Stop recording before closing.
 - `request_user_takeover` (`reason`) / `wait_for_takeover` — hand the live session to the human, then poll for status.
 - `status` — return sanitized live status without cookies or credentials.
 - `close_browser` — release and wipe the session. Always call when done. Anonymous sessions are discarded because they have no saved login to persist.
+
+#### Working with complex pages
+- Start with `snapshot` to read roles and accessible names, or use `find` to search visible text and accessible names. Prefer `role` plus `name` over generated CSS classes. Name matching is a substring by default; set `name_exact: true` when several elements have similar names.
+- For canvas drag and drop, identify the source with `selector` or `role`/`name`, then use `drag` with `target_selector`, `target_role`/`target_name`, or viewport `target_x` and `target_y`. Coordinates are useful when a canvas has no accessible drop target. `drag_by` remains available for relative movement.
+- Use `list_tabs` after an action opens a new tab, then `switch_tab` with its `tab_index`. Subsequent steps, extraction, screenshots, and file uploads use the selected tab.
+- File pickers may hide their file input. Use `upload_file` with the input selector and File Manager `file_ids`; selecting files through the native picker is unnecessary.
+- After an export, call `list_downloads` until the completed filename appears, then `download_file`. Downloads opened in popup tabs are included.
+- If a step fails, inspect that step's `error` and take a fresh `snapshot` or `list_tabs` before retrying. Missing, hidden, disabled, ambiguous, and timed-out targets report diagnostic details.
 
 #### Safety and execution rules
 - Do not attempt to execute JavaScript, inject scripts, access browser internals, or bypass the supported action grammar.
@@ -74,6 +82,7 @@ Full setup and configuration guide: https://www.agentpmt.com/docs/tool-specific/
 - Capture screenshots and screen recordings of web sessions
 - Hand off to a human for sign-in or verification steps
 - Extract data from pages behind a login
+- Edit designs using drag and drop and manage multiple tabs
 
 ## Related Product Skills
 - File Management: ../file-management (ClawHub: `file-management`, page: https://clawhub.ai/agentpmt/file-management; skills.sh: `npx skills add AgentPMT/agent-skills --skill file-management`)
@@ -95,7 +104,7 @@ x402 availability: not enabled for this product.
 - `list_accounts` (action slug: `list-accounts`): List the user's saved AstroBrowse logins (accounts). Call this first to find a saved site before initialize_browser. Price: `5` credits. Parameters: none.
 - `list_downloads` (action slug: `list-downloads`): List files the browser has downloaded in this session (name, size, type) so you can pick one to save with download_file. Price: `5` credits. Parameters: `browser_session_id`.
 - `request_user_takeover` (action slug: `request-user-takeover`): Ask the human to take over the live browser (e.g. CAPTCHA, MFA, unusual login UI). Holds the session open past the idle timeout. Use ONLY when the agent cannot proceed automatically. Price: `5` credits. Parameters: `browser_session_id`, `reason`.
-- `run_steps` (action slug: `run-steps`): Run bounded browser automation steps (goto/click/fill/press/select/wait/extract/screenshot) in an initialized session. Price: `5` credits. Parameters: `browser_session_id`, `steps`.
+- `run_steps` (action slug: `run-steps`): Run bounded browser steps in an initialized session, including navigation, role/name targeting, drag and drop, accessible-name search, screenshots, and tab listing or switching. Price: `5` credits. Parameters: `browser_session_id`, `steps`.
 - `screenshot` (action slug: `screenshot`): Capture a PNG screenshot and save it to your File Manager (requires workflow budget context). The image is NOT returned inline; the response has artifact.file_id and a fresh artifact.signed_url for viewing or analysis. Price: `5` credits. Parameters: `browser_session_id`.
 - `start_recording` (action slug: `start-recording`): Start an MP4 screen recording of the session. show_cursor controls whether the cursor appears in the video. Price: `5` credits. Parameters: `browser_session_id`, `show_cursor`.
 - `status` (action slug: `status`): Return the session's sanitized live status (no cookies). Price: `5` credits. Parameters: `browser_session_id`.
