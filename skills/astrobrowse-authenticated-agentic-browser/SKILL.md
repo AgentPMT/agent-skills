@@ -1,7 +1,7 @@
 ---
 name: astrobrowse-authenticated-agentic-browser
 description: "AstroBrowse - Authenticated Agentic Browser: Operate a real, authenticated web browser on the user's. Use when an agent needs astrobrowse authenticated agentic browser, astrobrowse authenticated agentic browser, post and schedule content across social media accounts, pull reports and update records in crms and erps, operate saas platforms and portals that have no api, fill and submit web forms on the user's behalf, close browser, browser session id through AgentPMT-hosted remote tool calls."
-version: 1.0.1
+version: 1.0.2
 homepage: https://www.agentpmt.com/marketplace/astrobrowse-authenticated-agentic-browser
 compatibility: "Requires AgentPMT internal handler access through the external marketplace API. Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/astrobrowse-authenticated-agentic-browser"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # AstroBrowse - Authenticated Agentic Browser
 
 ## Freshness
-Last updated: `2026-09-30`.
+Last updated: `2026-10-02`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -100,7 +100,7 @@ x402 availability: not enabled for this product.
 - `start_recording` (action slug: `start-recording`): Start an MP4 screen recording of the session. show_cursor controls whether the cursor appears in the video. Price: `5` credits. Parameters: `browser_session_id`, `show_cursor`.
 - `status` (action slug: `status`): Return the session's sanitized live status (no cookies). Price: `5` credits. Parameters: `browser_session_id`.
 - `stop_recording` (action slug: `stop-recording`): Stop the recording and save the MP4 to your File Manager (requires workflow budget context). The video is NOT returned inline; the response has artifact.file_id — fetch it from the File Manager to view the recording. Call before close_browser. Price: `5` credits. Parameters: `browser_session_id`.
-- `upload_file` (action slug: `upload-file`): Attach File Manager files to a visible page <input type=file>. Reveal the input with run_steps first, then pass its selector and file_ids. Price: `5` credits. Parameters: `browser_session_id`, `file_ids`, `selector`.
+- `upload_file` (action slug: `upload-file`): Attach File Manager files to one input[type=file] on the active tab. Hidden file inputs are supported; pass a selector and file_ids. Price: `5` credits. Parameters: `browser_session_id`, `file_ids`, `selector`.
 - `wait_for_takeover` (action slug: `wait-for-takeover`): Poll the session status after request_user_takeover. Price: `5` credits. Parameters: `browser_session_id`.
 
 ## Live Schema And Examples

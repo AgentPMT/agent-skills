@@ -368,7 +368,7 @@ Parameters:
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `browser_session_id` | `string` | yes | Opaque browser runtime session id returned by initialize_browser. |
-| `steps` | `array` | yes | One to 20 AstroBrowse steps, validated as a complete batch before execution. JavaScript is not supported. Target an element with a CSS selector, or with role (+ optional name) when class names are generated and unstable; run snapshot first to read the page's roles and names. Required fields by action: goto=url; click=(selector\|role); click_at=(selector\|role)+offset_x+offset_y; hover=(selector\|role); drag=(selector\|role)+target_selector; drag_by=(selector\|role)+dx+dy; fill=(selector\|role)+text; type_text=(selector\|role)+text; press=key (selector optional); select=(selector\|role)+value; wait_for_load_state=none; wait_for_selector=(selector\|role); wait_for_text=text; snapshot=none; find=text; extract_text=(selector\|role); extract_html=(selector\|role); screenshot=none (selector optional). Empty fill.text and select.value values are valid. |
+| `steps` | `array` | yes | One to 20 AstroBrowse steps, validated as a complete batch before execution. JavaScript is not supported. Target an element with a CSS selector, or with role (+ optional name) when class names are generated and unstable; run snapshot first to read the page's roles and names. Required fields by action: goto=url; click=(selector\|role); click_at=(selector\|role)+offset_x+offset_y; hover=(selector\|role); drag=(selector\|role); drag_by=(selector\|role)+dx+dy; fill=(selector\|role)+text; type_text=(selector\|role)+text; press=key (selector optional); select=(selector\|role)+value; wait_for_load_state=none; wait_for_selector=(selector\|role); wait_for_text=text; snapshot=none; find=text; extract_text=(selector\|role); extract_html=(selector\|role); screenshot=none (selector optional); list_tabs=none; switch_tab=tab_index. drag accepts target_selector, target_role (+ target_name), or target_x+target_y. Use name_exact=true for exact accessible-name matching. Empty fill.text and select.value values are valid. |
 
 Sample parameters:
 
@@ -391,7 +391,7 @@ Generated JSON parameter schema:
   },
   "steps": {
     "default": null,
-    "description": "One to 20 AstroBrowse steps, validated as a complete batch before execution. JavaScript is not supported. Target an element with a CSS selector, or with role (+ optional name) when class names are generated and unstable; run snapshot first to read the page's roles and names. Required fields by action: goto=url; click=(selector|role); click_at=(selector|role)+offset_x+offset_y; hover=(selector|role); drag=(selector|role)+target_selector; drag_by=(selector|role)+dx+dy; fill=(selector|role)+text; type_text=(selector|role)+text; press=key (selector optional); select=(selector|role)+value; wait_for_load_state=none; wait_for_selector=(selector|role); wait_for_text=text; snapshot=none; find=text; extract_text=(selector|role); extract_html=(selector|role); screenshot=none (selector optional). Empty fill.text and select.value values are valid.",
+    "description": "One to 20 AstroBrowse steps, validated as a complete batch before execution. JavaScript is not supported. Target an element with a CSS selector, or with role (+ optional name) when class names are generated and unstable; run snapshot first to read the page's roles and names. Required fields by action: goto=url; click=(selector|role); click_at=(selector|role)+offset_x+offset_y; hover=(selector|role); drag=(selector|role); drag_by=(selector|role)+dx+dy; fill=(selector|role)+text; type_text=(selector|role)+text; press=key (selector optional); select=(selector|role)+value; wait_for_load_state=none; wait_for_selector=(selector|role); wait_for_text=text; snapshot=none; find=text; extract_text=(selector|role); extract_html=(selector|role); screenshot=none (selector optional); list_tabs=none; switch_tab=tab_index. drag accepts target_selector, target_role (+ target_name), or target_x+target_y. Use name_exact=true for exact accessible-name matching. Empty fill.text and select.value values are valid.",
     "items": {
       "description": "AstroBrowse step shape, validated before the worker receives a batch.",
       "properties": {
@@ -415,7 +415,9 @@ Generated JSON parameter schema:
             "find",
             "extract_text",
             "extract_html",
-            "screenshot"
+            "screenshot",
+            "list_tabs",
+            "switch_tab"
           ],
           "required": true,
           "type": "string"
@@ -519,6 +521,12 @@ Generated JSON parameter schema:
           "required": false,
           "type": "string"
         },
+        "name_exact": {
+          "default": false,
+          "description": "Match the accessible name exactly when role and name are supplied.",
+          "required": false,
+          "type": "boolean"
+        },
         "offset_x": {
           "default": null,
           "description": "X offset inside the target element for click_at.",
@@ -537,7 +545,7 @@ Generated JSON parameter schema:
         },
         "role": {
           "default": null,
-          "description": "Accessibility role to target instead of a CSS selector, e.g. 'button'. Pair with name for an exact element. Survives generated class names; read available roles with a snapshot step.",
+          "description": "Accessibility role to target instead of a CSS selector, e.g. 'button'. Pair with name and name_exact for an exact match. Survives generated class names; read available roles with a snapshot step.",
           "required": false,
           "type": "string"
         },
@@ -547,11 +555,53 @@ Generated JSON parameter schema:
           "required": false,
           "type": "string"
         },
+        "tab_index": {
+          "default": null,
+          "description": "Tab index from list_tabs for switch_tab.",
+          "maximum": 100,
+          "minimum": 0,
+          "required": false,
+          "type": "integer"
+        },
+        "target_name": {
+          "default": null,
+          "description": "Accessible name of the drag drop target.",
+          "required": false,
+          "type": "string"
+        },
+        "target_name_exact": {
+          "default": false,
+          "description": "Match target_name exactly.",
+          "required": false,
+          "type": "boolean"
+        },
+        "target_role": {
+          "default": null,
+          "description": "Drop target accessibility role for drag.",
+          "required": false,
+          "type": "string"
+        },
         "target_selector": {
           "default": null,
           "description": "Drop target for drag, as a CSS selector.",
           "required": false,
           "type": "string"
+        },
+        "target_x": {
+          "default": null,
+          "description": "Viewport X coordinate for drag drop.",
+          "maximum": 10000,
+          "minimum": 0,
+          "required": false,
+          "type": "integer"
+        },
+        "target_y": {
+          "default": null,
+          "description": "Viewport Y coordinate for drag drop.",
+          "maximum": 10000,
+          "minimum": 0,
+          "required": false,
+          "type": "integer"
         },
         "text": {
           "default": null,
@@ -744,7 +794,7 @@ Action slug: `upload-file`
 
 Price: `5` credits
 
-Attach File Manager files to a visible page <input type=file>. Reveal the input with run_steps first, then pass its selector and file_ids.
+Attach File Manager files to one input[type=file] on the active tab. Hidden file inputs are supported; pass a selector and file_ids.
 
 Parameters:
 
