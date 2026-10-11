@@ -1,7 +1,7 @@
 ---
 name: gmail-all-email-actions
 description: "Gmail - All Email Actions: Gmail integration: send, read, search, reply, forward emails. Manage labels, drafts, trash. Supports attachments and custom from addresses. Use when an agent needs gmail all email actions, gmail all email actions, automated email notifications and alerts, customer inquiry response and follow up, email search and retrieval for information gathering, inbox management and organization with labels, create draft, to through AgentPMT-hosted remote tool calls."
-version: 1.0.1
+version: 1.0.2
 homepage: https://www.agentpmt.com/marketplace/gmail-all-email-actions
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/gmail-all-email-actions"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Gmail - All Email Actions
 
 ## Freshness
-Last updated: `2026-09-29`.
+Last updated: `2026-10-11`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -287,6 +287,9 @@ Get the authenticated user's Gmail profile including email address and message c
 - **From address:** Use `list_send_as_addresses` whenever a non-default sender is requested or the exact alias is unknown. Pass the exact returned `email` for an entry with `can_send: true`; omit `from_email` to use the default. Unconfigured and unverified aliases are rejected before sending.
 - **Thread management:** Use `thread_id` with `send_message` or `create_draft` to add a message to an existing conversation thread.
 
+#### Received attachment verification
+For get_message, verify_attachments=true fetches the actual received file bytes and returns sha256 and verified_size_bytes per named attachment (maximum 10 files and 25 MB total). No file contents are returned. This read-only option does not mark messages read and defaults false. Compare hashes with the selected original artifact; other read actions remain unchanged.
+
 ## When To Use
 - Use this skill for `Gmail - All Email Actions` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
@@ -318,7 +321,7 @@ x402 availability: not enabled for this product.
 - `forward_message` (action slug: `forward-message`): Forward an email to new recipients. The source message content is included automatically. Price: `5` credits. Parameters: `attachments`, `bcc`, `body_text`, `cc`, `from_email`, `message_id`, `to`.
 - `get_draft` (action slug: `get-draft`): Retrieve draft email content with safe body and metadata controls. Price: `5` credits. Parameters: `body_format`, `draft_id`, `format`, `max_body_chars`, `message_format`, `metadata_headers`.
 - `get_instructions` (action slug: `get-instructions`): Return Gmail tool usage instructions and examples. Price: `5` credits. Parameters: none.
-- `get_message` (action slug: `get-message`): Read a Gmail message with safe body and metadata controls. Price: `5` credits. Parameters: `body_format`, `format`, `max_body_chars`, `message_format`, `message_id`, `metadata_headers`.
+- `get_message` (action slug: `get-message`): Read a Gmail message with safe body and metadata controls. Price: `5` credits. Parameters: `body_format`, `format`, `max_body_chars`, `message_format`, `message_id`, `metadata_headers`, `verify_attachments`.
 - `get_profile` (action slug: `get-profile`): Get the authenticated Gmail profile including email address and message/thread counts. Price: `5` credits. Parameters: none.
 - `get_thread` (action slug: `get-thread`): Read Gmail thread messages with safe body and metadata controls. Price: `5` credits. Parameters: `body_format`, `format`, `include_html`, `max_body_chars`, `max_messages`, `message_format`, `metadata_headers`, `thread_id`.
 - `list_labels` (action slug: `list-labels`): List all available Gmail labels, including system and user-created labels. Price: `5` credits. Parameters: none.

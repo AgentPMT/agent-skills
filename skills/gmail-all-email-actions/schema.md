@@ -422,6 +422,7 @@ Parameters:
 | `message_format` | `string` | no | Preferred read format. minimal returns IDs/labels only; metadata returns headers/snippet/signals with no body fields; text returns capped text only; full returns metadata plus selected body fields. |
 | `message_id` | `string` | yes | Gmail message ID. |
 | `metadata_headers` | `array` | no | Headers to request and return in metadata modes. |
+| `verify_attachments` | `boolean` | no | Read-only verification: fetch received attachment bytes and return SHA-256 hashes and verified sizes. Maximum 10 files and 25 MB total; file contents are never returned. |
 
 Sample parameters:
 
@@ -434,7 +435,8 @@ Sample parameters:
   "message_id": "example message id",
   "metadata_headers": [
     "example metadata header"
-  ]
+  ],
+  "verify_attachments": false
 }
 ```
 
@@ -493,6 +495,12 @@ Generated JSON parameter schema:
     },
     "required": false,
     "type": "array"
+  },
+  "verify_attachments": {
+    "default": false,
+    "description": "Read-only verification: fetch received attachment bytes and return SHA-256 hashes and verified sizes. Maximum 10 files and 25 MB total; file contents are never returned.",
+    "required": false,
+    "type": "boolean"
   }
 }
 ```
