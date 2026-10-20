@@ -938,6 +938,47 @@ Generated JSON parameter schema:
 }
 ```
 
+## `rename_document`
+
+Action slug: `rename-document`
+
+Price: `5` credits
+
+Rename an existing Google Doc file without changing its document tabs or ID.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `document_id` | `string` | yes | ID of the Google Doc to rename. |
+| `new_title` | `string` | yes | Nonblank new file title. |
+
+Sample parameters:
+
+```json
+{
+  "document_id": "example document id",
+  "new_title": "example new title"
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "document_id": {
+    "description": "ID of the Google Doc to rename.",
+    "required": true,
+    "type": "string"
+  },
+  "new_title": {
+    "description": "Nonblank new file title.",
+    "required": true,
+    "type": "string"
+  }
+}
+```
+
 ## `replace_text`
 
 Action slug: `replace-text`

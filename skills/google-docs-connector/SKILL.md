@@ -1,7 +1,7 @@
 ---
 name: google-docs-connector
-description: "Google Docs Connector: Google Docs: create, edit, format documents. Tables, images, headers, page breaks. Export to PDF/DOCX/HTML. Share and manage permissions. Use when an agent needs google docs connector, document automation, report generation, template creation, collaborative editing, batch update, document id, requests through AgentPMT-hosted remote tool calls. Discovery terms: google docs connector, document automation, report generation, template creation, collaborative editing."
-version: 1.0.1
+description: "Google Docs Connector: Google Docs: create, edit, format documents. Tables, images, headers, page breaks. Export to PDF/DOCX/HTML. Share and manage permissions. Supports file renaming. Use when an agent needs google docs connector, document automation, report generation, template creation, collaborative editing, batch update, document id, requests through AgentPMT-hosted remote tool calls. Discovery terms: google docs connector, document automation, report generation, template creation."
+version: 1.0.2
 homepage: https://www.agentpmt.com/marketplace/google-docs-connector
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/google-docs-connector"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Google Docs Connector
 
 ## Freshness
-Last updated: `2026-08-05`.
+Last updated: `2026-10-20`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -223,11 +223,18 @@ All responses return `{"success": true, "output": { ... }}`. Output varies by ac
 - `share_document` → `{"permissions_added": N, "permissions": [...]}`
 - `get_permissions` → `{"permissions": [...]}`
 
+
+##### `rename_document`
+Renames the Google Doc file, not a document tab. Required: `document_id`, nonblank `new_title`. No optional fields. The document ID and URL remain unchanged.
+```json
+{"action":"rename_document","document_id":"DOC_ID","new_title":"Q4 Report"}
+```
+
 ## When To Use
 - Use this skill for `Google Docs Connector` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
 - Search and activation keywords: google docs connector, document automation, report generation, template creation, collaborative editing, batch update, document id, requests.
-- Supported action names: `batch_update`, `create_document`, `create_footer`, `create_header`, `create_named_range`, `create_table`, `export_document`, `format_text`, `get_document`, `get_permissions`, `insert_image`, `insert_page_break`, `insert_section_break`, `insert_text`, `quick_create`, `replace_text`, `search_documents`, `share_document`, `update_style`.
+- Supported action names: `batch_update`, `create_document`, `create_footer`, `create_header`, `create_named_range`, `create_table`, `export_document`, `format_text`, `get_document`, `get_permissions`, `insert_image`, `insert_page_break`, `insert_section_break`, `insert_text`, `quick_create`, `rename_document`, `replace_text`, `search_documents`, `share_document`, `update_style`.
 
 ## Use Cases
 - document automation
@@ -246,7 +253,7 @@ No categories or industry tags are published for this tool.
 
 ## Actions And Schema
 Complete generated action schema: `./schema.md`.
-Supported action count: `19`.
+Supported action count: `20`.
 x402 availability: not enabled for this product.
 
 - `batch_update` (action slug: `batch-update`): Execute raw Google Docs API batch update requests. Put tabId inside each raw range or location when targeting a non-first tab. Price: `5` credits. Parameters: `document_id`, `requests`.
@@ -264,6 +271,7 @@ x402 availability: not enabled for this product.
 - `insert_section_break` (action slug: `insert-section-break`): Insert a section break at a specific position. Price: `5` credits. Parameters: `document_id`, `location`, `tab_id`.
 - `insert_text` (action slug: `insert-text`): Insert text at a specific character position in a document. Price: `5` credits. Parameters: `document_id`, `location`, `tab_id`, `text`.
 - `quick_create` (action slug: `quick-create`): Create a document from a natural language description. If the text contains 'titled "..."' or 'called "..."', the title is extracted automatically. Price: `5` credits. Parameters: `text`, `title`.
+- `rename_document` (action slug: `rename-document`): Rename an existing Google Doc file without changing its document tabs or ID. Price: `5` credits. Parameters: `document_id`, `new_title`.
 - `replace_text` (action slug: `replace-text`): Find and replace text in one tab, or in all tabs when tab_id is omitted. Price: `5` credits. Parameters: `document_id`, `match_case`, `replace_with`, `search_text`, `tab_id`.
 - `search_documents` (action slug: `search-documents`): Search for Google Docs by name. Returns documents sorted by most recently modified. Omit query to list recent documents. Price: `5` credits. Parameters: `max_results`, `query`.
 - `share_document` (action slug: `share-document`): Set sharing permissions on a document via Google Drive. Price: `5` credits. Parameters: `document_id`, `email_message`, `send_notification`, `share_with`.
