@@ -1317,6 +1317,47 @@ Generated JSON parameter schema:
 }
 ```
 
+## `rename_spreadsheet`
+
+Action slug: `rename-spreadsheet`
+
+Price: `5` credits
+
+Rename the spreadsheet file; does not rename any sheet tab.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `new_title` | `string` | yes | Nonblank new spreadsheet file title. |
+| `spreadsheet_id` | `string` | yes | Spreadsheet ID or full URL. |
+
+Sample parameters:
+
+```json
+{
+  "new_title": "example new title",
+  "spreadsheet_id": "example spreadsheet id"
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "new_title": {
+    "description": "Nonblank new spreadsheet file title.",
+    "required": true,
+    "type": "string"
+  },
+  "spreadsheet_id": {
+    "description": "Spreadsheet ID or full URL.",
+    "required": true,
+    "type": "string"
+  }
+}
+```
+
 ## `search`
 
 Action slug: `search`

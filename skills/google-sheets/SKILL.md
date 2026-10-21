@@ -1,7 +1,7 @@
 ---
 name: google-sheets
 description: "Google Sheets: Work with Google Sheets using safe short actions: discover tabs and headers, read values with exact one-based row numbers, append rows and columns, update selected fields, archive and delete rows, read and manage. Use when an agent needs google sheets, google sheets api, append spreadsheet rows safely, update crm style rows by key, export a sheet to csv or pdf, create reporting spreadsheets, add conditional formatting, spreadsheet id through AgentPMT-hosted remote tool calls."
-version: 1.0.1
+version: 1.0.2
 homepage: https://www.agentpmt.com/marketplace/google-sheets-api
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/google-sheets-api"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Google Sheets
 
 ## Freshness
-Last updated: `2026-10-04`.
+Last updated: `2026-10-21`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -423,11 +423,18 @@ account, which the platform supplies.
 - Do not update an entire row when only a few fields changed; use `update_row`.
 - Do not use browser export URLs or `gid` URL parameters for exports; use `export_sheet`.
 
+
+##### `rename_spreadsheet`
+Renames the whole spreadsheet file, not a sheet tab. Required: `spreadsheet_id` (ID or URL), nonblank `new_title`. No optional fields. The spreadsheet ID and URL remain unchanged. Use `rename_sheet` to rename a tab.
+```json
+{"action":"rename_spreadsheet","spreadsheet_id":"SPREADSHEET_ID","new_title":"Social Posts 2026"}
+```
+
 ## When To Use
 - Use this skill for `Google Sheets` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
 - Search and activation keywords: google sheets, google sheets api, append spreadsheet rows safely, update crm style rows by key, export a sheet to csv or pdf, create reporting spreadsheets, add conditional formatting, spreadsheet id.
-- Supported action names: `add_conditional_formatting`, `add_named_range`, `add_sheet`, `append_column`, `append_rows`, `copy_paste`, `create`, `cut_paste`, `delete_named_range`, `delete_note`, `delete_rows`, `delete_sheet`, `export_sheet`, `find_replace`, `format_cells`, `get_data_range`, `get_headers`, `list_notes`, `list_sheets`, `protect_range`, `read`, `rename_sheet`, `search`, `set_data_validation`, `set_note`, `share`, `sort`, `unprotect_range`, `update_row`.
+- Supported action names: `add_conditional_formatting`, `add_named_range`, `add_sheet`, `append_column`, `append_rows`, `copy_paste`, `create`, `cut_paste`, `delete_named_range`, `delete_note`, `delete_rows`, `delete_sheet`, `export_sheet`, `find_replace`, `format_cells`, `get_data_range`, `get_headers`, `list_notes`, `list_sheets`, `protect_range`, `read`, `rename_sheet`, `rename_spreadsheet`, `search`, `set_data_validation`, `set_note`, `share`, `sort`, `unprotect_range`, `update_row`.
 
 ## Use Cases
 - append spreadsheet rows safely
@@ -449,7 +456,7 @@ No categories or industry tags are published for this tool.
 
 ## Actions And Schema
 Complete generated action schema: `./schema.md`.
-Supported action count: `29`.
+Supported action count: `30`.
 x402 availability: not enabled for this product.
 
 - `add_conditional_formatting` (action slug: `add-conditional-formatting`): Add a conditional formatting rule to a range. Price: `5` credits. Parameters: `range`, `rule`, `sheet_name`, `spreadsheet_id`.
@@ -474,6 +481,7 @@ x402 availability: not enabled for this product.
 - `protect_range` (action slug: `protect-range`): Protect a range, optionally warning-only or with explicit editor emails. Price: `5` credits. Parameters: `description`, `editor_emails`, `range`, `sheet_name`, `spreadsheet_id`, `warning_only`.
 - `read` (action slug: `read`): Read values from a tab or A1 range. Returns one-based row_numbers aligned with values; no row offset is needed. Price: `5` credits. Parameters: `range`, `sheet_id`, `sheet_name`, `spreadsheet_id`, `value_render_option`.
 - `rename_sheet` (action slug: `rename-sheet`): Rename a tab by name, id, or index. Price: `5` credits. Parameters: `new_sheet_name`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
+- `rename_spreadsheet` (action slug: `rename-spreadsheet`): Rename the spreadsheet file; does not rename any sheet tab. Price: `5` credits. Parameters: `new_title`, `spreadsheet_id`.
 - `search` (action slug: `search`): Search or list recent Google Sheets spreadsheets. Price: `5` credits. Parameters: `max_results`, `query`.
 - `set_data_validation` (action slug: `set-data-validation`): Set a Sheets data validation rule on a range. Price: `5` credits. Parameters: `range`, `sheet_name`, `spreadsheet_id`, `validation_rule`.
 - `set_note` (action slug: `set-note`): Set the same note on every cell in a bounded A1 cell or range. Price: `5` credits. Parameters: `note`, `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
