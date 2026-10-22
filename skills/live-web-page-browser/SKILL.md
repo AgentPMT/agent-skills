@@ -1,7 +1,7 @@
 ---
 name: live-web-page-browser
 description: "Live Web Page Browser: Fetch live webpages: return HTML, Markdown, or screenshots. Headless browser at edge for real-time content extraction and visual capture. Use when an agent needs live web page browser, real time research & information gathering, competitive intelligence & market monitoring, content verification & fact checking, visual documentation & change detection, cancel crawl, job id, get crawl result through AgentPMT-hosted remote tool calls."
-version: 1.0.1
+version: 1.0.2
 homepage: https://www.agentpmt.com/marketplace/live-web-page-browser
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/live-web-page-browser"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Live Web Page Browser
 
 ## Freshness
-Last updated: `2026-07-28`.
+Last updated: `2026-10-22`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -42,17 +42,17 @@ x402 availability: not enabled for this product.
 - `cancel_crawl` (action slug: `cancel-crawl`): Cancel a running crawl job Price: `5` credits. Parameters: `job_id`.
 - `get_crawl_result` (action slug: `get-crawl-result`): Get the status and records of a crawl job started with start_crawl Price: `5` credits. Parameters: `job_id`.
 - `get_instructions` (action slug: `get-instructions`): Get tool instructions and available actions. Price: `5` credits. Parameters: none.
-- `get_url_html_content` (action slug: `get-url-html-content`): Get page HTML content Price: `5` credits. Parameters: `url`.
-- `get_url_json` (action slug: `get-url-json`): Extract structured JSON from a page using AI. Provide a prompt and/or a response_format JSON schema to guide extraction. Price: `5` credits. Parameters: `prompt`, `response_format`, `url`.
-- `get_url_links` (action slug: `get-url-links`): Get the list of links on a page Price: `5` credits. Parameters: `url`, `visibleLinksOnly`.
-- `get_url_markdown` (action slug: `get-url-markdown`): Get page converted into Markdown Price: `5` credits. Parameters: `url`.
-- `get_url_pdf` (action slug: `get-url-pdf`): Render a page to PDF Price: `5` credits. Parameters: `url`.
-- `get_url_screenshot` (action slug: `get-url-screenshot`): Get page screenshot Price: `5` credits. Parameters: `url`, `viewport`.
-- `get_url_snapshot` (action slug: `get-url-snapshot`): Get page HTML content and a screenshot in a single call Price: `5` credits. Parameters: `url`.
+- `get_url_html_content` (action slug: `get-url-html-content`): Get page HTML content Price: `5` credits. Parameters: `browser`, `url`.
+- `get_url_json` (action slug: `get-url-json`): Extract structured JSON from a page using AI. Provide a prompt and/or a response_format JSON schema to guide extraction. Price: `5` credits. Parameters: `browser`, `prompt`, `response_format`, `url`.
+- `get_url_links` (action slug: `get-url-links`): Get the list of links on a page Price: `5` credits. Parameters: `browser`, `url`, `visibleLinksOnly`.
+- `get_url_markdown` (action slug: `get-url-markdown`): Get page converted into Markdown Price: `5` credits. Parameters: `browser`, `url`.
+- `get_url_pdf` (action slug: `get-url-pdf`): Render a page to PDF Price: `5` credits. Parameters: `browser`, `url`.
+- `get_url_screenshot` (action slug: `get-url-screenshot`): Get page screenshot Price: `5` credits. Parameters: `browser`, `url`, `viewport`.
+- `get_url_snapshot` (action slug: `get-url-snapshot`): Get page HTML content and a screenshot in a single call Price: `5` credits. Parameters: `browser`, `url`.
 - `kill_browser_session` (action slug: `kill-browser-session`): Close (kill) a Browser Run session by its session ID Price: `5` credits. Parameters: `session_id`.
 - `list_browser_sessions` (action slug: `list-browser-sessions`): List active Browser Run sessions for the account Price: `5` credits. Parameters: none.
-- `scrape_url_elements` (action slug: `scrape-url-elements`): Scrape elements from a page by CSS selector Price: `5` credits. Parameters: `elements`, `url`.
-- `start_crawl` (action slug: `start-crawl`): Start an asynchronous crawl of a website. Returns a job_id — poll get_crawl_result to retrieve records. Price: `5` credits. Parameters: `depth`, `limit`, `render`, `url`.
+- `scrape_url_elements` (action slug: `scrape-url-elements`): Scrape elements from a page by CSS selector Price: `5` credits. Parameters: `browser`, `elements`, `url`.
+- `start_crawl` (action slug: `start-crawl`): Start an asynchronous crawl of a website. Returns a job_id — poll get_crawl_result to retrieve records. Price: `5` credits. Parameters: `browser`, `depth`, `limit`, `render`, `url`.
 
 ## Live Schema And Examples
 Use the compact schema above for ordinary calls. Before a new production integration, or whenever parameters, enum values, nested objects, outputs, or examples are unclear, fetch live details first.

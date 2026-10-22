@@ -106,12 +106,14 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the page. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. |
 | `url` | `string` | yes | {"format": "uri"} |
 
 Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "url": "https://example.com"
 }
 ```
@@ -120,6 +122,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the page. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "url": {
     "format": "uri",
     "type": "string"
@@ -139,6 +148,7 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the page. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. |
 | `prompt` | `string` | no | Natural-language instruction for what to extract |
 | `response_format` | `object` | no | Optional JSON-schema response format to constrain the output |
 | `url` | `string` | yes | {"format": "uri"} |
@@ -147,6 +157,7 @@ Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "prompt": "example prompt",
   "response_format": {
     "json_schema": "example json schema",
@@ -160,6 +171,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the page. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "prompt": {
     "description": "Natural-language instruction for what to extract",
     "type": "string"
@@ -196,6 +214,7 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the page. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. |
 | `url` | `string` | yes | {"format": "uri"} |
 | `visibleLinksOnly` | `boolean` | no | Only return links that are visible in the rendered page |
 
@@ -203,6 +222,7 @@ Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "url": "https://example.com",
   "visibleLinksOnly": true
 }
@@ -212,6 +232,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the page. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "url": {
     "format": "uri",
     "type": "string"
@@ -235,12 +262,14 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the page. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. |
 | `url` | `string` | yes | {"format": "uri"} |
 
 Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "url": "https://example.com"
 }
 ```
@@ -249,6 +278,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the page. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "url": {
     "format": "uri",
     "type": "string"
@@ -268,12 +304,14 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the page. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. |
 | `url` | `string` | yes | {"format": "uri"} |
 
 Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "url": "https://example.com"
 }
 ```
@@ -282,6 +320,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the page. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "url": {
     "format": "uri",
     "type": "string"
@@ -301,6 +346,7 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the page. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. |
 | `url` | `string` | yes | {"format": "uri"} |
 | `viewport` | `object` | no | See the product schema for accepted values. |
 
@@ -308,6 +354,7 @@ Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "url": "https://example.com",
   "viewport": {
     "height": 600,
@@ -320,6 +367,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the page. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "url": {
     "format": "uri",
     "type": "string"
@@ -352,12 +406,14 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the page. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. |
 | `url` | `string` | yes | {"format": "uri"} |
 
 Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "url": "https://example.com"
 }
 ```
@@ -366,6 +422,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the page. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "url": {
     "format": "uri",
     "type": "string"
@@ -441,6 +504,7 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the page. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. |
 | `elements` | `array` | yes | CSS selectors of the elements to scrape |
 | `url` | `string` | yes | {"format": "uri"} |
 
@@ -448,6 +512,7 @@ Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "elements": [
     {
       "selector": "example selector"
@@ -461,6 +526,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the page. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "elements": {
     "description": "CSS selectors of the elements to scrape",
     "items": {
@@ -496,6 +568,7 @@ Parameters:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
+| `browser` | `string` | no | Browser that renders the crawled pages. Omit to use the default Chrome browser. Set to "kitesurf" to use the Kitesurf browser engine. Requires render to be true. |
 | `depth` | `integer` | no | How many links deep to crawl |
 | `limit` | `integer` | no | Maximum number of pages to crawl |
 | `render` | `boolean` | no | Whether to render pages with a browser (vs. fetching raw HTML) |
@@ -505,6 +578,7 @@ Sample parameters:
 
 ```json
 {
+  "browser": "kitesurf",
   "depth": 1,
   "limit": 1,
   "render": true,
@@ -516,6 +590,13 @@ Generated JSON parameter schema:
 
 ```json
 {
+  "browser": {
+    "description": "Browser that renders the crawled pages. Omit to use the default Chrome browser. Set to \"kitesurf\" to use the Kitesurf browser engine. Requires render to be true.",
+    "enum": [
+      "kitesurf"
+    ],
+    "type": "string"
+  },
   "depth": {
     "description": "How many links deep to crawl",
     "maximum": 9007199254740991,
