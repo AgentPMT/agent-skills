@@ -1,7 +1,7 @@
 ---
 name: google-docs-connector
 description: "Google Docs Connector: Google Docs: create, edit, format documents. Tables, images, headers, page breaks. Export to PDF/DOCX/HTML. Share and manage permissions. Supports file renaming. Use when an agent needs google docs connector, document automation, report generation, template creation, collaborative editing, batch update, document id, requests through AgentPMT-hosted remote tool calls. Discovery terms: google docs connector, document automation, report generation, template creation."
-version: 1.0.2
+version: 1.0.3
 homepage: https://www.agentpmt.com/marketplace/google-docs-connector
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/google-docs-connector"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Google Docs Connector
 
 ## Freshness
-Last updated: `2026-10-20`.
+Last updated: `2026-11-08`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -234,7 +234,7 @@ Renames the Google Doc file, not a document tab. Required: `document_id`, nonbla
 - Use this skill for `Google Docs Connector` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
 - Search and activation keywords: google docs connector, document automation, report generation, template creation, collaborative editing, batch update, document id, requests.
-- Supported action names: `batch_update`, `create_document`, `create_footer`, `create_header`, `create_named_range`, `create_table`, `export_document`, `format_text`, `get_document`, `get_permissions`, `insert_image`, `insert_page_break`, `insert_section_break`, `insert_text`, `quick_create`, `rename_document`, `replace_text`, `search_documents`, `share_document`, `update_style`.
+- Supported action names: `batch_update`, `create_document`, `create_footer`, `create_from_markdown`, `create_header`, `create_named_range`, `create_tab`, `create_table`, `export_document`, `format_text`, `get_document`, `get_permissions`, `insert_image`, `insert_page_break`, `insert_section_break`, `insert_text`, `quick_create`, `rename_document`, `render_markdown`, `replace_text`, `replace_with_markdown`, `search_documents`, `share_document`, `update_style`.
 
 ## Use Cases
 - document automation
@@ -253,16 +253,18 @@ No categories or industry tags are published for this tool.
 
 ## Actions And Schema
 Complete generated action schema: `./schema.md`.
-Supported action count: `20`.
+Supported action count: `24`.
 x402 availability: not enabled for this product.
 
 - `batch_update` (action slug: `batch-update`): Execute raw Google Docs API batch update requests. Put tabId inside each raw range or location when targeting a non-first tab. Price: `5` credits. Parameters: `document_id`, `requests`.
-- `create_document` (action slug: `create-document`): Create a new Google Doc. Price: `5` credits. Parameters: `text`, `title`.
+- `create_document` (action slug: `create-document`): Create a new, empty Google Doc. Prefer create_from_markdown when the content has any structure. Price: `5` credits. Parameters: `text`, `title`.
 - `create_footer` (action slug: `create-footer`): Add a footer to the document. Price: `5` credits. Parameters: `document_id`, `footer_type`.
+- `create_from_markdown` (action slug: `create-from-markdown`): Create a new Google Doc from markdown. Drive converts the markdown into real Google Docs formatting (headings, lists, tables, bold/italic), so no index arithmetic is needed. Preferred way to author a new document. Price: `5` credits. Parameters: `markdown`, `parent_folder_id`, `title`.
 - `create_header` (action slug: `create-header`): Add a header to the document. Price: `5` credits. Parameters: `document_id`, `header_type`, `text`.
 - `create_named_range` (action slug: `create-named-range`): Create a named range (bookmark) spanning a character range in the document. Price: `5` credits. Parameters: `document_id`, `range_end`, `range_name`, `range_start`, `tab_id`.
-- `create_table` (action slug: `create-table`): Insert a table into a document, optionally populated with data. If table_data is provided, dimensions are inferred from it. Price: `5` credits. Parameters: `columns`, `document_id`, `location`, `rows`, `tab_id`, `table_data`.
-- `export_document` (action slug: `export-document`): Export a document to another format. Text formats (txt, html) return content directly; binary formats return base64-encoded content. Price: `5` credits. Parameters: `document_id`, `export_format`.
+- `create_tab` (action slug: `create-tab`): Add a document tab and return its new tab ID, ready to pass to render_markdown or any indexed update. Uses the Docs addDocumentTab request. Price: `5` credits. Parameters: `document_id`, `icon_emoji`, `index`, `parent_tab_id`, `title`.
+- `create_table` (action slug: `create-table`): Insert a table into a document, optionally populated with data. If table_data is provided, dimensions are inferred from it. A markdown pipe table through render_markdown is usually simpler. Price: `5` credits. Parameters: `columns`, `document_id`, `location`, `rows`, `tab_id`, `table_data`.
+- `export_document` (action slug: `export-document`): Export a document to another format. Text formats (txt, html, md) return content directly; binary formats return base64-encoded content. Use md to read a document as markdown, revise it, and send it back through render_markdown or replace_with_markdown. Price: `5` credits. Parameters: `document_id`, `export_format`.
 - `format_text` (action slug: `format-text`): Apply text and/or paragraph styling to a zero-based UTF-16 range in a specific document tab. Provide at least one non-empty style object. Price: `5` credits. Parameters: `document_id`, `paragraph_style`, `range_end`, `range_start`, `tab_id`, `text_style`.
 - `get_document` (action slug: `get-document`): Retrieve content and indexed structure from every document tab, including nested child tabs. Price: `5` credits. Parameters: `document_id`.
 - `get_permissions` (action slug: `get-permissions`): List the current sharing permissions on a document. Price: `5` credits. Parameters: `document_id`.
@@ -270,9 +272,11 @@ x402 availability: not enabled for this product.
 - `insert_page_break` (action slug: `insert-page-break`): Insert a page break at a specific position. Price: `5` credits. Parameters: `document_id`, `location`, `tab_id`.
 - `insert_section_break` (action slug: `insert-section-break`): Insert a section break at a specific position. Price: `5` credits. Parameters: `document_id`, `location`, `tab_id`.
 - `insert_text` (action slug: `insert-text`): Insert text at a specific character position in a document. Price: `5` credits. Parameters: `document_id`, `location`, `tab_id`, `text`.
-- `quick_create` (action slug: `quick-create`): Create a document from a natural language description. If the text contains 'titled "..."' or 'called "..."', the title is extracted automatically. Price: `5` credits. Parameters: `text`, `title`.
+- `quick_create` (action slug: `quick-create`): Create a document from a natural language description. Any markdown in the description becomes real formatting. If the text contains 'titled "..."' or 'called "..."', the title is extracted automatically. Price: `5` credits. Parameters: `text`, `title`.
 - `rename_document` (action slug: `rename-document`): Rename an existing Google Doc file without changing its document tabs or ID. Price: `5` credits. Parameters: `document_id`, `new_title`.
+- `render_markdown` (action slug: `render-markdown`): Render markdown into an existing document without destroying the rest of it. The tool computes every UTF-16 index, so the caller supplies only markdown and an insertion point. Preferred way to add formatted content to an existing document. Price: `5` credits. Parameters: `document_id`, `location`, `markdown`, `range_end`, `range_start`, `tab_id`.
 - `replace_text` (action slug: `replace-text`): Find and replace text in one tab, or in all tabs when tab_id is omitted. Price: `5` credits. Parameters: `document_id`, `match_case`, `replace_with`, `search_text`, `tab_id`.
+- `replace_with_markdown` (action slug: `replace-with-markdown`): Replace an existing document's entire body from markdown, keeping its document ID, URL and sharing. Destructive: prefer render_markdown unless a full-body rewrite is intended. Price: `5` credits. Parameters: `confirm_replace`, `document_id`, `markdown`, `new_title`.
 - `search_documents` (action slug: `search-documents`): Search for Google Docs by name. Returns documents sorted by most recently modified. Omit query to list recent documents. Price: `5` credits. Parameters: `max_results`, `query`.
 - `share_document` (action slug: `share-document`): Set sharing permissions on a document via Google Drive. Price: `5` credits. Parameters: `document_id`, `email_message`, `send_notification`, `share_with`.
 - `update_style` (action slug: `update-style`): Alias for format_text. Apply text and/or paragraph styling to a zero-based UTF-16 range in a specific tab. Price: `5` credits. Parameters: `document_id`, `paragraph_style`, `range_end`, `range_start`, `tab_id`, `text_style`.

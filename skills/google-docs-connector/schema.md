@@ -58,7 +58,7 @@ Action slug: `create-document`
 
 Price: `5` credits
 
-Create a new Google Doc.
+Create a new, empty Google Doc. Prefer create_from_markdown when the content has any structure.
 
 Parameters:
 
@@ -136,6 +136,54 @@ Generated JSON parameter schema:
       "ODD_PAGE"
     ],
     "required": false,
+    "type": "string"
+  }
+}
+```
+
+## `create_from_markdown`
+
+Action slug: `create-from-markdown`
+
+Price: `5` credits
+
+Create a new Google Doc from markdown. Drive converts the markdown into real Google Docs formatting (headings, lists, tables, bold/italic), so no index arithmetic is needed. Preferred way to author a new document.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `markdown` | `string` | yes | Markdown source. Supports headings, bulleted and numbered lists (including nesting), tables, bold/italic/strikethrough, inline code, fenced code blocks, block quotes, horizontal rules and links. |
+| `parent_folder_id` | `string` | no | Destination Google Drive folder ID. Defaults to My Drive root. |
+| `title` | `string` | yes | Document title. |
+
+Sample parameters:
+
+```json
+{
+  "markdown": "example markdown",
+  "parent_folder_id": "example parent folder id",
+  "title": "example title"
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "markdown": {
+    "description": "Markdown source. Supports headings, bulleted and numbered lists (including nesting), tables, bold/italic/strikethrough, inline code, fenced code blocks, block quotes, horizontal rules and links.",
+    "required": true,
+    "type": "string"
+  },
+  "parent_folder_id": {
+    "description": "Destination Google Drive folder ID. Defaults to My Drive root.",
+    "required": false,
+    "type": "string"
+  },
+  "title": {
+    "description": "Document title.",
+    "required": true,
     "type": "string"
   }
 }
@@ -260,13 +308,76 @@ Generated JSON parameter schema:
 }
 ```
 
+## `create_tab`
+
+Action slug: `create-tab`
+
+Price: `5` credits
+
+Add a document tab and return its new tab ID, ready to pass to render_markdown or any indexed update. Uses the Docs addDocumentTab request.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `document_id` | `string` | yes | Google Docs document ID. |
+| `icon_emoji` | `string` | no | Emoji shown on the tab. An invalid emoji is rejected by Google. |
+| `index` | `integer` | no | Zero-based position of the new tab within its parent. This is a tab ordinal, not a document character offset. Adding a tab at an index increments the index of every tab after it. |
+| `parent_tab_id` | `string` | no | Parent tab ID, to nest the new tab under an existing one. Omit for a root-level tab. |
+| `title` | `string` | no | Tab title. |
+
+Sample parameters:
+
+```json
+{
+  "document_id": "example document id",
+  "icon_emoji": "example icon emoji",
+  "index": 0,
+  "parent_tab_id": "example parent tab id",
+  "title": "example title"
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "document_id": {
+    "description": "Google Docs document ID.",
+    "required": true,
+    "type": "string"
+  },
+  "icon_emoji": {
+    "description": "Emoji shown on the tab. An invalid emoji is rejected by Google.",
+    "required": false,
+    "type": "string"
+  },
+  "index": {
+    "description": "Zero-based position of the new tab within its parent. This is a tab ordinal, not a document character offset. Adding a tab at an index increments the index of every tab after it.",
+    "minimum": 0,
+    "required": false,
+    "type": "integer"
+  },
+  "parent_tab_id": {
+    "description": "Parent tab ID, to nest the new tab under an existing one. Omit for a root-level tab.",
+    "required": false,
+    "type": "string"
+  },
+  "title": {
+    "description": "Tab title.",
+    "required": false,
+    "type": "string"
+  }
+}
+```
+
 ## `create_table`
 
 Action slug: `create-table`
 
 Price: `5` credits
 
-Insert a table into a document, optionally populated with data. If table_data is provided, dimensions are inferred from it.
+Insert a table into a document, optionally populated with data. If table_data is provided, dimensions are inferred from it. A markdown pipe table through render_markdown is usually simpler.
 
 Parameters:
 
@@ -350,7 +461,7 @@ Action slug: `export-document`
 
 Price: `5` credits
 
-Export a document to another format. Text formats (txt, html) return content directly; binary formats return base64-encoded content.
+Export a document to another format. Text formats (txt, html, md) return content directly; binary formats return base64-encoded content. Use md to read a document as markdown, revise it, and send it back through render_markdown or replace_with_markdown.
 
 Parameters:
 
@@ -386,6 +497,7 @@ Generated JSON parameter schema:
       "rtf",
       "txt",
       "html",
+      "md",
       "epub",
       "zip"
     ],
@@ -903,7 +1015,7 @@ Action slug: `quick-create`
 
 Price: `5` credits
 
-Create a document from a natural language description. If the text contains 'titled "..."' or 'called "..."', the title is extracted automatically.
+Create a document from a natural language description. Any markdown in the description becomes real formatting. If the text contains 'titled "..."' or 'called "..."', the title is extracted automatically.
 
 Parameters:
 
@@ -979,6 +1091,78 @@ Generated JSON parameter schema:
 }
 ```
 
+## `render_markdown`
+
+Action slug: `render-markdown`
+
+Price: `5` credits
+
+Render markdown into an existing document without destroying the rest of it. The tool computes every UTF-16 index, so the caller supplies only markdown and an insertion point. Preferred way to add formatted content to an existing document.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `document_id` | `string` | yes | Google Docs document ID. |
+| `location` | `integer` | no | Zero-based UTF-16 index to insert at. Defaults to 1, the beginning of the tab body, or to range_start when replacing a range. |
+| `markdown` | `string` | yes | Markdown source. Supports headings, bulleted and numbered lists (including nesting), tables, bold/italic/strikethrough, inline code, fenced code blocks, block quotes, horizontal rules and links. |
+| `range_end` | `integer` | no | Zero-based exclusive end of the range to replace. Must be greater than range_start. |
+| `range_start` | `integer` | no | Zero-based inclusive start of an existing range to replace. Provide with range_end, or omit both to insert without deleting. |
+| `tab_id` | `string` | no | Target Google Docs tab ID from get_document tabs[].tab_id, or from create_tab. If omitted, targets the first tab. |
+
+Sample parameters:
+
+```json
+{
+  "document_id": "example document id",
+  "location": 0,
+  "markdown": "example markdown",
+  "range_end": 0,
+  "range_start": 0,
+  "tab_id": "example tab id"
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "document_id": {
+    "description": "Google Docs document ID.",
+    "required": true,
+    "type": "string"
+  },
+  "location": {
+    "description": "Zero-based UTF-16 index to insert at. Defaults to 1, the beginning of the tab body, or to range_start when replacing a range.",
+    "minimum": 0,
+    "required": false,
+    "type": "integer"
+  },
+  "markdown": {
+    "description": "Markdown source. Supports headings, bulleted and numbered lists (including nesting), tables, bold/italic/strikethrough, inline code, fenced code blocks, block quotes, horizontal rules and links.",
+    "required": true,
+    "type": "string"
+  },
+  "range_end": {
+    "description": "Zero-based exclusive end of the range to replace. Must be greater than range_start.",
+    "minimum": 0,
+    "required": false,
+    "type": "integer"
+  },
+  "range_start": {
+    "description": "Zero-based inclusive start of an existing range to replace. Provide with range_end, or omit both to insert without deleting.",
+    "minimum": 0,
+    "required": false,
+    "type": "integer"
+  },
+  "tab_id": {
+    "description": "Target Google Docs tab ID from get_document tabs[].tab_id, or from create_tab. If omitted, targets the first tab.",
+    "required": false,
+    "type": "string"
+  }
+}
+```
+
 ## `replace_text`
 
 Action slug: `replace-text`
@@ -1036,6 +1220,61 @@ Generated JSON parameter schema:
   },
   "tab_id": {
     "description": "Target Google Docs tab ID from get_document tabs[].tab_id. If omitted, replacement applies to all tabs.",
+    "required": false,
+    "type": "string"
+  }
+}
+```
+
+## `replace_with_markdown`
+
+Action slug: `replace-with-markdown`
+
+Price: `5` credits
+
+Replace an existing document's entire body from markdown, keeping its document ID, URL and sharing. Destructive: prefer render_markdown unless a full-body rewrite is intended.
+
+Parameters:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `confirm_replace` | `boolean` | yes | Required acknowledgement, must be true. Discards the entire existing body: comments and suggestions lose their anchors, and headers, footers, section breaks, named ranges, images and extra tabs are dropped. |
+| `document_id` | `string` | yes | Google Docs document ID. |
+| `markdown` | `string` | yes | Markdown source that becomes the document's complete new body. |
+| `new_title` | `string` | no | Optional new file title to set at the same time. |
+
+Sample parameters:
+
+```json
+{
+  "confirm_replace": true,
+  "document_id": "example document id",
+  "markdown": "example markdown",
+  "new_title": "example new title"
+}
+```
+
+Generated JSON parameter schema:
+
+```json
+{
+  "confirm_replace": {
+    "description": "Required acknowledgement, must be true. Discards the entire existing body: comments and suggestions lose their anchors, and headers, footers, section breaks, named ranges, images and extra tabs are dropped.",
+    "required": true,
+    "type": "boolean"
+  },
+  "document_id": {
+    "description": "Google Docs document ID.",
+    "required": true,
+    "type": "string"
+  },
+  "markdown": {
+    "description": "Markdown source that becomes the document's complete new body.",
+    "required": true,
+    "type": "string"
+  },
+  "new_title": {
+    "description": "Optional new file title to set at the same time.",
     "required": false,
     "type": "string"
   }
