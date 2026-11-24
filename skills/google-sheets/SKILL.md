@@ -1,7 +1,7 @@
 ---
 name: google-sheets
-description: "Google Sheets: Work with Google Sheets using safe short actions: discover tabs and headers, read values with exact one-based row numbers, append rows and columns, update selected fields, archive and delete rows, read and manage. Use when an agent needs google sheets, google sheets api, append spreadsheet rows safely, update crm style rows by key, export a sheet to csv or pdf, create reporting spreadsheets, add conditional formatting, spreadsheet id through AgentPMT-hosted remote tool calls."
-version: 1.0.2
+description: "Google Sheets: Work with Google Sheets using safe short actions: discover tabs and headers, read values with exact one-based row numbers, append rows and columns, update selected fields, write or clear exact cell ranges, archive. Use when an agent needs google sheets, google sheets api, append spreadsheet rows safely, update crm style rows by key, export a sheet to csv or pdf, create reporting spreadsheets, add conditional formatting, spreadsheet id through AgentPMT-hosted remote tool calls."
+version: 1.0.3
 homepage: https://www.agentpmt.com/marketplace/google-sheets-api
 compatibility: "Agent instructions for AgentPMT-hosted remote tool calls. Follow this skill body for supported account, wallet, and setup routes. No local command runtime is declared."
 metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/marketplace/google-sheets-api"}}
@@ -9,7 +9,7 @@ metadata: {"author":"agentpmt","openclaw":{"homepage":"https://www.agentpmt.com/
 # Google Sheets
 
 ## Freshness
-Last updated: `2026-10-21`.
+Last updated: `2026-11-24`.
 
 If the current date is more than 7 days after the last updated date, reinstall this skill from skills.sh or ClawHub before relying on endpoints, schemas, setup steps, or examples.
 
@@ -33,6 +33,10 @@ matched row, and export a specific sheet without guessing `"Sheet1"`.
 - Discover real tab names: `list_sheets`
 - Read notes with their cells and current values: `list_notes`
 - Remove selected worksheet rows after verifying their data is safely copied: `delete_rows`
+- Rename the entire spreadsheet file: `rename_spreadsheet`; rename one tab: `rename_sheet`
+- Put values in specific cells (title blocks, report layouts): `write_range`
+- Lay out a printable report: `set_column_widths`, `merge_cells`, `set_borders`,
+  `freeze`, `set_gridlines`, then `export_sheet` with `pdf_options`
 
 #### Actions
 
@@ -53,6 +57,7 @@ matched row, and export a specific sheet without guessing `"Sheet1"`.
 - `add_sheet`
 - `delete_sheet`
 - `delete_rows`
+- `rename_spreadsheet`
 - `rename_sheet`
 - `sort`
 - `find_replace`
@@ -65,6 +70,15 @@ matched row, and export a specific sheet without guessing `"Sheet1"`.
 - `add_conditional_formatting`
 - `copy_paste`
 - `cut_paste`
+- `write_range`
+- `clear_range`
+- `set_column_widths`
+- `set_row_heights`
+- `merge_cells`
+- `unmerge_cells`
+- `set_borders`
+- `freeze`
+- `set_gridlines`
 - `get_instructions`
 
 Legacy low-level names such as `get_values`, `append_values`,
@@ -265,6 +279,41 @@ spreadsheet exports use Drive `files.export`.
 Drive scope is required for `export_sheet` formats that use Drive export and
 for `share`.
 
+##### PDF Print Layout
+
+Add `pdf_options` to a `format: "pdf"` export to control the printed layout.
+Google cannot save print settings on the spreadsheet itself, so these options
+apply to the exported PDF only; File > Print in the browser keeps its own
+defaults. For portrait, everything on one page, and no gridlines:
+
+```json
+{
+  "action": "export_sheet",
+  "spreadsheet_id": "1abc...",
+  "sheet_name": "Quote",
+  "format": "pdf",
+  "filename": "quote.pdf",
+  "pdf_options": {"orientation": "portrait", "fit": "page", "show_gridlines": false}
+}
+```
+
+`pdf_options` fields (all optional; omitted fields use Google's defaults):
+
+- `orientation`: `portrait` or `landscape`
+- `fit`: `page` (whole selection on one page), `width`, `height`, or `actual_size`
+- `paper_size`: `letter`, `legal`, `tabloid`, `statement`, `executive`, `folio`, `a3`, `a4`, `a5`, `b4`, `b5`
+- `show_gridlines`: `false` removes the gray cell lines (drawn borders still print)
+- `margins`: `normal`, `narrow`, or `wide`; `top_margin`, `bottom_margin`,
+  `left_margin`, `right_margin` in inches override single sides
+- `horizontal_alignment`: `LEFT`, `CENTER`, `RIGHT`; `vertical_alignment`: `TOP`, `MIDDLE`, `BOTTOM`
+- `repeat_frozen_rows` / `repeat_frozen_columns`: repeat frozen headers on every page
+  (freeze them first with `freeze`)
+- `show_page_numbers`, `show_sheet_names`, `show_title`, `show_notes`
+
+With a tab selector, only that tab is printed; add `range` (for example
+`"A1:F40"`) to print part of it. Without a tab selector or range, every tab is
+printed. `pdf_options` is rejected for formats other than `pdf`.
+
 #### Formatting And Controls
 
 Use `format_cells` for common cell formatting:
@@ -297,6 +346,108 @@ Remove protection by the returned Google `protected_range_id`:
 ```json
 {"action": "unprotect_range", "spreadsheet_id": "1abc...", "protected_range_id": 12345}
 ```
+
+#### Write And Clear Ranges
+
+Use `write_range` to place values in exact cells, such as a title block above a
+table or labels in a form-style layout. `values` is an array of row arrays. Pass
+the top-left cell as `range` and the write is sized from `values`; a full range
+like `A1:C2` must be big enough for `values`. Values are entered as if typed
+(formulas like `=SUM(B2:B9)` work). `null` leaves a cell unchanged and `""`
+clears it. The tab grows automatically if the write runs past its last row or
+column.
+
+```json
+{
+  "action": "write_range",
+  "spreadsheet_id": "1abc...",
+  "sheet_name": "Quote",
+  "range": "A1",
+  "values": [["Project Quote"], ["Prepared for", "Acme Co"], ["Date", "2026-11-22"]]
+}
+```
+
+By default `write_range` refuses to replace cells that already contain data and
+returns the occupied cells. Re-read the range, then send `overwrite: true` only
+when replacing them is intended. For table records, still use `append_rows` or
+`update_row`.
+
+Use `clear_range` to empty cells without deleting rows or columns. Values and
+formulas are cleared; add `clear_formatting: true` to also reset formatting.
+Notes and merges are kept.
+
+```json
+{"action": "clear_range", "spreadsheet_id": "1abc...", "sheet_name": "Quote", "range": "A10:F40"}
+```
+
+#### Layout: Widths, Merges, Borders, Freeze, Gridlines
+
+Column widths and row heights are in pixels (Sheets defaults: 100 wide,
+21 tall). Keys are column letters or letter ranges, and one-based row numbers or
+row ranges:
+
+```json
+{"action": "set_column_widths", "spreadsheet_id": "1abc...", "sheet_name": "Quote", "column_widths": {"A": 40, "B": 240, "C:F": 110}}
+```
+
+```json
+{"action": "set_row_heights", "spreadsheet_id": "1abc...", "sheet_name": "Quote", "row_heights": {"1": 48, "2:30": 24}}
+```
+
+Fit columns or rows to their contents with `auto_fit: true`, limited by `range`
+(`"A:F"` or `"1:20"`) or the whole tab when `range` is omitted:
+
+```json
+{"action": "set_column_widths", "spreadsheet_id": "1abc...", "sheet_name": "Quote", "auto_fit": true, "range": "A:F"}
+```
+
+Merge cells with `merge_cells` and a bounded range. `merge_type` is `MERGE_ALL`
+(default, one cell), `MERGE_ROWS` (each row separately), or `MERGE_COLUMNS`
+(each column separately). A merge keeps only the top-left value of each merged
+area, so `merge_cells` fails and lists the affected cells when others contain
+data; move those values or send `allow_value_loss: true`. Use `unmerge_cells`
+with a range to split every merge inside it.
+
+```json
+{"action": "merge_cells", "spreadsheet_id": "1abc...", "sheet_name": "Quote", "range": "A1:F1"}
+```
+
+Draw table borders with `set_borders`. `border_preset` is `all` (every cell
+line), `outer` (box), `inner` (lines between cells), or `none` (remove borders).
+`border_style` is `SOLID` (default), `SOLID_MEDIUM`, `SOLID_THICK`, `DOUBLE`,
+`DASHED`, or `DOTTED`; `border_color` uses 0-1 RGB channels and defaults to
+black. `borders` sets individual sides (`top`, `bottom`, `left`, `right`,
+`inner_horizontal`, `inner_vertical`) and overrides the preset; use style
+`NONE` to remove one side. Sides not mentioned are left unchanged.
+
+```json
+{"action": "set_borders", "spreadsheet_id": "1abc...", "sheet_name": "Quote", "range": "A5:F20", "border_preset": "all"}
+```
+
+```json
+{
+  "action": "set_borders",
+  "spreadsheet_id": "1abc...",
+  "sheet_name": "Quote",
+  "range": "A5:F5",
+  "borders": {"bottom": {"style": "SOLID_THICK", "color": {"red": 0.1, "green": 0.2, "blue": 0.45}}}
+}
+```
+
+Keep header rows or label columns visible while scrolling with `freeze`
+(`0` unfreezes). Frozen rows can also repeat on every PDF page.
+
+```json
+{"action": "freeze", "spreadsheet_id": "1abc...", "sheet_name": "Quote", "frozen_rows": 1}
+```
+
+Hide or show the gray gridlines on a tab with `set_gridlines`:
+
+```json
+{"action": "set_gridlines", "spreadsheet_id": "1abc...", "sheet_name": "Quote", "show_gridlines": false}
+```
+
+Images and logos cannot be inserted through this tool.
 
 #### Advanced Sheet Features
 
@@ -395,7 +546,9 @@ account, which the platform supplies.
 - `delete_sheet`: one of `sheet_name`, `sheet_id`, `sheet_index` required;
   permanently removes the whole tab.
   `{"action":"delete_sheet","spreadsheet_id":"1abc...","sheet_name":"Old Drafts"}`
-- `rename_sheet`: one tab selector and `new_sheet_name` required.
+- `rename_spreadsheet`: `spreadsheet_id` and nonblank `new_title` required. Renames the spreadsheet file, not any tab; its ID and URL stay the same.
+  `{"action":"rename_spreadsheet","spreadsheet_id":"1abc...","new_title":"Social Posts 2026"}`
+- `rename_sheet`: one tab selector and `new_sheet_name` required. Renames only that tab, not the spreadsheet file.
   `{"action":"rename_sheet","spreadsheet_id":"1abc...","sheet_name":"Drafts","new_sheet_name":"Queue"}`
 - `sort`: `range` and `sort_specs` required; use an explicit header and order.
   `{"action":"sort","spreadsheet_id":"1abc...","sheet_name":"Posts","range":"A2:I50","sort_specs":[{"header":"status","order":"ASCENDING"}]}`
@@ -411,7 +564,9 @@ account, which the platform supplies.
 - `append_column` always appends one new column after the last non-empty data column.
 - `update_row` touches only the named cells in `updates`.
 - Specific-sheet CSV/TSV exports are generated from Sheets values with proper CSV quoting.
-- Specific-sheet rendered exports use the official temporary-spreadsheet flow, not browser `gid` export URLs.
+- Specific-sheet rendered exports without `pdf_options` use the official temporary-spreadsheet flow, not browser `gid` export URLs.
+- `write_range` never replaces existing data unless `overwrite` is `true`.
+- `merge_cells` never discards cell values unless `allow_value_loss` is `true`.
 - Expected caller errors such as unknown sheet, duplicate headers, missing key row, or ambiguous row matches return safe messages without operator paging.
 
 #### What Not To Do
@@ -423,18 +578,11 @@ account, which the platform supplies.
 - Do not update an entire row when only a few fields changed; use `update_row`.
 - Do not use browser export URLs or `gid` URL parameters for exports; use `export_sheet`.
 
-
-##### `rename_spreadsheet`
-Renames the whole spreadsheet file, not a sheet tab. Required: `spreadsheet_id` (ID or URL), nonblank `new_title`. No optional fields. The spreadsheet ID and URL remain unchanged. Use `rename_sheet` to rename a tab.
-```json
-{"action":"rename_spreadsheet","spreadsheet_id":"SPREADSHEET_ID","new_title":"Social Posts 2026"}
-```
-
 ## When To Use
 - Use this skill for `Google Sheets` on AgentPMT.
 - Use it when an agent needs this specific tool's behavior, schema, inputs, outputs, and invocation shape.
 - Search and activation keywords: google sheets, google sheets api, append spreadsheet rows safely, update crm style rows by key, export a sheet to csv or pdf, create reporting spreadsheets, add conditional formatting, spreadsheet id.
-- Supported action names: `add_conditional_formatting`, `add_named_range`, `add_sheet`, `append_column`, `append_rows`, `copy_paste`, `create`, `cut_paste`, `delete_named_range`, `delete_note`, `delete_rows`, `delete_sheet`, `export_sheet`, `find_replace`, `format_cells`, `get_data_range`, `get_headers`, `list_notes`, `list_sheets`, `protect_range`, `read`, `rename_sheet`, `rename_spreadsheet`, `search`, `set_data_validation`, `set_note`, `share`, `sort`, `unprotect_range`, `update_row`.
+- Supported action names: `add_conditional_formatting`, `add_named_range`, `add_sheet`, `append_column`, `append_rows`, `clear_range`, `copy_paste`, `create`, `cut_paste`, `delete_named_range`, `delete_note`, `delete_rows`, `delete_sheet`, `export_sheet`, `find_replace`, `format_cells`, `freeze`, `get_data_range`, `get_headers`, `list_notes`, `list_sheets`, `merge_cells`, `protect_range`, `read`, `rename_sheet`, `rename_spreadsheet`, `search`, `set_borders`, `set_column_widths`, `set_data_validation`, `set_gridlines`, `set_note`, `set_row_heights`, `share`, `sort`, `unmerge_cells`, `unprotect_range`, `update_row`, `write_range`.
 
 ## Use Cases
 - append spreadsheet rows safely
@@ -447,6 +595,10 @@ Renames the whole spreadsheet file, not a sheet tab. Required: `spreadsheet_id` 
 - copy or move spreadsheet ranges
 - format dashboards
 - manage sheet tabs
+- lay out printable quotes and reports
+- merge title cells and draw table borders
+- set column widths and freeze header rows
+- export a one-page portrait PDF without gridlines
 
 ## Related Product Skills
 - File Management: ../file-management (ClawHub: `file-management`, page: https://clawhub.ai/agentpmt/file-management; skills.sh: `npx skills add AgentPMT/agent-skills --skill file-management`)
@@ -456,7 +608,7 @@ No categories or industry tags are published for this tool.
 
 ## Actions And Schema
 Complete generated action schema: `./schema.md`.
-Supported action count: `30`.
+Supported action count: `39`.
 x402 availability: not enabled for this product.
 
 - `add_conditional_formatting` (action slug: `add-conditional-formatting`): Add a conditional formatting rule to a range. Price: `5` credits. Parameters: `range`, `rule`, `sheet_name`, `spreadsheet_id`.
@@ -464,6 +616,7 @@ x402 availability: not enabled for this product.
 - `add_sheet` (action slug: `add-sheet`): Add a new tab to a spreadsheet. Price: `5` credits. Parameters: `new_sheet_name`, `spreadsheet_id`.
 - `append_column` (action slug: `append-column`): Append one new column immediately after the last non-empty data column and write its header and values. Price: `5` credits. Parameters: `column_name`, `column_values`, `sheet_name`, `spreadsheet_id`.
 - `append_rows` (action slug: `append-rows`): Append rows after Google's detected table. Object rows map to sheet headers. Returns appended_row_numbers from Google's actual updated range. Price: `5` credits. Parameters: `header_row`, `rows`, `sheet_name`, `spreadsheet_id`, `value_input_option`.
+- `clear_range` (action slug: `clear-range`): Empty the values in an A1 range without deleting rows or columns. Notes and merges are kept; formatting is kept unless clear_formatting is true. Price: `5` credits. Parameters: `clear_formatting`, `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `copy_paste` (action slug: `copy-paste`): Copy cells to an A1 destination range; overwrites destination cells and does not insert rows. Price: `5` credits. Parameters: `destination_range`, `paste_orientation`, `paste_type`, `sheet_name`, `source_range`, `spreadsheet_id`.
 - `create` (action slug: `create`): Create a new spreadsheet, optionally with an initial tab, headers, and rows. Price: `5` credits. Parameters: `initial_headers`, `initial_sheet_name`, `rows`, `title`.
 - `cut_paste` (action slug: `cut-paste`): Move cells to an A1 destination start cell; does not insert rows. Returns destination_row_number. Price: `5` credits. Parameters: `destination_range`, `paste_type`, `sheet_name`, `source_range`, `spreadsheet_id`.
@@ -471,24 +624,32 @@ x402 availability: not enabled for this product.
 - `delete_note` (action slug: `delete-note`): Remove notes from every cell in a bounded A1 cell or range without changing values or formatting. Price: `5` credits. Parameters: `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `delete_rows` (action slug: `delete-rows`): Permanently delete complete worksheet rows by original one-based row number, from bottom to top. Requires a tab selector; row 1 is protected. Price: `5` credits. Parameters: `row_numbers`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `delete_sheet` (action slug: `delete-sheet`): Delete a tab by name, id, or index. Price: `5` credits. Parameters: `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
-- `export_sheet` (action slug: `export-sheet`): Export a specific sheet or whole spreadsheet to File Manager as CSV, TSV, PDF, XLSX, ODS, HTML, or ZIP. Price: `5` credits. Parameters: `expiration_days`, `filename`, `format`, `range`, `sheet_id`, `sheet_name`, `spreadsheet_id`.
+- `export_sheet` (action slug: `export-sheet`): Export a specific sheet or whole spreadsheet to File Manager as CSV, TSV, PDF, XLSX, ODS, HTML, or ZIP. For PDF, pdf_options sets the print layout (orientation, fit to one page, gridlines, margins). Price: `5` credits. Parameters: `expiration_days`, `filename`, `format`, `pdf_options`, `range`, `sheet_id`, `sheet_name`, `spreadsheet_id`.
 - `find_replace` (action slug: `find-replace`): Find and replace text across the spreadsheet or one sheet. Price: `5` credits. Parameters: `find`, `match_case`, `match_entire_cell`, `replacement`, `search_by_regex`, `sheet_name`, `spreadsheet_id`.
 - `format_cells` (action slug: `format-cells`): Apply cell formatting or number format to a range. Price: `5` credits. Parameters: `cell_format`, `number_format`, `range`, `sheet_name`, `spreadsheet_id`.
+- `freeze` (action slug: `freeze`): Freeze the top rows and/or left columns of a tab so they stay visible while scrolling. 0 unfreezes. Frozen rows can repeat on every PDF page. Price: `5` credits. Parameters: `frozen_columns`, `frozen_rows`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `get_data_range` (action slug: `get-data-range`): Find the absolute one-based last non-empty row/column; a partial range never returns an append recommendation. Price: `5` credits. Parameters: `range`, `sheet_name`, `spreadsheet_id`.
 - `get_headers` (action slug: `get-headers`): Read the header row and return header-to-column mappings plus duplicate diagnostics. Price: `5` credits. Parameters: `header_row`, `sheet_name`, `spreadsheet_id`.
 - `list_notes` (action slug: `list-notes`): List cell notes with exact sheet and A1 locations plus the current cell values. Without a filter, scans every tab. Price: `5` credits. Parameters: `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `list_sheets` (action slug: `list-sheets`): List the tabs in a spreadsheet with sheet ids and dimensions. Price: `5` credits. Parameters: `spreadsheet_id`.
+- `merge_cells` (action slug: `merge-cells`): Merge a bounded range of at least two cells. Only the top-left value of each merged area is kept, so the call fails and lists the cells that would lose values unless allow_value_loss is true. Price: `5` credits. Parameters: `allow_value_loss`, `merge_type`, `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `protect_range` (action slug: `protect-range`): Protect a range, optionally warning-only or with explicit editor emails. Price: `5` credits. Parameters: `description`, `editor_emails`, `range`, `sheet_name`, `spreadsheet_id`, `warning_only`.
 - `read` (action slug: `read`): Read values from a tab or A1 range. Returns one-based row_numbers aligned with values; no row offset is needed. Price: `5` credits. Parameters: `range`, `sheet_id`, `sheet_name`, `spreadsheet_id`, `value_render_option`.
 - `rename_sheet` (action slug: `rename-sheet`): Rename a tab by name, id, or index. Price: `5` credits. Parameters: `new_sheet_name`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `rename_spreadsheet` (action slug: `rename-spreadsheet`): Rename the spreadsheet file; does not rename any sheet tab. Price: `5` credits. Parameters: `new_title`, `spreadsheet_id`.
 - `search` (action slug: `search`): Search or list recent Google Sheets spreadsheets. Price: `5` credits. Parameters: `max_results`, `query`.
+- `set_borders` (action slug: `set-borders`): Draw or remove table borders on an A1 range using a preset, per-side borders, or both (per-side borders override the preset). Sides not given are left unchanged. Price: `5` credits. Parameters: `border_color`, `border_preset`, `border_style`, `borders`, `range`, `sheet_id`, `sheet_index`, `sheet_name`, plus 1 more.
+- `set_column_widths` (action slug: `set-column-widths`): Set column widths in pixels and/or auto-fit columns to their contents. Provide column_widths, auto_fit, or both; explicit widths are applied after the auto-fit. Price: `5` credits. Parameters: `auto_fit`, `column_widths`, `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `set_data_validation` (action slug: `set-data-validation`): Set a Sheets data validation rule on a range. Price: `5` credits. Parameters: `range`, `sheet_name`, `spreadsheet_id`, `validation_rule`.
+- `set_gridlines` (action slug: `set-gridlines`): Show or hide the gray cell gridlines on a tab. Price: `5` credits. Parameters: `sheet_id`, `sheet_index`, `sheet_name`, `show_gridlines`, `spreadsheet_id`.
 - `set_note` (action slug: `set-note`): Set the same note on every cell in a bounded A1 cell or range. Price: `5` credits. Parameters: `note`, `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
+- `set_row_heights` (action slug: `set-row-heights`): Set row heights in pixels and/or auto-fit rows to their contents. Provide row_heights, auto_fit, or both; explicit heights are applied after the auto-fit. Price: `5` credits. Parameters: `auto_fit`, `range`, `row_heights`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `share` (action slug: `share`): Share a spreadsheet with a user, group, domain, or anyone. Price: `5` credits. Parameters: `domain`, `email`, `permission_type`, `role`, `spreadsheet_id`.
 - `sort` (action slug: `sort`): Sort a range, preferably by header name. Price: `5` credits. Parameters: `range`, `sheet_name`, `sort_specs`, `spreadsheet_id`.
+- `unmerge_cells` (action slug: `unmerge-cells`): Unmerge every merged area that lies within an A1 range. Price: `5` credits. Parameters: `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`.
 - `unprotect_range` (action slug: `unprotect-range`): Remove protection by protected range id. Price: `5` credits. Parameters: `protected_range_id`, `spreadsheet_id`.
 - `update_row` (action slug: `update-row`): Update selected fields by header in a physical one-based row_number, or by a stable key; long-text exact matching is fragile. Price: `5` credits. Parameters: `key_column`, `key_value`, `multi`, `row_number`, `sheet_name`, `spreadsheet_id`, `updates`.
+- `write_range` (action slug: `write-range`): Write values into exact cells, such as a title block or report layout. Refuses to replace cells that already hold data unless overwrite is true; grows the tab if values run past its grid. Price: `5` credits. Parameters: `overwrite`, `range`, `sheet_id`, `sheet_index`, `sheet_name`, `spreadsheet_id`, `values`.
 
 ## Live Schema And Examples
 Use the compact schema above for ordinary calls. Before a new production integration, or whenever parameters, enum values, nested objects, outputs, or examples are unclear, fetch live details first.
